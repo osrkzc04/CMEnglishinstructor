@@ -1,0 +1,835 @@
+// =============================================================================
+//  CM English Instructor — Prisma Schema
+// -----------------------------------------------------------------------------
+//  Fuente de verdad del modelo. Ver docs/data-model.md para el racional detrás
+//  de cada decisión. Ver docs/decisions.md para decisiones históricas.
+//
+//  Convenciones:
+//   - IDs: cuid() (no autoincrement, permite URLs seguras y merges).
+//   - Money: Decimal(10,2). Hours: Decimal(6,2).
+//   - Soft-delete sobre entidades con historia: isActive / deletedAt / status.
+//   - Snapshots cuando la referencia es inmutable (preguntas en examen, tarifa
+//     del docente al cerrar sesión).
+//   - Disponibilidad recurrente: dayOfWeek (0-6) + startTime/endTime "HH:mm"
+//     interpretadas en la zona horaria por defecto (America/Guayaquil).
+//     Momentos concretos (ClassSession.scheduledStart) son DateTime UTC.
+// =============================================================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// =============================================================================
+//  BLOQUE 1 — IDENTIDAD
+// =============================================================================
+
+model User {
+  id           String     @id @default(cuid())
+  email        String     @unique
+  passwordHash String?
+  firstName    String
+  lastName     String
+  document     String?    @unique
+  phone        String?
+  avatarUrl    String?
+  role         Role
+  status       UserStatus @default(ACTIVE)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  teacherProfile     TeacherProfile?
+  studentProfile     StudentProfile?
+  teacherApplication TeacherApplication?
+
+  // Auth.js support
+  accounts Account[]
+  sessions Session[]
+
+  @@index([email])
+  @@index([role])
+}
+
+enum Role {
+  DIRECTOR
+  COORDINATOR
+  TEACHER
+  STUDENT
+}
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+  PENDING_APPROVAL
+}
+
+// ----- Auth.js (NextAuth v5) -----
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// ----- Postulación de docentes -----
+
+model TeacherApplication {
+  id              String            @id @default(cuid())
+  userId          String?           @unique
+  firstName       String
+  lastName        String
+  email           String
+  phone           String
+  document        String
+  bio             String?           @db.Text
+  cvStorageKey    String?
+  status          ApplicationStatus @default(PENDING)
+  reviewedBy      String?
+  reviewedAt      DateTime?
+  rejectionReason String?           @db.Text
+  createdAt       DateTime          @default(now())
+
+  user                 User?                      @relation(fields: [userId], references: [id])
+  appliedLevels        TeacherApplicationLevel[]
+  proposedAvailability ApplicationAvailability[]
+
+  @@index([status])
+  @@index([email])
+}
+
+enum ApplicationStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model TeacherApplicationLevel {
+  applicationId String
+  levelId       String
+
+  application TeacherApplication @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  level       CefrLevel          @relation(fields: [levelId], references: [id])
+
+  @@id([applicationId, levelId])
+}
+
+model ApplicationAvailability {
+  id            String @id @default(cuid())
+  applicationId String
+  dayOfWeek     Int
+  startTime     String
+  endTime       String
+
+  application TeacherApplication @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+}
+
+// ----- Perfil del docente -----
+
+model TeacherProfile {
+  userId     String   @id
+  hireDate   DateTime
+  hourlyRate Decimal  @db.Decimal(10, 2)
+  bio        String?  @db.Text
+  isActive   Boolean  @default(true)
+
+  user            User                     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  teachableLevels TeacherLevel[]
+  availability    TeacherAvailability[]
+  unavailability  TeacherUnavailability[]
+  classSessions   ClassSession[]
+  payrollPeriods  PayrollPeriod[]
+
+  @@index([isActive])
+}
+
+model TeacherLevel {
+  teacherId String
+  levelId   String
+
+  teacher TeacherProfile @relation(fields: [teacherId], references: [userId], onDelete: Cascade)
+  level   CefrLevel      @relation(fields: [levelId], references: [id])
+
+  @@id([teacherId, levelId])
+}
+
+model TeacherAvailability {
+  id        String @id @default(cuid())
+  teacherId String
+  dayOfWeek Int
+  startTime String
+  endTime   String
+
+  teacher TeacherProfile @relation(fields: [teacherId], references: [userId], onDelete: Cascade)
+
+  @@index([teacherId, dayOfWeek])
+}
+
+model TeacherUnavailability {
+  id        String   @id @default(cuid())
+  teacherId String
+  startDate DateTime
+  endDate   DateTime
+  reason    String?
+
+  teacher TeacherProfile @relation(fields: [teacherId], references: [userId], onDelete: Cascade)
+
+  @@index([teacherId, startDate])
+}
+
+// ----- Perfil del estudiante -----
+
+model StudentProfile {
+  userId    String   @id
+  company   String?
+  position  String?
+  notes     String?  @db.Text
+  createdAt DateTime @default(now())
+
+  user              User                       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  preferredSchedule StudentPreferredSchedule[]
+  enrollments       Enrollment[]
+}
+
+model StudentPreferredSchedule {
+  id        String @id @default(cuid())
+  studentId String
+  dayOfWeek Int
+  startTime String
+  endTime   String
+
+  student StudentProfile @relation(fields: [studentId], references: [userId], onDelete: Cascade)
+
+  @@index([studentId, dayOfWeek])
+}
+
+// =============================================================================
+//  BLOQUE 2 — CATÁLOGO, MATRÍCULAS Y CLASES
+// =============================================================================
+
+model Language {
+  id   String @id @default(cuid())
+  name String @unique
+  code String @unique
+
+  cefrLevels CefrLevel[]
+  courses    Course[]
+}
+
+// Niveles CEFR abstractos — los usa el motor de pruebas de ubicación.
+// NO se confundan con ProgramLevel (los niveles concretos del catálogo
+// de cursos, como "Time Zones 1" o "Market Leader Elementary").
+model CefrLevel {
+  id         String @id @default(cuid())
+  languageId String
+  code       String // "A1", "A2", "B1", "B2", "C1", "C2"
+  name       String
+  order      Int
+
+  language          Language                  @relation(fields: [languageId], references: [id])
+  questions         Question[]
+  testTemplates     TestTemplate[]
+  teacherLevels     TeacherLevel[]
+  applicationLevels TeacherApplicationLevel[]
+
+  @@unique([languageId, code])
+  @@index([languageId, order])
+}
+
+// "Tipo de programa" en el Excel original: General English, Business English, etc.
+model Course {
+  id            String   @id @default(cuid())
+  languageId    String
+  name          String
+  description   String?  @db.Text
+  baseHours     Int
+  classDuration Int      @default(45)
+  pricePerHour  Decimal  @db.Decimal(10, 2)
+  isActive      Boolean  @default(true)
+  createdAt     DateTime @default(now())
+
+  language    Language   @relation(fields: [languageId], references: [id])
+  programs    Program[]
+  materials   Material[]
+
+  @@index([languageId, isActive])
+}
+
+// "Nombre del programa" en el Excel: Time Zones, Life, Market Leader, Specialization, etc.
+model Program {
+  id                String           @id @default(cuid())
+  courseId          String
+  name              String
+  publisher         String?
+  platformName      String?
+  platformUrl       String?
+  description       String?          @db.Text
+  structureType     ProgramStructure @default(SEQUENTIAL)
+  baseHoursOverride Int?
+  isActive          Boolean          @default(true)
+
+  course  Course          @relation(fields: [courseId], references: [id])
+  levels  ProgramLevel[]
+  bundles ProgramBundle[]
+
+  @@index([courseId, isActive])
+}
+
+enum ProgramStructure {
+  SEQUENTIAL // Time Zones 1→2→3→4 (progresivo)
+  MODULAR    // Specialization: módulos independientes
+  SINGLE     // Kids: un solo nivel implícito
+}
+
+model ProgramLevel {
+  id                String  @id @default(cuid())
+  programId         String
+  code              String  // "1", "Elementary", "Presenting"
+  name              String
+  order             Int
+  cefrLevelCode     String? // mapeo opcional a CEFR (ayuda al coordinador tras prueba de ubicación)
+  hasPlatformAccess Boolean @default(true)
+  hasPdfMaterial    Boolean @default(true)
+
+  program             Program              @relation(fields: [programId], references: [id], onDelete: Cascade)
+  enrollments         Enrollment[]
+  materials           Material[]
+  programBundleLevels ProgramBundleLevel[]
+
+  @@unique([programId, code])
+  @@index([programId, order])
+}
+
+// Reservado para el futuro: agrupar ProgramLevels en paquetes
+// (ej: "Specialization Completo" combinando todos los módulos).
+// No se popula en el seed inicial.
+model ProgramBundle {
+  id            String   @id @default(cuid())
+  programId     String
+  name          String
+  description   String?  @db.Text
+  priceOverride Decimal? @db.Decimal(10, 2)
+  isActive      Boolean  @default(true)
+
+  program Program              @relation(fields: [programId], references: [id], onDelete: Cascade)
+  levels  ProgramBundleLevel[]
+}
+
+model ProgramBundleLevel {
+  bundleId String
+  levelId  String
+  order    Int
+
+  bundle ProgramBundle @relation(fields: [bundleId], references: [id], onDelete: Cascade)
+  level  ProgramLevel  @relation(fields: [levelId], references: [id])
+
+  @@id([bundleId, levelId])
+}
+
+// ----- Matrículas -----
+
+model Enrollment {
+  id              String           @id @default(cuid())
+  studentId       String
+  programLevelId  String
+  modality        Modality
+  contractedHours Int
+  consumedHours   Decimal          @default(0) @db.Decimal(6, 2)
+  startDate       DateTime
+  endDate         DateTime?
+  status          EnrollmentStatus @default(ACTIVE)
+  notes           String?          @db.Text
+  placementTestId String?          @unique
+  createdAt       DateTime         @default(now())
+
+  student        StudentProfile     @relation(fields: [studentId], references: [userId])
+  programLevel   ProgramLevel       @relation(fields: [programLevelId], references: [id])
+  placementTest  TestSession?       @relation(fields: [placementTestId], references: [id])
+  participations ClassParticipant[]
+  extraHours     ExtraHours[]
+
+  @@index([studentId, status])
+  @@index([programLevelId])
+}
+
+enum Modality {
+  VIRTUAL
+  PRESENCIAL
+  HIBRIDO
+}
+
+enum EnrollmentStatus {
+  ACTIVE
+  PAUSED
+  COMPLETED
+  CANCELLED
+}
+
+model ExtraHours {
+  id           String   @id @default(cuid())
+  enrollmentId String
+  hours        Int
+  reason       String?  @db.Text
+  approvedBy   String
+  createdAt    DateTime @default(now())
+
+  enrollment Enrollment @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
+
+  @@index([enrollmentId])
+}
+
+// ----- Sesiones de clase -----
+
+model ClassSession {
+  id             String        @id @default(cuid())
+  teacherId      String
+  scheduledStart DateTime
+  scheduledEnd   DateTime
+  actualStart    DateTime?
+  actualEnd      DateTime?
+  modality       Modality
+  meetingUrl     String?
+  location       String?
+  status         SessionStatus @default(SCHEDULED)
+  cancelledAt    DateTime?
+  cancelReason   String?       @db.Text
+  createdAt      DateTime      @default(now())
+
+  teacher      TeacherProfile     @relation(fields: [teacherId], references: [userId])
+  participants ClassParticipant[]
+  log          ClassLog?
+
+  @@index([teacherId, scheduledStart])
+  @@index([scheduledStart])
+  @@index([status])
+}
+
+enum SessionStatus {
+  SCHEDULED
+  COMPLETED
+  CANCELLED
+  NO_SHOW
+}
+
+model ClassParticipant {
+  id           String           @id @default(cuid())
+  sessionId    String
+  enrollmentId String
+  attendance   AttendanceStatus @default(PENDING)
+  hoursCounted Decimal          @default(0) @db.Decimal(4, 2)
+  rateSnapshot Decimal?         @db.Decimal(10, 2)
+  notes        String?          @db.Text
+
+  session    ClassSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  enrollment Enrollment   @relation(fields: [enrollmentId], references: [id])
+
+  @@unique([sessionId, enrollmentId])
+  @@index([enrollmentId])
+}
+
+enum AttendanceStatus {
+  PENDING
+  PRESENT
+  ABSENT
+  LATE
+  EXCUSED
+}
+
+model ClassLog {
+  id            String   @id @default(cuid())
+  sessionId     String   @unique
+  topic         String
+  activities    String   @db.Text
+  homework      String?  @db.Text
+  materialsUsed String?  @db.Text
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  session ClassSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+}
+
+// ----- Calendario institucional -----
+
+model Holiday {
+  id          String   @id @default(cuid())
+  date        DateTime @db.Date
+  name        String
+  description String?
+  createdBy   String
+  createdAt   DateTime @default(now())
+
+  @@unique([date, name])
+  @@index([date])
+}
+
+// ----- Repositorio de materiales -----
+
+model Material {
+  id             String   @id @default(cuid())
+  programLevelId String?
+  courseId       String?
+  title          String
+  description    String?  @db.Text
+  storageKey     String
+  fileType       String
+  fileSize       Int?
+  isPublic       Boolean  @default(true)
+  uploadedBy     String
+  createdAt      DateTime @default(now())
+
+  programLevel ProgramLevel? @relation(fields: [programLevelId], references: [id])
+  course       Course?       @relation(fields: [courseId], references: [id])
+
+  @@index([programLevelId])
+  @@index([courseId])
+}
+
+// =============================================================================
+//  BLOQUE 3 — EXÁMENES: BANCO, PLANTILLAS, INVITACIONES, SESIONES
+// =============================================================================
+
+model Question {
+  id         String       @id @default(cuid())
+  levelId    String
+  type       QuestionType
+  prompt     String       @db.Text
+  topic      String?
+  difficulty Int          @default(1)
+  points     Int          @default(1)
+  isActive   Boolean      @default(true)
+  createdBy  String
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
+
+  level       CefrLevel             @relation(fields: [levelId], references: [id])
+  options     QuestionOption[]
+  fillAnswers QuestionFillAnswer[]
+
+  @@index([levelId, isActive])
+  @@index([topic])
+}
+
+enum QuestionType {
+  MULTIPLE_CHOICE
+  FILL_IN
+}
+
+model QuestionOption {
+  id         String  @id @default(cuid())
+  questionId String
+  text       String
+  isCorrect  Boolean @default(false)
+  order      Int
+
+  question Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@index([questionId])
+}
+
+model QuestionFillAnswer {
+  id             String  @id @default(cuid())
+  questionId     String
+  acceptedAnswer String
+  caseSensitive  Boolean @default(false)
+
+  question Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+}
+
+// ----- Plantillas de examen -----
+
+model TestTemplate {
+  id               String      @id @default(cuid())
+  name             String
+  purpose          TestPurpose
+  levelId          String?
+  languageId       String
+  questionCount    Int
+  timeLimitMinutes Int
+  passingScore     Int?
+  instructions     String?     @db.Text
+  isActive         Boolean     @default(true)
+  createdAt        DateTime    @default(now())
+
+  level        CefrLevel           @relation(fields: [levelId], references: [id])
+  topicFilters TestTemplateTopic[]
+  invites      InviteToken[]
+  sessions     TestSession[]
+
+  @@index([purpose, isActive])
+}
+
+enum TestPurpose {
+  PLACEMENT
+  CERTIFICATION
+}
+
+model TestTemplateTopic {
+  id         String @id @default(cuid())
+  templateId String
+  topic      String
+  count      Int
+
+  template TestTemplate @relation(fields: [templateId], references: [id], onDelete: Cascade)
+
+  @@unique([templateId, topic])
+}
+
+// ----- Invitaciones (token 24h) -----
+
+model InviteToken {
+  id                String    @id @default(cuid())
+  token             String    @unique
+  templateId        String
+  candidateName     String
+  candidateEmail    String
+  candidatePhone    String?
+  candidateDocument String?
+  notes             String?   @db.Text
+  expiresAt         DateTime
+  usedAt            DateTime?
+  createdBy         String
+  createdAt         DateTime  @default(now())
+
+  template TestTemplate @relation(fields: [templateId], references: [id])
+  session  TestSession?
+
+  @@index([token])
+  @@index([expiresAt])
+  @@index([candidateEmail])
+}
+
+// ----- Sesiones de prueba (intento real) -----
+
+model TestSession {
+  id             String            @id @default(cuid())
+  inviteId       String            @unique
+  templateId     String
+  candidateName  String
+  candidateEmail String
+  startedAt      DateTime          @default(now())
+  deadline       DateTime
+  submittedAt    DateTime?
+  status         TestSessionStatus @default(IN_PROGRESS)
+
+  autoScore     Int?
+  maxAutoScore  Int?
+  manualScore   Int?
+  finalScore    Int?
+  reviewedBy    String?
+  reviewedAt    DateTime?
+  reviewerNotes String?           @db.Text
+
+  invite     InviteToken           @relation(fields: [inviteId], references: [id])
+  template   TestTemplate          @relation(fields: [templateId], references: [id])
+  questions  TestSessionQuestion[]
+  events     TestSessionEvent[]
+  enrollment Enrollment?
+
+  @@index([status])
+  @@index([candidateEmail])
+}
+
+enum TestSessionStatus {
+  IN_PROGRESS
+  SUBMITTED
+  TIMED_OUT
+  REVIEWED
+  ABANDONED
+}
+
+model TestSessionQuestion {
+  id         String       @id @default(cuid())
+  sessionId  String
+  order      Int
+  questionId String?
+  
+  // Snapshot inmutable de la pregunta al momento del sorteo
+  promptSnapshot          String       @db.Text
+  typeSnapshot            QuestionType
+  pointsSnapshot          Int
+  optionsSnapshot         Json?
+  acceptedAnswersSnapshot Json?
+
+  selectedOptionId String?
+  textAnswer       String?   @db.Text
+  answeredAt       DateTime?
+
+  isCorrect       Boolean?
+  pointsAwarded   Int?
+  reviewerComment String?  @db.Text
+
+  session TestSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@unique([sessionId, order])
+  @@index([sessionId])
+}
+
+model TestSessionEvent {
+  id         String        @id @default(cuid())
+  sessionId  String
+  type       TestEventType
+  metadata   Json?
+  occurredAt DateTime      @default(now())
+
+  session TestSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@index([sessionId, occurredAt])
+}
+
+enum TestEventType {
+  FOCUS_LOST
+  FOCUS_REGAINED
+  FULLSCREEN_EXIT
+  COPY_ATTEMPT
+  PASTE_ATTEMPT
+  SESSION_RESUMED
+  QUESTION_VIEWED
+}
+
+// =============================================================================
+//  BLOQUE 4 — FACTURACIÓN, CONFIGURACIÓN, NOTIFICACIONES, AUDITORÍA
+// =============================================================================
+
+model PayrollPeriod {
+  id          String        @id @default(cuid())
+  teacherId   String
+  startDate   DateTime      @db.Date
+  endDate     DateTime      @db.Date
+  totalHours  Decimal       @db.Decimal(8, 2)
+  totalAmount Decimal       @db.Decimal(12, 2)
+  status      PayrollStatus @default(DRAFT)
+  closedBy    String?
+  closedAt    DateTime?
+  paidAt      DateTime?
+  notes       String?       @db.Text
+  createdAt   DateTime      @default(now())
+
+  teacher TeacherProfile @relation(fields: [teacherId], references: [userId])
+
+  @@unique([teacherId, startDate, endDate])
+  @@index([teacherId, status])
+}
+
+enum PayrollStatus {
+  DRAFT
+  CLOSED
+  PAID
+}
+
+model AppSetting {
+  key         String      @id
+  value       String      @db.Text
+  type        SettingType @default(STRING)
+  category    String?
+  description String?     @db.Text
+  updatedBy   String?
+  updatedAt   DateTime    @updatedAt
+}
+
+enum SettingType {
+  STRING
+  NUMBER
+  BOOLEAN
+  JSON
+}
+
+model EmailNotification {
+  id           String      @id @default(cuid())
+  to           String
+  cc           String?
+  subject      String
+  type         EmailType
+  templateData Json?
+  status       EmailStatus @default(QUEUED)
+  scheduledFor DateTime?
+  sentAt       DateTime?
+  error        String?     @db.Text
+  attempts     Int         @default(0)
+
+  userId    String?
+  sessionId String?
+  inviteId  String?
+  payrollId String?
+
+  createdAt DateTime @default(now())
+
+  @@index([status, scheduledFor])
+  @@index([userId])
+  @@index([type])
+}
+
+enum EmailType {
+  WEEKLY_SCHEDULE_TEACHER
+  WEEKLY_SCHEDULE_STUDENT
+  MONTHLY_SCHEDULE_TEACHER
+  MONTHLY_SCHEDULE_STUDENT
+  CLASS_REMINDER
+  CLASS_CANCELLED
+  CLASS_RESCHEDULED
+  ENROLLMENT_CONFIRMATION
+  TEST_INVITATION
+  TEST_RESULT_READY
+  TEST_RESULT_STUDENT
+  TEACHER_APPLICATION_RECEIVED
+  TEACHER_APPLICATION_APPROVED
+  TEACHER_APPLICATION_REJECTED
+  PAYROLL_CLOSED
+  PASSWORD_RESET
+  GENERIC
+}
+
+enum EmailStatus {
+  QUEUED
+  SENT
+  FAILED
+  CANCELLED
+}
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  userId     String?
+  action     String
+  entityType String
+  entityId   String?
+  metadata   Json?
+  ipAddress  String?
+  userAgent  String?
+  createdAt  DateTime @default(now())
+
+  @@index([userId, createdAt])
+  @@index([entityType, entityId])
+  @@index([action])
+}

@@ -1,0 +1,111 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* =============================================================================
+ * CM English Instructor — Design Tokens
+ * Paleta mapeada a CSS variables para shadcn/ui + Tailwind.
+ *
+ * Principios:
+ *  - Light mode default: bone (#FAF8F5) como fondo, ink como foreground
+ *  - Dark mode: ink (#233641) como fondo, bone como foreground
+ *  - Teal es el único accent — úsalo solo para CTAs y estados activos
+ * ============================================================================= */
+
+@layer base {
+  :root {
+    /* Light mode — área de trabajo tipo papel editorial */
+    --background: 39 30% 97%;          /* bone #FAF8F5 */
+    --foreground: 203 29% 19%;         /* ink #233641 */
+
+    --card: 0 0% 100%;                 /* white puro para tarjetas elevadas sobre bone */
+    --card-foreground: 203 29% 19%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 203 29% 19%;
+
+    --primary: 170 60% 39%;            /* teal #279F89 */
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 40 17% 92%;           /* bone-200 */
+    --secondary-foreground: 203 29% 19%;
+
+    --muted: 40 17% 92%;
+    --muted-foreground: 203 10% 40%;   /* ink-500 */
+
+    --accent: 170 42% 95%;             /* teal-50 — fondo de elementos acentuados */
+    --accent-foreground: 170 60% 30%;  /* teal-700 para texto sobre accent */
+
+    --destructive: 10 50% 47%;         /* warm danger, no rojo primario genérico */
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 203 15% 88%;             /* borde sutil, 0.5-1px */
+    --input: 203 15% 88%;
+    --ring: 170 60% 39%;               /* focus ring en teal */
+
+    --radius: 0.5rem;                  /* 8px — editorial, no infantil */
+  }
+
+  .dark {
+    /* Dark mode — inspirado en la tarjeta de presentación */
+    --background: 203 29% 19%;         /* ink #233641 */
+    --foreground: 39 30% 97%;          /* bone */
+
+    --card: 203 28% 22%;               /* ink-800 */
+    --card-foreground: 39 30% 97%;
+
+    --popover: 203 28% 22%;
+    --popover-foreground: 39 30% 97%;
+
+    --primary: 170 60% 45%;            /* teal ligeramente más claro en dark */
+    --primary-foreground: 203 29% 12%;
+
+    --secondary: 203 20% 27%;          /* ink-700 */
+    --secondary-foreground: 39 30% 97%;
+
+    --muted: 203 20% 27%;
+    --muted-foreground: 203 10% 70%;
+
+    --accent: 170 45% 22%;             /* teal-900 como fondo de accent en dark */
+    --accent-foreground: 170 50% 75%;
+
+    --destructive: 10 55% 52%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 203 18% 28%;
+    --input: 203 18% 28%;
+    --ring: 170 60% 45%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1, "ss01" 1;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Tipografía editorial: display usa serif, cuerpo usa sans */
+  .font-display {
+    font-family: var(--font-fraunces), Georgia, serif;
+    font-optical-sizing: auto;
+    font-variation-settings: "opsz" 144;
+  }
+
+  /* Selección con acento de marca */
+  ::selection {
+    @apply bg-teal-500/20 text-ink-900;
+  }
+  .dark ::selection {
+    @apply bg-teal-500/30 text-bone;
+  }
+
+  /* Focus visible uniforme en toda la app */
+  :focus-visible {
+    @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
+  }
+}
