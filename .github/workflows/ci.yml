@@ -11,6 +11,14 @@ jobs:
     name: Validate (lint, typecheck, prisma)
     runs-on: ubuntu-latest
 
+    # Prisma 5.x exige que `DATABASE_URL` esté definido al cargar el schema,
+    # incluso para `validate` y `generate` que no abren conexión. Estos placeholders
+    # solo parsean — nunca se usa la cadena para conectar.
+    env:
+      DATABASE_URL: postgresql://placeholder:placeholder@localhost:5432/placeholder
+      AUTH_SECRET: ci_validate_secret_at_least_32_chars_long
+      AUTH_URL: http://localhost:3000
+
     steps:
       - uses: actions/checkout@v4
 
