@@ -7,14 +7,12 @@ import { Badge } from "@/components/ui/badge"
  * usen la misma traducción.
  */
 
-const STATUS: Record<
-  ApplicationStatus,
-  { label: string; variant: "teal" | "warning" | "danger" }
-> = {
-  PENDING: { label: "Pendiente", variant: "warning" },
-  APPROVED: { label: "Aprobada", variant: "teal" },
-  REJECTED: { label: "Rechazada", variant: "danger" },
-}
+const STATUS: Record<ApplicationStatus, { label: string; variant: "teal" | "warning" | "danger" }> =
+  {
+    PENDING: { label: "Pendiente", variant: "warning" },
+    APPROVED: { label: "Aprobada", variant: "teal" },
+    REJECTED: { label: "Rechazada", variant: "danger" },
+  }
 
 export function StatusBadge({ status }: { status: ApplicationStatus }) {
   const cfg = STATUS[status]

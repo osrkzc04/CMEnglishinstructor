@@ -1,35 +1,17 @@
 import type { Route } from "next"
 import type { Metadata } from "next"
 import Link from "next/link"
-import {
-  ChevronLeft,
-  ChevronRight,
-  ExternalLink,
-  MapPin,
-  Users,
-  Video,
-} from "lucide-react"
+import { ChevronLeft, ChevronRight, ExternalLink, MapPin, Users, Video } from "lucide-react"
 import { AppShell } from "@/components/layout/AppShell"
 import { requireRole } from "@/modules/auth/guards"
 import { roleLabel } from "@/modules/auth/role-labels"
-import {
-  listTeacherWeekAgenda,
-  type TeacherWeekSession,
-} from "@/modules/teachers/queries"
+import { listTeacherWeekAgenda, type TeacherWeekSession } from "@/modules/teachers/queries"
 import { Tag } from "@/components/ui/tag"
 import { cn } from "@/lib/utils"
 
 export const metadata: Metadata = { title: "Agenda" }
 
-const DAYS_FULL_ES = [
-  "Lunes",
-  "Martes",
-  "Miércoles",
-  "Jueves",
-  "Viernes",
-  "Sábado",
-  "Domingo",
-]
+const DAYS_FULL_ES = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"]
 
 const MODALITY_LABEL: Record<string, string> = {
   VIRTUAL: "Virtual",
@@ -77,46 +59,47 @@ export default async function TeacherAgendaPage({
         email: user.email ?? "",
         roleLabel: roleLabel(user.role!),
       }}
-      breadcrumbs={[
-        { label: "Docente", href: "/docente/dashboard" as Route },
-        { label: "Agenda" },
-      ]}
+      breadcrumbs={[{ label: "Docente", href: "/docente/dashboard" as Route }, { label: "Agenda" }]}
     >
       <header className="mb-7 flex flex-wrap items-end justify-between gap-4">
         <div>
-          <p className="mb-2 font-mono text-[12px] uppercase tracking-[0.08em] text-text-3">
+          <p className="text-text-3 mb-2 font-mono text-[12px] tracking-[0.08em] uppercase">
             Mi día
           </p>
-          <h1 className="font-serif text-[32px] font-normal leading-[1.18] tracking-[-0.02em]">
+          <h1 className="font-serif text-[32px] leading-[1.18] font-normal tracking-[-0.02em]">
             Agenda
           </h1>
-          <p className="mt-2 max-w-[560px] text-[14px] leading-[1.55] text-text-3">
-            Tu calendario de la semana. Click en cualquier sesión para tomar
-            asistencia, escribir bitácora y cerrarla.
+          <p className="text-text-3 mt-2 max-w-[560px] text-[14px] leading-[1.55]">
+            Tu calendario de la semana. Click en cualquier sesión para tomar asistencia, escribir
+            bitácora y cerrarla.
           </p>
         </div>
-        <div className="flex flex-wrap items-center gap-3 font-mono text-[12.5px] tracking-[0.04em] text-text-3">
-          <span>{sessions.length} {sessions.length === 1 ? "clase" : "clases"}</span>
+        <div className="text-text-3 flex flex-wrap items-center gap-3 font-mono text-[12.5px] tracking-[0.04em]">
+          <span>
+            {sessions.length} {sessions.length === 1 ? "clase" : "clases"}
+          </span>
           <span aria-hidden>·</span>
-          <span>{aulasInWeek} {aulasInWeek === 1 ? "aula" : "aulas"}</span>
+          <span>
+            {aulasInWeek} {aulasInWeek === 1 ? "aula" : "aulas"}
+          </span>
           <span aria-hidden>·</span>
           <span>{(totalMinutes / 60).toFixed(1)} h</span>
         </div>
       </header>
 
-      <div className="mb-5 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-border bg-surface px-4 py-3">
+      <div className="border-border bg-surface mb-5 flex flex-wrap items-center justify-between gap-3 rounded-2xl border px-4 py-3">
         <div>
-          <div className="font-serif text-[18px] font-normal tracking-[-0.01em] text-foreground">
+          <div className="text-foreground font-serif text-[18px] font-normal tracking-[-0.01em]">
             {formatWeekTitle(weekStart, weekEnd)}
           </div>
-          <div className="mt-0.5 font-mono text-[12px] tracking-[0.02em] text-text-3">
+          <div className="text-text-3 mt-0.5 font-mono text-[12px] tracking-[0.02em]">
             {isCurrentWeek ? "Esta semana" : "Otra semana"}
           </div>
         </div>
         <div className="flex items-center gap-2">
           <Link
             href={`/docente/agenda?w=${prevWeek}` as Route}
-            className="inline-flex h-9 items-center gap-1.5 rounded-md border border-border bg-surface px-3 text-[12.5px] text-text-2 transition-colors hover:border-teal-500 hover:text-teal-500"
+            className="border-border bg-surface text-text-2 inline-flex h-9 items-center gap-1.5 rounded-md border px-3 text-[12.5px] transition-colors hover:border-teal-500 hover:text-teal-500"
           >
             <ChevronLeft size={13} strokeWidth={1.6} />
             Anterior
@@ -131,7 +114,7 @@ export default async function TeacherAgendaPage({
           )}
           <Link
             href={`/docente/agenda?w=${nextWeek}` as Route}
-            className="inline-flex h-9 items-center gap-1.5 rounded-md border border-border bg-surface px-3 text-[12.5px] text-text-2 transition-colors hover:border-teal-500 hover:text-teal-500"
+            className="border-border bg-surface text-text-2 inline-flex h-9 items-center gap-1.5 rounded-md border px-3 text-[12.5px] transition-colors hover:border-teal-500 hover:text-teal-500"
           >
             Siguiente
             <ChevronRight size={13} strokeWidth={1.6} />
@@ -176,7 +159,7 @@ function DayColumn({
   return (
     <section
       className={cn(
-        "flex flex-col rounded-xl border bg-surface",
+        "bg-surface flex flex-col rounded-xl border",
         isToday ? "border-teal-500/40" : "border-border",
       )}
     >
@@ -189,32 +172,32 @@ function DayColumn({
         <div>
           <div
             className={cn(
-              "font-mono text-[11px] uppercase tracking-[0.08em]",
+              "font-mono text-[11px] tracking-[0.08em] uppercase",
               isToday ? "text-teal-700" : "text-text-3",
             )}
           >
             {dayName}
           </div>
           <div className="mt-0.5 flex items-baseline gap-1.5">
-            <span className="font-serif text-[20px] font-normal leading-none tracking-[-0.01em] text-foreground">
+            <span className="text-foreground font-serif text-[20px] leading-none font-normal tracking-[-0.01em]">
               {dayNumber}
             </span>
             {isToday && (
-              <span className="font-mono text-[10.5px] uppercase tracking-[0.08em] text-teal-700">
+              <span className="font-mono text-[10.5px] tracking-[0.08em] text-teal-700 uppercase">
                 Hoy
               </span>
             )}
           </div>
         </div>
         {sessions.length > 0 && (
-          <span className="font-mono text-[11px] tracking-[0.02em] text-text-3">
+          <span className="text-text-3 font-mono text-[11px] tracking-[0.02em]">
             {sessions.length}
           </span>
         )}
       </header>
       <div className="flex flex-1 flex-col gap-2 p-2.5">
         {sessions.length === 0 ? (
-          <p className="text-[12.5px] text-text-4">Sin clases</p>
+          <p className="text-text-4 text-[12.5px]">Sin clases</p>
         ) : (
           sessions.map((s) => <SessionCard key={s.id} session={s} />)
         )}
@@ -226,15 +209,13 @@ function DayColumn({
 function SessionCard({ session }: { session: TeacherWeekSession }) {
   const isLive = session.status === "live"
   const isScheduled = session.status === "scheduled" || isLive
-  const isVirtual =
-    session.modality === "VIRTUAL" || session.modality === "HIBRIDO"
-  const isPresencial =
-    session.modality === "PRESENCIAL" || session.modality === "HIBRIDO"
+  const isVirtual = session.modality === "VIRTUAL" || session.modality === "HIBRIDO"
+  const isPresencial = session.modality === "PRESENCIAL" || session.modality === "HIBRIDO"
 
   return (
     <div
       className={cn(
-        "relative overflow-hidden rounded-lg border bg-surface",
+        "bg-surface relative overflow-hidden rounded-lg border",
         isLive
           ? "border-teal-500/40 bg-teal-500/[0.05]"
           : "border-border hover:border-border-strong",
@@ -260,13 +241,13 @@ function SessionCard({ session }: { session: TeacherWeekSession }) {
         <div className="flex items-baseline justify-between gap-2">
           <div className="flex items-baseline gap-1.5">
             {isLive && <span aria-hidden className="live-dot" />}
-            <span className="font-mono text-[12.5px] tracking-[0.02em] text-foreground tabular-nums">
+            <span className="text-foreground font-mono text-[12.5px] tracking-[0.02em] tabular-nums">
               {formatTime(session.scheduledStart)}
             </span>
-            <span className="font-mono text-[11px] text-text-3">
-              · {Math.round(
-                (session.scheduledEnd.getTime() - session.scheduledStart.getTime()) /
-                  60_000,
+            <span className="text-text-3 font-mono text-[11px]">
+              ·{" "}
+              {Math.round(
+                (session.scheduledEnd.getTime() - session.scheduledStart.getTime()) / 60_000,
               )}{" "}
               min
             </span>
@@ -275,11 +256,11 @@ function SessionCard({ session }: { session: TeacherWeekSession }) {
         </div>
         <Link
           href={`/docente/clases/${session.id}` as Route}
-          className="mt-1.5 block truncate text-[13.5px] font-medium leading-tight text-foreground transition-colors hover:text-teal-500"
+          className="text-foreground mt-1.5 block truncate text-[13.5px] leading-tight font-medium transition-colors hover:text-teal-500"
         >
           {session.classGroupName}
         </Link>
-        <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 font-mono text-[11.5px] tracking-[0.02em] text-text-3">
+        <div className="text-text-3 mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 font-mono text-[11.5px] tracking-[0.02em]">
           <span className="inline-flex items-center gap-1">
             <Users size={10} strokeWidth={1.6} />
             {session.participantCount}
@@ -305,7 +286,7 @@ function SessionCard({ session }: { session: TeacherWeekSession }) {
             className={cn(
               "mt-2 inline-flex items-center justify-center gap-1.5 rounded-md px-2.5 py-1 text-[11.5px] font-medium transition-colors",
               isLive
-                ? "bg-teal-500 text-bone hover:bg-teal-deep"
+                ? "text-bone hover:bg-teal-deep bg-teal-500"
                 : "border border-teal-500/40 text-teal-700 hover:border-teal-500 hover:bg-teal-500/10",
             )}
           >
@@ -337,11 +318,7 @@ function parseWeekStart(raw?: string): Date {
 function startOfGuayaquilDay(now: Date): Date {
   const localMs = now.getTime() - GUAYAQUIL_OFFSET_MS
   const local = new Date(localMs)
-  const utcMidnight = Date.UTC(
-    local.getUTCFullYear(),
-    local.getUTCMonth(),
-    local.getUTCDate(),
-  )
+  const utcMidnight = Date.UTC(local.getUTCFullYear(), local.getUTCMonth(), local.getUTCDate())
   return new Date(utcMidnight + GUAYAQUIL_OFFSET_MS)
 }
 
@@ -374,9 +351,7 @@ function groupByGuayaquilDay(
   }))
   for (const s of sessions) {
     const dayStart = startOfGuayaquilDay(s.scheduledStart)
-    const idx = Math.round(
-      (dayStart.getTime() - weekStart.getTime()) / 86_400_000,
-    )
+    const idx = Math.round((dayStart.getTime() - weekStart.getTime()) / 86_400_000)
     if (idx >= 0 && idx < 7) {
       days[idx]?.sessions.push(s)
     }

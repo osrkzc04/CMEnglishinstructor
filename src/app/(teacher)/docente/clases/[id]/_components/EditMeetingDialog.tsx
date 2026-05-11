@@ -43,10 +43,8 @@ export function EditMeetingDialog({
   const [info, setInfo] = useState<string | null>(null)
   const [isPending, startTransition] = useTransition()
 
-  const showMeeting =
-    modality === Modality.VIRTUAL || modality === Modality.HIBRIDO
-  const showLocation =
-    modality === Modality.PRESENCIAL || modality === Modality.HIBRIDO
+  const showMeeting = modality === Modality.VIRTUAL || modality === Modality.HIBRIDO
+  const showLocation = modality === Modality.PRESENCIAL || modality === Modality.HIBRIDO
 
   useEffect(() => {
     if (open) {
@@ -88,9 +86,8 @@ export function EditMeetingDialog({
         <DialogHeader>
           <DialogTitle>Editar enlaces del aula</DialogTitle>
           <DialogDescription>
-            Los datos cargados acá se guardan en el aula y se aplican a todas
-            las clases programadas a futuro. Las clases ya cerradas mantienen
-            su valor original.
+            Los datos cargados acá se guardan en el aula y se aplican a todas las clases programadas
+            a futuro. Las clases ya cerradas mantienen su valor original.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit}>
@@ -144,9 +141,7 @@ export function EditMeetingDialog({
               Cerrar
             </Button>
             <Button type="submit" variant="primary" size="md" disabled={isPending}>
-              {isPending && (
-                <Loader2 size={14} strokeWidth={1.6} className="animate-spin" />
-              )}
+              {isPending && <Loader2 size={14} strokeWidth={1.6} className="animate-spin" />}
               Guardar
             </Button>
           </DialogFooter>

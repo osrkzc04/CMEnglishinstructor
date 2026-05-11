@@ -33,8 +33,7 @@ export default async function EstudiantesPage({
   const user = await requireRole(["DIRECTOR", "COORDINATOR"])
   const sp = await searchParams
 
-  const safeStatus =
-    sp.status && isUserStatus(sp.status) ? sp.status : undefined
+  const safeStatus = sp.status && isUserStatus(sp.status) ? sp.status : undefined
 
   const filters = StudentListFiltersSchema.parse({
     q: sp.q,
@@ -42,10 +41,7 @@ export default async function EstudiantesPage({
     page: sp.page,
   })
 
-  const [list, stats] = await Promise.all([
-    listStudents(filters),
-    getStudentStats(),
-  ])
+  const [list, stats] = await Promise.all([listStudents(filters), getStudentStats()])
 
   return (
     <AppShell
@@ -61,20 +57,17 @@ export default async function EstudiantesPage({
       ]}
     >
       <header className="mb-6">
-        <p className="mb-2 font-mono text-[12px] uppercase tracking-[0.08em] text-text-3">
+        <p className="text-text-3 mb-2 font-mono text-[12px] tracking-[0.08em] uppercase">
           Operación
         </p>
-        <h1 className="font-serif text-[32px] font-normal leading-[1.18] tracking-[-0.02em]">
+        <h1 className="font-serif text-[32px] leading-[1.18] font-normal tracking-[-0.02em]">
           Estudiantes
         </h1>
       </header>
 
       <StatsStrip stats={stats} />
 
-      <EstudiantesToolbar
-        initialQuery={filters.q ?? ""}
-        initialStatus={filters.status ?? "ALL"}
-      />
+      <EstudiantesToolbar initialQuery={filters.q ?? ""} initialStatus={filters.status ?? "ALL"} />
 
       <EstudiantesTable items={list.items} />
 

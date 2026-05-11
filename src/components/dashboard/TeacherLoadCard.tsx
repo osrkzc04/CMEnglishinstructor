@@ -21,13 +21,7 @@ export type TeacherLoad = {
   capacity: number
 }
 
-export function TeacherLoadCard({
-  items,
-  meta,
-}: {
-  items: TeacherLoad[]
-  meta: string
-}) {
+export function TeacherLoadCard({ items, meta }: { items: TeacherLoad[]; meta: string }) {
   return (
     <Card>
       <CardHeader>
@@ -48,20 +42,20 @@ function TeacherRow({ item }: { item: TeacherLoad }) {
   const variant = pct >= 85 ? "warn" : pct < 60 ? "info" : "default"
 
   return (
-    <div className="grid grid-cols-[32px_1fr_auto_auto] items-center gap-3.5 border-b border-border px-[22px] py-3.5 last:border-b-0">
+    <div className="border-border grid grid-cols-[32px_1fr_auto_auto] items-center gap-3.5 border-b px-[22px] py-3.5 last:border-b-0">
       <Avatar initials={item.initials} size="md" className="!h-8 !w-8" />
       <div>
-        <div className="text-[14px] leading-[1.3] text-foreground">{item.name}</div>
-        <div className="mt-0.5 font-mono text-[12px] tracking-[0.02em] text-text-3">
+        <div className="text-foreground text-[14px] leading-[1.3]">{item.name}</div>
+        <div className="text-text-3 mt-0.5 font-mono text-[12px] tracking-[0.02em]">
           {item.level}
         </div>
       </div>
       <div className="w-20">
         <ProgressBar value={pct} variant={variant} bordered />
       </div>
-      <div className="min-w-[90px] text-right font-mono text-[12px] leading-[1.3] text-foreground tabular-nums">
+      <div className="text-foreground min-w-[90px] text-right font-mono text-[12px] leading-[1.3] tabular-nums">
         {item.hours} / {item.capacity}
-        <div className="mt-0.5 text-[11px] text-text-3">hrs sem</div>
+        <div className="text-text-3 mt-0.5 text-[11px]">hrs sem</div>
       </div>
     </div>
   )

@@ -18,8 +18,7 @@ import { z } from "zod"
 // Esto también evita meter placeholders en el Dockerfile que dispararían
 // la alerta "SecretsUsedInArgOrEnv" de scanners como Hadolint/Snyk/Trivy.
 const isBuildPhase =
-  process.env.NEXT_PHASE === "phase-production-build" ||
-  process.env.NEXT_BUILD === "1"
+  process.env.NEXT_PHASE === "phase-production-build" || process.env.NEXT_BUILD === "1"
 
 const ServerEnvSchema = z.object({
   NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
@@ -28,13 +27,9 @@ const ServerEnvSchema = z.object({
     : z.string().url(),
 
   AUTH_SECRET: isBuildPhase
-    ? z
-        .string()
-        .default("build_time_placeholder_secret_at_least_32_characters_long")
+    ? z.string().default("build_time_placeholder_secret_at_least_32_characters_long")
     : z.string().min(32, "AUTH_SECRET debe tener al menos 32 caracteres"),
-  AUTH_URL: isBuildPhase
-    ? z.string().url().default("http://localhost:3000")
-    : z.string().url(),
+  AUTH_URL: isBuildPhase ? z.string().url().default("http://localhost:3000") : z.string().url(),
 
   STORAGE_DRIVER: z.enum(["local", "r2"]).default("local"),
   LOCAL_STORAGE_PATH: z.string().default("./storage"),
@@ -93,7 +88,12 @@ export const env = parsed.data
  * Validación adicional condicional: si STORAGE_DRIVER=r2, las credenciales son obligatorias.
  */
 if (env.STORAGE_DRIVER === "r2") {
-  const r2Required = ["R2_ACCOUNT_ID", "R2_ACCESS_KEY_ID", "R2_SECRET_ACCESS_KEY", "R2_BUCKET"] as const
+  const r2Required = [
+    "R2_ACCOUNT_ID",
+    "R2_ACCESS_KEY_ID",
+    "R2_SECRET_ACCESS_KEY",
+    "R2_BUCKET",
+  ] as const
   const missing = r2Required.filter((k) => !env[k])
   if (missing.length > 0) {
     throw new Error(`STORAGE_DRIVER=r2 pero faltan credenciales: ${missing.join(", ")}`)

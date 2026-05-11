@@ -27,21 +27,18 @@ export default async function StudentHorarioPage() {
       ]}
     >
       <header className="mb-7 max-w-2xl">
-        <p className="mb-2 font-mono text-[12px] uppercase tracking-[0.08em] text-text-3">
-          Cuenta
-        </p>
-        <h1 className="font-serif text-[32px] font-normal leading-[1.18] tracking-[-0.02em]">
+        <p className="text-text-3 mb-2 font-mono text-[12px] tracking-[0.08em] uppercase">Cuenta</p>
+        <h1 className="font-serif text-[32px] leading-[1.18] font-normal tracking-[-0.02em]">
           Mi horario semanal
         </h1>
-        <p className="mt-2 text-[14px] leading-[1.55] text-text-3">
-          Marcá las franjas en las que podés tomar clase. Coordinación las usa
-          para ubicarte en un aula que cuadre con tu nivel y con un docente
-          disponible. Click y arrastrá sobre la grilla para pintar bloques de 15
-          minutos.
+        <p className="text-text-3 mt-2 text-[14px] leading-[1.55]">
+          Marcá las franjas en las que podés tomar clase. Coordinación las usa para ubicarte en un
+          aula que cuadre con tu nivel y con un docente disponible. Click y arrastrá sobre la grilla
+          para pintar bloques de 15 minutos.
         </p>
       </header>
 
-      <section className="rounded-xl border border-border bg-surface px-6 py-5">
+      <section className="border-border bg-surface rounded-xl border px-6 py-5">
         <PreferredScheduleForm studentId={user.id} initialBlocks={blocks} />
       </section>
     </AppShell>

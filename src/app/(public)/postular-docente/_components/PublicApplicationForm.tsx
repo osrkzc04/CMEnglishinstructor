@@ -36,10 +36,7 @@ type Props = {
 
 const DEV_BYPASS_TOKEN = "dev-bypass"
 
-export function PublicApplicationForm({
-  levelGroups,
-  turnstileSiteKey,
-}: Props) {
+export function PublicApplicationForm({ levelGroups, turnstileSiteKey }: Props) {
   const router = useRouter()
   const [serverError, setServerError] = useState<string | null>(null)
   const [isPending, startTransition] = useTransition()
@@ -140,10 +137,7 @@ export function PublicApplicationForm({
             required
             className="sm:col-span-2"
           >
-            <Input
-              {...register("document")}
-              aria-invalid={!!errors.document}
-            />
+            <Input {...register("document")} aria-invalid={!!errors.document} />
           </Field>
         </div>
       </Section>
@@ -156,17 +150,11 @@ export function PublicApplicationForm({
           control={control}
           name="levelIds"
           render={({ field }) => (
-            <LevelMultiselect
-              groups={levelGroups}
-              value={field.value}
-              onChange={field.onChange}
-            />
+            <LevelMultiselect groups={levelGroups} value={field.value} onChange={field.onChange} />
           )}
         />
         {errors.levelIds && (
-          <p className="mt-2 text-[12.5px] text-danger">
-            {errors.levelIds.message}
-          </p>
+          <p className="text-danger mt-2 text-[12.5px]">{errors.levelIds.message}</p>
         )}
       </Section>
 
@@ -178,16 +166,14 @@ export function PublicApplicationForm({
           {...register("bio")}
           rows={8}
           aria-invalid={!!errors.bio}
-          className="block w-full rounded-lg border border-border bg-surface px-3.5 py-3 text-[14px] leading-[1.5] text-foreground placeholder:text-text-4 transition-[border-color] hover:border-border-strong focus:border-teal-500 focus:outline-none aria-[invalid=true]:border-danger"
+          className="border-border bg-surface text-foreground placeholder:text-text-4 hover:border-border-strong aria-[invalid=true]:border-danger block w-full rounded-lg border px-3.5 py-3 text-[14px] leading-[1.5] transition-[border-color] focus:border-teal-500 focus:outline-none"
           placeholder="Años de experiencia, contextos en los que has enseñado, certificaciones, metodologías que usas, perfiles de estudiantes con los que has trabajado…"
         />
         <div className="mt-1.5 flex items-center justify-between text-[12px]">
           {errors.bio ? (
             <p className="text-danger">{errors.bio.message}</p>
           ) : (
-            <span className="text-text-4">
-              {bioValue.length} de 300 mínimo
-            </span>
+            <span className="text-text-4">{bioValue.length} de 300 mínimo</span>
           )}
         </div>
       </Section>
@@ -208,9 +194,7 @@ export function PublicApplicationForm({
           )}
         />
         {errors.availability && typeof errors.availability.message === "string" && (
-          <p className="mt-2 text-[12.5px] text-danger">
-            {errors.availability.message}
-          </p>
+          <p className="text-danger mt-2 text-[12.5px]">{errors.availability.message}</p>
         )}
       </Section>
 
@@ -228,14 +212,12 @@ export function PublicApplicationForm({
               )}
             />
             <span className="text-text-2">
-              Acepto que CM English Instructor use mis datos personales para
-              evaluar esta postulación y, si avanza, contactarme.
+              Acepto que CM English Instructor use mis datos personales para evaluar esta
+              postulación y, si avanza, contactarme.
             </span>
           </CheckLabel>
           {errors.consentAccepted && (
-            <p className="text-[12.5px] text-danger">
-              {errors.consentAccepted.message}
-            </p>
+            <p className="text-danger text-[12.5px]">{errors.consentAccepted.message}</p>
           )}
 
           {turnstileSiteKey && (
@@ -248,22 +230,15 @@ export function PublicApplicationForm({
                 options={{ theme: "light" }}
               />
               {errors.turnstileToken && (
-                <p className="mt-1.5 text-[12.5px] text-danger">
-                  {errors.turnstileToken.message}
-                </p>
+                <p className="text-danger mt-1.5 text-[12.5px]">{errors.turnstileToken.message}</p>
               )}
             </div>
           )}
         </div>
       </Section>
 
-      <div className="flex items-center justify-end gap-3 border-t border-border pt-6">
-        <Button
-          type="submit"
-          variant="primary"
-          size="lg"
-          disabled={isPending}
-        >
+      <div className="border-border flex items-center justify-end gap-3 border-t pt-6">
+        <Button type="submit" variant="primary" size="lg" disabled={isPending}>
           {isPending ? (
             <>
               <Loader2 size={14} strokeWidth={1.6} className="animate-spin" />
@@ -293,10 +268,10 @@ function Section({
 }) {
   return (
     <section>
-      <h2 className="font-serif text-[22px] font-normal leading-tight tracking-[-0.01em] text-foreground">
+      <h2 className="text-foreground font-serif text-[22px] leading-tight font-normal tracking-[-0.01em]">
         {title}
       </h2>
-      {hint && <p className="mt-1 text-[13.5px] text-text-3">{hint}</p>}
+      {hint && <p className="text-text-3 mt-1 text-[13.5px]">{hint}</p>}
       <div className="mt-5">{children}</div>
     </section>
   )
@@ -319,10 +294,10 @@ function Field({
     <div className={className}>
       <Label className="mb-1.5 block">
         {label}
-        {required && <span className="ml-0.5 text-danger">*</span>}
+        {required && <span className="text-danger ml-0.5">*</span>}
       </Label>
       {children}
-      {error && <p className="mt-1.5 text-[12.5px] text-danger">{error}</p>}
+      {error && <p className="text-danger mt-1.5 text-[12.5px]">{error}</p>}
     </div>
   )
 }
@@ -344,7 +319,7 @@ function LevelMultiselect({
     <div className="space-y-5">
       {groups.map((group) => (
         <div key={group.languageId}>
-          <p className="mb-2.5 text-[12.5px] font-medium uppercase tracking-[0.06em] text-text-3">
+          <p className="text-text-3 mb-2.5 text-[12.5px] font-medium tracking-[0.06em] uppercase">
             {group.languageName}
           </p>
           <div className="flex flex-wrap gap-2">
@@ -359,7 +334,7 @@ function LevelMultiselect({
                   className={[
                     "rounded-full border px-3.5 py-2 text-[13px] transition-[background-color,border-color,color] duration-[120ms]",
                     checked
-                      ? "border-teal-500 bg-teal-500 text-bone"
+                      ? "text-bone border-teal-500 bg-teal-500"
                       : "border-border bg-surface text-foreground hover:border-border-strong",
                   ].join(" ")}
                 >

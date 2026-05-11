@@ -51,11 +51,7 @@ export const metadata: Metadata = {
     "Plataforma académica de CM English Instructor. Inglés y español para empresas, ejecutivos, adolescentes y niños. Helping everyone communicate.",
 }
 
-export default async function RootLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
   // Locale + messages se resuelven server-side desde la cookie NEXT_LOCALE
   // (ver src/i18n/request.ts). Pasarlos al provider es lo que permite que
   // las client components puedan usar useTranslations() sin re-fetch.
@@ -72,7 +68,7 @@ export default async function RootLayout({
           fraunces.variable,
           geistSans.variable,
           geistMono.variable,
-          "font-sans bg-background text-foreground antialiased",
+          "bg-background text-foreground font-sans antialiased",
         )}
       >
         <Suspense fallback={null}>

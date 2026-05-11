@@ -25,7 +25,7 @@ const avatarVariants = cva(
         lg: "h-14 w-14 text-[16px]",
       },
       shape: {
-        round:  "rounded-full",
+        round: "rounded-full",
         square: "rounded-md",
       },
     },
@@ -50,7 +50,7 @@ export const Avatar = React.forwardRef<HTMLSpanElement, AvatarProps>(
       {status && shape !== "square" && (
         <span
           aria-hidden
-          className="absolute bottom-0 right-0 h-[9px] w-[9px] rounded-full bg-teal-500 ring-[2px] ring-surface"
+          className="ring-surface absolute right-0 bottom-0 h-[9px] w-[9px] rounded-full bg-teal-500 ring-[2px]"
         />
       )}
     </span>
@@ -66,7 +66,12 @@ export function AvatarStack({
   className?: string
 }) {
   return (
-    <div className={cn("inline-flex [&>span]:ring-2 [&>span]:ring-surface [&>span:not(:first-child)]:-ml-2", className)}>
+    <div
+      className={cn(
+        "[&>span]:ring-surface inline-flex [&>span]:ring-2 [&>span:not(:first-child)]:-ml-2",
+        className,
+      )}
+    >
       {children}
     </div>
   )

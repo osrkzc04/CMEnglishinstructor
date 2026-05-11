@@ -14,31 +14,21 @@ export const Table = React.forwardRef<
   HTMLTableElement,
   React.TableHTMLAttributes<HTMLTableElement>
 >(({ className, ...props }, ref) => (
-  <table
-    ref={ref}
-    className={cn("w-full border-collapse text-[13.5px]", className)}
-    {...props}
-  />
+  <table ref={ref} className={cn("w-full border-collapse text-[13.5px]", className)} {...props} />
 ))
 Table.displayName = "Table"
 
 export const TableHeader = React.forwardRef<
   HTMLTableSectionElement,
   React.HTMLAttributes<HTMLTableSectionElement>
->(({ className, ...props }, ref) => (
-  <thead ref={ref} className={cn(className)} {...props} />
-))
+>(({ className, ...props }, ref) => <thead ref={ref} className={cn(className)} {...props} />)
 TableHeader.displayName = "TableHeader"
 
 export const TableBody = React.forwardRef<
   HTMLTableSectionElement,
   React.HTMLAttributes<HTMLTableSectionElement>
 >(({ className, ...props }, ref) => (
-  <tbody
-    ref={ref}
-    className={cn("[&_tr:last-child_td]:border-b-0", className)}
-    {...props}
-  />
+  <tbody ref={ref} className={cn("[&_tr:last-child_td]:border-b-0", className)} {...props} />
 ))
 TableBody.displayName = "TableBody"
 
@@ -48,7 +38,7 @@ export const TableRow = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <tr
     ref={ref}
-    className={cn("transition-colors hover:[&>td]:bg-surface-alt", className)}
+    className={cn("hover:[&>td]:bg-surface-alt transition-colors", className)}
     {...props}
   />
 ))
@@ -61,7 +51,7 @@ export const TableHead = React.forwardRef<
   <th
     ref={ref}
     className={cn(
-      "border-b border-border bg-surface-alt px-4 py-3 text-left font-mono text-[11px] font-normal uppercase tracking-[0.08em] text-text-3",
+      "border-border bg-surface-alt text-text-3 border-b px-4 py-3 text-left font-mono text-[11px] font-normal tracking-[0.08em] uppercase",
       className,
     )}
     {...props}
@@ -75,7 +65,7 @@ export const TableCell = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <td
     ref={ref}
-    className={cn("border-b border-border px-4 py-3 text-foreground", className)}
+    className={cn("border-border text-foreground border-b px-4 py-3", className)}
     {...props}
   />
 ))

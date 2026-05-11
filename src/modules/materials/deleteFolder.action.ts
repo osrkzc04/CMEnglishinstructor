@@ -25,7 +25,8 @@ export async function deleteFolder(input: DeleteFolderInput): Promise<Result> {
   await requireRole(["DIRECTOR", "COORDINATOR"])
 
   const parsed = DeleteFolderSchema.safeParse(input)
-  if (!parsed.success) return { success: false, error: parsed.error.issues[0]?.message ?? "Datos inválidos" }
+  if (!parsed.success)
+    return { success: false, error: parsed.error.issues[0]?.message ?? "Datos inválidos" }
 
   const folder = await prisma.materialFolder.findUnique({
     where: { id: parsed.data.folderId },
@@ -63,7 +64,11 @@ export async function deleteFolder(input: DeleteFolderInput): Promise<Result> {
   await Promise.allSettled(collected.files.map((f) => adapter.delete(f.storageKey)))
 
   if (folder.parentId) revalidatePath(`/admin/materiales/${folder.parentId}`)
-  return { success: true, folderCount: collected.folderIds.length + 1, fileCount: collected.files.length }
+  return {
+    success: true,
+    folderCount: collected.folderIds.length + 1,
+    fileCount: collected.files.length,
+  }
 }
 
 async function collectDescendants(rootId: string): Promise<{

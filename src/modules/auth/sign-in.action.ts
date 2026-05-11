@@ -4,9 +4,7 @@ import { AuthError } from "next-auth"
 import { signIn } from "@/lib/auth"
 import { LoginSchema, type LoginInput } from "@/modules/auth/schemas"
 
-type SignInResult =
-  | { success: true; redirectTo: string }
-  | { success: false; error: string }
+type SignInResult = { success: true; redirectTo: string } | { success: false; error: string }
 
 /**
  * Login con credenciales. Valida con Zod, invoca NextAuth con

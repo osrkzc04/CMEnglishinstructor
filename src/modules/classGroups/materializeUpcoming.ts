@@ -1,10 +1,7 @@
 import "server-only"
 import { ClassGroupStatus } from "@prisma/client"
 import { prisma } from "@/lib/prisma"
-import {
-  formatGuayaquilCalendarDate,
-  materializeClassSessions,
-} from "./materialize"
+import { formatGuayaquilCalendarDate, materializeClassSessions } from "./materialize"
 
 /**
  * Job que materializa el horizonte de sesiones para **todas las aulas
@@ -77,9 +74,7 @@ export async function materializeUpcomingForAllActive(): Promise<MaterializeUpco
       } else {
         summary.totalCreated += outcome.created
         summary.totalSkipped +=
-          outcome.skippedAlreadyExists +
-          outcome.skippedHoliday +
-          outcome.skippedUnavailable
+          outcome.skippedAlreadyExists + outcome.skippedHoliday + outcome.skippedUnavailable
       }
     } catch (err) {
       summary.errors.push({

@@ -39,12 +39,7 @@ type Props = {
   hasTeacher: boolean
 }
 
-export function SessionsCard({
-  classGroupId,
-  summary,
-  canSchedule,
-  hasTeacher,
-}: Props) {
+export function SessionsCard({ classGroupId, summary, canSchedule, hasTeacher }: Props) {
   const [open, setOpen] = useState(false)
 
   const blockedReason = !canSchedule
@@ -57,18 +52,14 @@ export function SessionsCard({
     <>
       <header className="mb-3 flex flex-wrap items-center justify-between gap-3">
         <div className="flex flex-wrap items-baseline gap-3">
-          <span className="font-mono text-[12px] uppercase tracking-[0.08em] text-text-3">
+          <span className="text-text-3 font-mono text-[12px] tracking-[0.08em] uppercase">
             Total
           </span>
-          <span className="font-serif text-[24px] font-normal leading-none text-foreground">
+          <span className="text-foreground font-serif text-[24px] leading-none font-normal">
             {summary.futureCount}
           </span>
-          <span className="text-[12.5px] text-text-3">
-            programadas a futuro
-          </span>
-          {summary.pastCount > 0 && (
-            <Tag>{summary.pastCount} en historial</Tag>
-          )}
+          <span className="text-text-3 text-[12.5px]">programadas a futuro</span>
+          {summary.pastCount > 0 && <Tag>{summary.pastCount} en historial</Tag>}
         </div>
         <Button
           type="button"
@@ -82,22 +73,20 @@ export function SessionsCard({
         </Button>
       </header>
 
-      {blockedReason && (
-        <p className="mb-3 text-[12.5px] text-text-3">{blockedReason}</p>
-      )}
+      {blockedReason && <p className="text-text-3 mb-3 text-[12.5px]">{blockedReason}</p>}
 
       {summary.upcoming.length === 0 ? (
-        <p className="text-[13px] text-text-3">
-          Sin sesiones futuras. Click en <span className="font-medium">Programar</span> para
-          crear las próximas clases a partir del horario semanal.
+        <p className="text-text-3 text-[13px]">
+          Sin sesiones futuras. Click en <span className="font-medium">Programar</span> para crear
+          las próximas clases a partir del horario semanal.
         </p>
       ) : (
-        <ul className="divide-y divide-border">
+        <ul className="divide-border divide-y">
           {summary.upcoming.map((s) => (
             <UpcomingSessionRow key={s.id} session={s} />
           ))}
           {summary.futureCount > summary.upcoming.length && (
-            <li className="py-2.5 text-[12.5px] text-text-3">
+            <li className="text-text-3 py-2.5 text-[12.5px]">
               + {summary.futureCount - summary.upcoming.length} más
             </li>
           )}
@@ -116,22 +105,16 @@ export function SessionsCard({
 
 function UpcomingSessionRow({ session }: { session: ClassGroupUpcomingSession }) {
   const dateLabel = formatGuayaquilDateLabel(session.scheduledStart)
-  const timeLabel = formatGuayaquilTimeRange(
-    session.scheduledStart,
-    session.scheduledEnd,
-  )
+  const timeLabel = formatGuayaquilTimeRange(session.scheduledStart, session.scheduledEnd)
   return (
     <li className="grid grid-cols-[140px_1fr_auto] items-baseline gap-3 py-2.5 first:pt-0 last:pb-0">
-      <div className="flex items-center gap-2 text-[13px] text-foreground">
+      <div className="text-foreground flex items-center gap-2 text-[13px]">
         <CalendarDays size={12} strokeWidth={1.6} className="text-text-3" />
         {dateLabel}
       </div>
-      <span className="font-mono text-[12.5px] tracking-[0.02em] text-text-2">
-        {timeLabel}
-      </span>
-      <span className="text-[11.5px] text-text-3">
-        {session.participantCount}{" "}
-        {session.participantCount === 1 ? "alumno" : "alumnos"}
+      <span className="text-text-2 font-mono text-[12.5px] tracking-[0.02em]">{timeLabel}</span>
+      <span className="text-text-3 text-[11.5px]">
+        {session.participantCount} {session.participantCount === 1 ? "alumno" : "alumnos"}
         {session.status !== "SCHEDULED" && (
           <>
             {" · "}
@@ -177,8 +160,7 @@ function ScheduleDialog({
         setError(result.error)
         return
       }
-      const { created, skippedHoliday, skippedUnavailable, skippedAlreadyExists } =
-        result.counters
+      const { created, skippedHoliday, skippedUnavailable, skippedAlreadyExists } = result.counters
       setInfo(
         `Programadas ${created}. ` +
           [
@@ -200,8 +182,8 @@ function ScheduleDialog({
         <DialogHeader>
           <DialogTitle>Programar sesiones</DialogTitle>
           <DialogDescription>
-            Genera las clases del rango respetando feriados y la unavailability
-            del docente. Es idempotente: las sesiones ya creadas no se duplican.
+            Genera las clases del rango respetando feriados y la unavailability del docente. Es
+            idempotente: las sesiones ya creadas no se duplican.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit}>
@@ -235,7 +217,7 @@ function ScheduleDialog({
                   type="button"
                   onClick={() => setTo(addWeeksToIso(from, weeks))}
                   disabled={isPending}
-                  className="rounded-md border border-border bg-surface px-2 py-1 text-[11.5px] text-text-2 transition-colors hover:border-teal-500 hover:text-teal-500"
+                  className="border-border bg-surface text-text-2 rounded-md border px-2 py-1 text-[11.5px] transition-colors hover:border-teal-500 hover:text-teal-500"
                 >
                   {weeks} semanas
                 </button>
@@ -263,9 +245,7 @@ function ScheduleDialog({
               Cerrar
             </Button>
             <Button type="submit" variant="primary" size="md" disabled={isPending}>
-              {isPending && (
-                <Loader2 size={14} strokeWidth={1.6} className="animate-spin" />
-              )}
+              {isPending && <Loader2 size={14} strokeWidth={1.6} className="animate-spin" />}
               Programar
             </Button>
           </DialogFooter>

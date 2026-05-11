@@ -37,13 +37,13 @@ export function UserMenu({ name, roleLabel, isCollapsed }: UserMenuProps) {
       title={isCollapsed ? `${name} — Cerrar sesión` : "Cerrar sesión"}
       aria-label="Menú del usuario"
       className={cn(
-        "group flex w-full items-center gap-2.5 rounded-md border border-transparent text-left transition-[background-color,border-color] duration-[150ms] hover:border-ink-700 hover:bg-bone/[0.03] disabled:opacity-60",
+        "group hover:border-ink-700 hover:bg-bone/[0.03] flex w-full items-center gap-2.5 rounded-md border border-transparent text-left transition-[background-color,border-color] duration-[150ms] disabled:opacity-60",
         isCollapsed ? "justify-center p-1" : "p-1.5",
       )}
     >
       <span
         aria-hidden
-        className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-ink-600 bg-bone/[0.08] font-mono text-[11px] text-bone"
+        className="border-ink-600 bg-bone/[0.08] text-bone flex h-7 w-7 shrink-0 items-center justify-center rounded-full border font-mono text-[11px]"
       >
         {initials(name)}
       </span>
@@ -51,12 +51,12 @@ export function UserMenu({ name, roleLabel, isCollapsed }: UserMenuProps) {
       {!isCollapsed && (
         <>
           <span className="min-w-0 flex-1 leading-tight">
-            <span className="block truncate text-[13.5px] text-bone">{name}</span>
-            <span className="mt-0.5 block font-mono text-[11.5px] uppercase tracking-[0.04em] text-bone/60">
+            <span className="text-bone block truncate text-[13.5px]">{name}</span>
+            <span className="text-bone/60 mt-0.5 block font-mono text-[11.5px] tracking-[0.04em] uppercase">
               {roleLabel}
             </span>
           </span>
-          <span aria-hidden className="text-bone/60 transition-colors group-hover:text-bone">
+          <span aria-hidden className="text-bone/60 group-hover:text-bone transition-colors">
             {isPending ? (
               <Loader2 size={14} strokeWidth={1.6} className="animate-spin" />
             ) : (
@@ -72,6 +72,6 @@ export function UserMenu({ name, roleLabel, isCollapsed }: UserMenuProps) {
 function initials(name: string): string {
   const parts = name.trim().split(/\s+/)
   const first = parts[0]?.[0] ?? ""
-  const last = parts.length > 1 ? parts[parts.length - 1]?.[0] ?? "" : ""
+  const last = parts.length > 1 ? (parts[parts.length - 1]?.[0] ?? "") : ""
   return `${first}${last}`.toUpperCase() || "·"
 }

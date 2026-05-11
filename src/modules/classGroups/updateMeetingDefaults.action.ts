@@ -87,8 +87,7 @@ export async function updateClassGroupMeetingDefaults(
 
   const isAdmin = user.role === "DIRECTOR" || user.role === "COORDINATOR"
   const isAssignedTeacher =
-    user.role === "TEACHER" &&
-    group.teacherAssignments[0]?.teacherId === user.id
+    user.role === "TEACHER" && group.teacherAssignments[0]?.teacherId === user.id
   if (!isAdmin && !isAssignedTeacher) throw new ForbiddenError()
 
   const result = await prisma.$transaction(async (tx) => {

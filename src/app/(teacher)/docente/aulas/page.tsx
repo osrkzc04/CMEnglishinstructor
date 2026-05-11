@@ -1,12 +1,7 @@
 import type { Route } from "next"
 import type { Metadata } from "next"
 import Link from "next/link"
-import {
-  ArrowUpRight,
-  School,
-  Users,
-  Video,
-} from "lucide-react"
+import { ArrowUpRight, School, Users, Video } from "lucide-react"
 import { ClassGroupStatus } from "@prisma/client"
 import { AppShell } from "@/components/layout/AppShell"
 import { requireRole } from "@/modules/auth/guards"
@@ -28,10 +23,7 @@ const MODALITY_LABEL: Record<string, string> = {
   HIBRIDO: "Híbrida",
 }
 
-const STATUS_TONE: Record<
-  ClassGroupStatus,
-  { label: string; className: string }
-> = {
+const STATUS_TONE: Record<ClassGroupStatus, { label: string; className: string }> = {
   ACTIVE: {
     label: "Activa",
     className: "border-teal-500/40 bg-teal-500/10 text-teal-700",
@@ -64,15 +56,13 @@ export default async function TeacherAulasPage() {
       ]}
     >
       <header className="mb-7 max-w-2xl">
-        <p className="mb-2 font-mono text-[12px] uppercase tracking-[0.08em] text-text-3">
-          Mi día
-        </p>
-        <h1 className="font-serif text-[32px] font-normal leading-[1.18] tracking-[-0.02em]">
+        <p className="text-text-3 mb-2 font-mono text-[12px] tracking-[0.08em] uppercase">Mi día</p>
+        <h1 className="font-serif text-[32px] leading-[1.18] font-normal tracking-[-0.02em]">
           Mis aulas
         </h1>
-        <p className="mt-2 text-[14px] leading-[1.55] text-text-3">
-          Los grupos que estás dictando ahora. Entra a cada aula para revisar
-          el horario, los estudiantes y cargar el link de la reunión virtual.
+        <p className="text-text-3 mt-2 text-[14px] leading-[1.55]">
+          Los grupos que estás dictando ahora. Entra a cada aula para revisar el horario, los
+          estudiantes y cargar el link de la reunión virtual.
         </p>
       </header>
 
@@ -102,39 +92,35 @@ function AulaCard({ group }: { group: TeacherClassGroupListItem }) {
   return (
     <Link
       href={`/docente/aulas/${group.id}` as Route}
-      className="group relative block overflow-hidden rounded-xl border border-border bg-surface p-5 transition-colors hover:border-teal-500"
+      className="group border-border bg-surface relative block overflow-hidden rounded-xl border p-5 transition-colors hover:border-teal-500"
     >
       <span
         aria-hidden
-        className="absolute inset-y-0 left-0 w-1 bg-border-strong/60 transition-colors group-hover:bg-teal-500"
+        className="bg-border-strong/60 absolute inset-y-0 left-0 w-1 transition-colors group-hover:bg-teal-500"
       />
       <div className="flex items-start justify-between gap-3 pl-2">
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
-            <span className="font-medium text-[15.5px] text-foreground">
-              {group.name}
-            </span>
+            <span className="text-foreground text-[15.5px] font-medium">{group.name}</span>
             <span
-              className={`inline-flex items-center rounded-full border px-2 py-0.5 font-mono text-[10.5px] uppercase tracking-[0.06em] ${tone.className}`}
+              className={`inline-flex items-center rounded-full border px-2 py-0.5 font-mono text-[10.5px] tracking-[0.06em] uppercase ${tone.className}`}
             >
               {tone.label}
             </span>
           </div>
-          <div className="mt-0.5 text-[12.5px] text-text-3">
-            {group.programLabel}
-          </div>
+          <div className="text-text-3 mt-0.5 text-[12.5px]">{group.programLabel}</div>
         </div>
         <Tag>{MODALITY_LABEL[group.modality] ?? group.modality}</Tag>
       </div>
 
       <div className="mt-3 flex flex-wrap gap-1.5 pl-2">
         {group.slots.length === 0 ? (
-          <span className="text-[12px] text-text-3">Sin horarios cargados</span>
+          <span className="text-text-3 text-[12px]">Sin horarios cargados</span>
         ) : (
           group.slots.map((s, idx) => (
             <span
               key={idx}
-              className="inline-flex items-center gap-1 rounded-md border border-border bg-bone-50 px-2 py-0.5 font-mono text-[11.5px] text-text-2"
+              className="border-border bg-bone-50 text-text-2 inline-flex items-center gap-1 rounded-md border px-2 py-0.5 font-mono text-[11.5px]"
             >
               {DAYS_SHORT_ES[s.dayOfWeek]} {s.startTime}
             </span>
@@ -142,21 +128,22 @@ function AulaCard({ group }: { group: TeacherClassGroupListItem }) {
         )}
       </div>
 
-      <div className="mt-4 flex items-center justify-between gap-3 border-t border-border/60 pt-3 pl-2 text-[12.5px] text-text-3">
+      <div className="border-border/60 text-text-3 mt-4 flex items-center justify-between gap-3 border-t pt-3 pl-2 text-[12.5px]">
         <span className="inline-flex items-center gap-1.5">
           <Users size={11.5} strokeWidth={1.6} />
-          {group.studentCount}{" "}
-          {group.studentCount === 1 ? "estudiante" : "estudiantes"}
+          {group.studentCount} {group.studentCount === 1 ? "estudiante" : "estudiantes"}
         </span>
         {isVirtual && (
           <span className="inline-flex items-center gap-1.5">
             <Video size={11.5} strokeWidth={1.6} />
-            {group.hasMeetingUrl ? "Link cargado" : (
+            {group.hasMeetingUrl ? (
+              "Link cargado"
+            ) : (
               <span className="text-warning">Falta link</span>
             )}
           </span>
         )}
-        <span className="inline-flex items-center gap-1 text-text-2 transition-colors group-hover:text-teal-500">
+        <span className="text-text-2 inline-flex items-center gap-1 transition-colors group-hover:text-teal-500">
           Abrir
           <ArrowUpRight size={11} strokeWidth={1.6} />
         </span>

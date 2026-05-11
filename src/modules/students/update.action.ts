@@ -17,10 +17,7 @@ type Result =
  * podemos asumir que existe (estudiantes preexistentes pudieron migrar sin
  * profile). Esto hace la action robusta a esos casos.
  */
-export async function updateStudent(
-  id: string,
-  input: StudentFormInput,
-): Promise<Result> {
+export async function updateStudent(id: string, input: StudentFormInput): Promise<Result> {
   await requireRole(["DIRECTOR", "COORDINATOR"])
 
   const parsed = StudentFormSchema.safeParse(input)

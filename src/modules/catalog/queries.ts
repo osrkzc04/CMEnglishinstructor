@@ -27,9 +27,7 @@ export type ProgramLevelAdminRow = {
   classGroupsCount: number
 }
 
-export async function listProgramLevelsForAdmin(): Promise<
-  ProgramLevelAdminRow[]
-> {
+export async function listProgramLevelsForAdmin(): Promise<ProgramLevelAdminRow[]> {
   const rows = await prisma.programLevel.findMany({
     orderBy: [
       { program: { course: { name: "asc" } } },

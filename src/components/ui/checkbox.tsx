@@ -13,10 +13,7 @@ import { cn } from "@/lib/utils"
  * cascada `peer-checked:` funcione sin `:has()`.
  */
 
-export type CheckboxProps = Omit<
-  React.InputHTMLAttributes<HTMLInputElement>,
-  "type"
->
+export type CheckboxProps = Omit<React.InputHTMLAttributes<HTMLInputElement>, "type">
 
 export const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(
   ({ className, ...props }, ref) => (
@@ -24,16 +21,13 @@ export const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(
       <input
         ref={ref}
         type="checkbox"
-        className={cn(
-          "peer absolute inset-0 h-full w-full cursor-pointer opacity-0",
-          className,
-        )}
+        className={cn("peer absolute inset-0 h-full w-full cursor-pointer opacity-0", className)}
         {...props}
       />
       <span
         aria-hidden
         className={cn(
-          "absolute inset-0 grid place-items-center rounded-sm border border-border-strong bg-surface transition-colors duration-[150ms]",
+          "border-border-strong bg-surface absolute inset-0 grid place-items-center rounded-sm border transition-colors duration-[150ms]",
           "peer-checked:border-teal-500 peer-checked:bg-teal-500",
           "peer-disabled:cursor-not-allowed peer-disabled:opacity-50",
           "peer-focus-visible:ring-2 peer-focus-visible:ring-teal-500/40",
@@ -43,7 +37,7 @@ export const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(
         aria-hidden
         size={9}
         strokeWidth={3}
-        className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-white opacity-0 transition-opacity peer-checked:opacity-100"
+        className="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-white opacity-0 transition-opacity peer-checked:opacity-100"
       />
     </span>
   ),
@@ -53,10 +47,7 @@ Checkbox.displayName = "Checkbox"
 /**
  * Variante radio circular — mismo patrón pero con dot interno.
  */
-export type RadioProps = Omit<
-  React.InputHTMLAttributes<HTMLInputElement>,
-  "type"
->
+export type RadioProps = Omit<React.InputHTMLAttributes<HTMLInputElement>, "type">
 
 export const Radio = React.forwardRef<HTMLInputElement, RadioProps>(
   ({ className, ...props }, ref) => (
@@ -64,16 +55,13 @@ export const Radio = React.forwardRef<HTMLInputElement, RadioProps>(
       <input
         ref={ref}
         type="radio"
-        className={cn(
-          "peer absolute inset-0 h-full w-full cursor-pointer opacity-0",
-          className,
-        )}
+        className={cn("peer absolute inset-0 h-full w-full cursor-pointer opacity-0", className)}
         {...props}
       />
       <span
         aria-hidden
         className={cn(
-          "absolute inset-0 rounded-full border border-border-strong bg-surface transition-colors duration-[150ms]",
+          "border-border-strong bg-surface absolute inset-0 rounded-full border transition-colors duration-[150ms]",
           "peer-checked:border-teal-500 peer-checked:bg-teal-500",
           "peer-disabled:cursor-not-allowed peer-disabled:opacity-50",
           "peer-focus-visible:ring-2 peer-focus-visible:ring-teal-500/40",
@@ -81,7 +69,7 @@ export const Radio = React.forwardRef<HTMLInputElement, RadioProps>(
       />
       <span
         aria-hidden
-        className="pointer-events-none absolute left-1/2 top-1/2 h-1.5 w-1.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white opacity-0 transition-opacity peer-checked:opacity-100"
+        className="pointer-events-none absolute top-1/2 left-1/2 h-1.5 w-1.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white opacity-0 transition-opacity peer-checked:opacity-100"
       />
     </span>
   ),
@@ -100,7 +88,7 @@ export function CheckLabel({
   return (
     <label
       className={cn(
-        "inline-flex cursor-pointer items-center gap-2.5 text-[13.5px] text-foreground",
+        "text-foreground inline-flex cursor-pointer items-center gap-2.5 text-[13.5px]",
         className,
       )}
       {...props}

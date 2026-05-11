@@ -25,15 +25,9 @@ import {
 } from "@/modules/admin/queries"
 import { KpiBand, type Kpi } from "@/components/dashboard/KpiBand"
 import { AdminAgendaCard } from "@/components/dashboard/AdminAgendaCard"
-import {
-  ActivityCard,
-  type ActivityEntry,
-} from "@/components/dashboard/ActivityCard"
+import { ActivityCard, type ActivityEntry } from "@/components/dashboard/ActivityCard"
 import { PendingsCard, type Pending } from "@/components/dashboard/PendingsCard"
-import {
-  TeacherLoadCard,
-  type TeacherLoad,
-} from "@/components/dashboard/TeacherLoadCard"
+import { TeacherLoadCard, type TeacherLoad } from "@/components/dashboard/TeacherLoadCard"
 import { LevelsCard, type LevelEntry } from "@/components/dashboard/LevelsCard"
 
 export default async function AdminDashboardPage() {
@@ -57,31 +51,26 @@ export default async function AdminDashboardPage() {
         email: user.email ?? "",
         roleLabel: roleLabel(user.role),
       }}
-      breadcrumbs={[
-        { label: "Admin", href: "/admin/dashboard" as Route },
-        { label: "Dashboard" },
-      ]}
+      breadcrumbs={[{ label: "Admin", href: "/admin/dashboard" as Route }, { label: "Dashboard" }]}
       cta={{
         label: "Nueva clase",
         icon: <Plus size={14} strokeWidth={1.6} />,
       }}
     >
-      <header className="mb-8 flex flex-wrap items-end justify-between gap-7 border-b border-border pb-6">
+      <header className="border-border mb-8 flex flex-wrap items-end justify-between gap-7 border-b pb-6">
         <div>
-          <p className="mb-2 font-mono text-[12px] uppercase tracking-[0.08em] text-text-3">
+          <p className="text-text-3 mb-2 font-mono text-[12px] tracking-[0.08em] uppercase">
             {formatHeaderDate()}
           </p>
-          <h1 className="font-serif text-[40px] font-normal leading-[1.15] tracking-[-0.02em]">
+          <h1 className="font-serif text-[40px] leading-[1.15] font-normal tracking-[-0.02em]">
             Buen día, {firstName}
-            <span className="font-light italic text-text-2"> — acá está hoy.</span>
+            <span className="text-text-2 font-light italic"> — acá está hoy.</span>
           </h1>
-          <p className="mt-2.5 max-w-[560px] text-[15px] text-text-2">
-            {buildSubtitle(dashboard)}
-          </p>
+          <p className="text-text-2 mt-2.5 max-w-[560px] text-[15px]">{buildSubtitle(dashboard)}</p>
         </div>
-        <div className="text-right font-mono text-[12.5px] leading-[1.7] tracking-[0.04em] text-text-3">
+        <div className="text-text-3 text-right font-mono text-[12.5px] leading-[1.7] tracking-[0.04em]">
           <div>Ciclo activo</div>
-          <div className="text-[14px] text-foreground">{formatCycle()}</div>
+          <div className="text-foreground text-[14px]">{formatCycle()}</div>
         </div>
       </header>
 
@@ -108,22 +97,19 @@ export default async function AdminDashboardPage() {
         <LevelsCard
           items={levels}
           meta={`${dashboard.kpis.activeEnrollments} ${
-            dashboard.kpis.activeEnrollments === 1
-              ? "matrícula activa"
-              : "matrículas activas"
+            dashboard.kpis.activeEnrollments === 1 ? "matrícula activa" : "matrículas activas"
           }`}
         />
       ) : (
-        <section className="rounded-2xl border border-dashed border-border-strong bg-surface p-8 text-center">
-          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full border border-border bg-surface-alt text-text-3">
+        <section className="border-border-strong bg-surface rounded-2xl border border-dashed p-8 text-center">
+          <div className="border-border bg-surface-alt text-text-3 mx-auto flex h-12 w-12 items-center justify-center rounded-full border">
             <UsersRound size={20} strokeWidth={1.6} />
           </div>
-          <h2 className="mt-3.5 font-serif text-[18px] italic font-light tracking-[-0.01em]">
+          <h2 className="mt-3.5 font-serif text-[18px] font-light tracking-[-0.01em] italic">
             Sin matrículas activas
           </h2>
-          <p className="mx-auto mt-1 max-w-[420px] text-[13.5px] text-text-2">
-            Cuando publiques las primeras matrículas vas a ver acá la
-            distribución por nivel CEFR.
+          <p className="text-text-2 mx-auto mt-1 max-w-[420px] text-[13.5px]">
+            Cuando publiques las primeras matrículas vas a ver acá la distribución por nivel CEFR.
           </p>
         </section>
       )}
@@ -141,13 +127,9 @@ function buildKpis(dashboard: AdminDashboard): Kpi[] {
   if (today.live > 0) todayDeltaParts.push(`${today.live} en curso`)
   if (today.scheduled > 0) todayDeltaParts.push(`${today.scheduled} por iniciar`)
   if (today.completed > 0)
-    todayDeltaParts.push(
-      `${today.completed} cerrada${today.completed === 1 ? "" : "s"}`,
-    )
+    todayDeltaParts.push(`${today.completed} cerrada${today.completed === 1 ? "" : "s"}`)
   if (today.cancelled > 0)
-    todayDeltaParts.push(
-      `${today.cancelled} cancelada${today.cancelled === 1 ? "" : "s"}`,
-    )
+    todayDeltaParts.push(`${today.cancelled} cancelada${today.cancelled === 1 ? "" : "s"}`)
 
   return [
     {
@@ -158,9 +140,7 @@ function buildKpis(dashboard: AdminDashboard): Kpi[] {
         dashboard.kpis.activeEnrollments > 0
           ? {
               text: `${dashboard.kpis.activeEnrollments} ${
-                dashboard.kpis.activeEnrollments === 1
-                  ? "matrícula activa"
-                  : "matrículas activas"
+                dashboard.kpis.activeEnrollments === 1 ? "matrícula activa" : "matrículas activas"
               }`,
             }
           : { text: "Sin matrículas activas" },
@@ -324,9 +304,7 @@ function buildSubtitle(dashboard: AdminDashboard): string {
   if (dashboard.kpis.todaySessions.total > 0) {
     parts.push(
       `${dashboard.kpis.todaySessions.total} ${
-        dashboard.kpis.todaySessions.total === 1
-          ? "clase programada hoy"
-          : "clases programadas hoy"
+        dashboard.kpis.todaySessions.total === 1 ? "clase programada hoy" : "clases programadas hoy"
       }`,
     )
   }

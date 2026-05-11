@@ -30,10 +30,7 @@ import { PrismaClient } from "@prisma/client"
 import { seedCatalog } from "./seed/catalog"
 import { seedSettings } from "./seed/settings"
 import { seedHolidays } from "./seed/holidays"
-import {
-  readSuperAdminFromEnv,
-  seedSuperAdmin,
-} from "./seed/super-admin"
+import { readSuperAdminFromEnv, seedSuperAdmin } from "./seed/super-admin"
 
 const prisma = new PrismaClient()
 

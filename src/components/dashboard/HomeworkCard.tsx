@@ -28,7 +28,7 @@ export function HomeworkCard({ entries }: { entries: HomeworkEntry[] }) {
         </CardMeta>
         <Link
           href={"/estudiante/clases" as Route}
-          className="inline-flex items-center gap-1.5 border-b border-border-strong pb-px text-[13px] text-text-2 transition-colors hover:border-teal-500 hover:text-teal-500"
+          className="border-border-strong text-text-2 inline-flex items-center gap-1.5 border-b pb-px text-[13px] transition-colors hover:border-teal-500 hover:text-teal-500"
         >
           Ver clases
           <ArrowRight size={11} strokeWidth={1.6} />
@@ -36,7 +36,7 @@ export function HomeworkCard({ entries }: { entries: HomeworkEntry[] }) {
       </CardHeader>
       <div>
         {entries.length === 0 ? (
-          <p className="px-[22px] py-6 text-[13.5px] text-text-3">
+          <p className="text-text-3 px-[22px] py-6 text-[13.5px]">
             Cuando el docente publique tareas en la bitácora vas a verlas acá.
           </p>
         ) : (
@@ -49,18 +49,18 @@ export function HomeworkCard({ entries }: { entries: HomeworkEntry[] }) {
 
 function HomeworkRow({ entry }: { entry: HomeworkEntry }) {
   return (
-    <div className="grid grid-cols-[28px_1fr_auto] items-start gap-3.5 border-b border-border px-[22px] py-3.5 last:border-b-0">
+    <div className="border-border grid grid-cols-[28px_1fr_auto] items-start gap-3.5 border-b px-[22px] py-3.5 last:border-b-0">
       <div className="grid h-7 w-7 place-items-center rounded-md border border-teal-500/30 bg-teal-500/[0.07] text-teal-500">
         <NotebookPen size={13} strokeWidth={1.6} />
       </div>
       <div className="min-w-0">
-        <div className="text-[14px] leading-[1.3] text-foreground">
+        <div className="text-foreground text-[14px] leading-[1.3]">
           <span className="font-medium">{entry.topic}</span>
         </div>
-        <p className="mt-0.5 line-clamp-2 text-[12.5px] leading-[1.5] text-text-2">
+        <p className="text-text-2 mt-0.5 line-clamp-2 text-[12.5px] leading-[1.5]">
           {entry.homework}
         </p>
-        <div className="mt-1 font-mono text-[11.5px] tracking-[0.02em] text-text-3">
+        <div className="text-text-3 mt-1 font-mono text-[11.5px] tracking-[0.02em]">
           {entry.classGroupName} · {formatDateLong(entry.scheduledStart)}
         </div>
       </div>

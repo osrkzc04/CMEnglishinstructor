@@ -3,18 +3,13 @@
 import { revalidatePath } from "next/cache"
 import { prisma } from "@/lib/prisma"
 import { requireRole } from "@/modules/auth/guards"
-import {
-  ProgramLevelInputSchema,
-  type ProgramLevelInput,
-} from "./schemas"
+import { ProgramLevelInputSchema, type ProgramLevelInput } from "./schemas"
 
 type Result =
   | { success: true; id: string }
   | { success: false; error: string; field?: keyof ProgramLevelInput }
 
-export async function createProgramLevel(
-  input: ProgramLevelInput,
-): Promise<Result> {
+export async function createProgramLevel(input: ProgramLevelInput): Promise<Result> {
   await requireRole(["DIRECTOR", "COORDINATOR"])
 
   const parsed = ProgramLevelInputSchema.safeParse(input)

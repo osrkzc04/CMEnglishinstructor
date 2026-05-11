@@ -47,8 +47,9 @@ export default async function TeacherBitacorasPage({
   const params = await searchParams
   const aulaFilter = params.aula?.trim() ? params.aula.trim() : undefined
 
-  const { pendings, entries, classGroups, entriesTotal } =
-    await listTeacherBitacoras(user.id, { classGroupId: aulaFilter })
+  const { pendings, entries, classGroups, entriesTotal } = await listTeacherBitacoras(user.id, {
+    classGroupId: aulaFilter,
+  })
 
   return (
     <AppShell
@@ -65,19 +66,18 @@ export default async function TeacherBitacorasPage({
     >
       <header className="mb-7 flex flex-wrap items-end justify-between gap-4">
         <div>
-          <p className="mb-2 font-mono text-[12px] uppercase tracking-[0.08em] text-text-3">
+          <p className="text-text-3 mb-2 font-mono text-[12px] tracking-[0.08em] uppercase">
             Mi día
           </p>
-          <h1 className="font-serif text-[32px] font-normal leading-[1.18] tracking-[-0.02em]">
+          <h1 className="font-serif text-[32px] leading-[1.18] font-normal tracking-[-0.02em]">
             Bitácoras
           </h1>
-          <p className="mt-2 max-w-[620px] text-[14px] leading-[1.55] text-text-3">
-            Lo que dictaste en cada clase: tema, actividades, tarea y
-            materiales. Las cargas mientras la clase está en curso y al cerrar
-            quedan congeladas como histórico.
+          <p className="text-text-3 mt-2 max-w-[620px] text-[14px] leading-[1.55]">
+            Lo que dictaste en cada clase: tema, actividades, tarea y materiales. Las cargas
+            mientras la clase está en curso y al cerrar quedan congeladas como histórico.
           </p>
         </div>
-        <div className="flex flex-wrap items-center gap-3 font-mono text-[12.5px] tracking-[0.04em] text-text-3">
+        <div className="text-text-3 flex flex-wrap items-center gap-3 font-mono text-[12.5px] tracking-[0.04em]">
           <span>{entriesTotal} cargadas</span>
           <span aria-hidden>·</span>
           <span className={pendings.length > 0 ? "text-warning" : undefined}>
@@ -87,10 +87,7 @@ export default async function TeacherBitacorasPage({
       </header>
 
       {classGroups.length > 1 && (
-        <AulaFilter
-          classGroups={classGroups}
-          activeId={aulaFilter ?? null}
-        />
+        <AulaFilter classGroups={classGroups} activeId={aulaFilter ?? null} />
       )}
 
       {pendings.length > 0 && (
@@ -156,7 +153,7 @@ function AulaFilter({
 }) {
   return (
     <div className="mb-6 flex flex-wrap items-center gap-2">
-      <span className="font-mono text-[11px] uppercase tracking-[0.08em] text-text-3">
+      <span className="text-text-3 font-mono text-[11px] tracking-[0.08em] uppercase">
         Filtrar por aula
       </span>
       <Link
@@ -206,12 +203,8 @@ function SectionHeader({
         strokeWidth={1.6}
         className={tone === "warn" ? "text-warning" : "text-text-3"}
       />
-      <h2 className="font-serif text-[20px] font-normal text-foreground">
-        {title}
-      </h2>
-      {description && (
-        <span className="text-[12.5px] text-text-3">{description}</span>
-      )}
+      <h2 className="text-foreground font-serif text-[20px] font-normal">{title}</h2>
+      {description && <span className="text-text-3 text-[12.5px]">{description}</span>}
     </header>
   )
 }
@@ -220,34 +213,27 @@ function PendingRow({ item }: { item: TeacherBitacoraPending }) {
   return (
     <Link
       href={`/docente/clases/${item.sessionId}` as Route}
-      className="group relative flex flex-wrap items-center gap-4 overflow-hidden rounded-xl border border-warning/40 bg-surface px-4 py-3.5 pl-5 transition-colors hover:border-warning"
+      className="group border-warning/40 bg-surface hover:border-warning relative flex flex-wrap items-center gap-4 overflow-hidden rounded-xl border px-4 py-3.5 pl-5 transition-colors"
     >
-      <span
-        aria-hidden
-        className="absolute inset-y-0 left-0 w-1 bg-warning/70"
-      />
-      <div className="min-w-[140px] text-[12.5px] text-text-3">
+      <span aria-hidden className="bg-warning/70 absolute inset-y-0 left-0 w-1" />
+      <div className="text-text-3 min-w-[140px] text-[12.5px]">
         {formatDate(item.scheduledStart)}
-        <div className="mt-0.5 font-mono text-[13px] tracking-[0.02em] text-text-2">
+        <div className="text-text-2 mt-0.5 font-mono text-[13px] tracking-[0.02em]">
           {formatTime(item.scheduledStart)} – {formatTime(item.scheduledEnd)}
         </div>
       </div>
       <div className="min-w-0 flex-1">
-        <div className="font-medium text-[14.5px] text-foreground">
-          {item.classGroupName}
-        </div>
-        <div className="mt-0.5 text-[12.5px] text-text-3">
-          {item.programLabel}
-        </div>
+        <div className="text-foreground text-[14.5px] font-medium">{item.classGroupName}</div>
+        <div className="text-text-3 mt-0.5 text-[12.5px]">{item.programLabel}</div>
       </div>
-      <div className="inline-flex items-center gap-1.5 rounded-md border border-warning/40 bg-warning/[0.07] px-2.5 py-1 text-[12px] text-warning">
+      <div className="border-warning/40 bg-warning/[0.07] text-warning inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-[12px]">
         <PencilLine size={12} strokeWidth={1.6} />
         Cargar bitácora
       </div>
       <ArrowUpRight
         size={13}
         strokeWidth={1.6}
-        className="text-text-3 transition-colors group-hover:text-warning"
+        className="text-text-3 group-hover:text-warning transition-colors"
       />
     </Link>
   )
@@ -256,32 +242,26 @@ function PendingRow({ item }: { item: TeacherBitacoraPending }) {
 function BitacoraCard({ entry }: { entry: TeacherBitacoraEntry }) {
   const isCompleted = entry.status === "COMPLETED"
   return (
-    <details className="group relative overflow-hidden rounded-xl border border-border bg-surface transition-colors hover:border-border-strong open:border-teal-500/40">
+    <details className="group border-border bg-surface hover:border-border-strong relative overflow-hidden rounded-xl border transition-colors open:border-teal-500/40">
       <span
         aria-hidden
-        className="absolute inset-y-0 left-0 w-1 bg-border-strong/60 transition-colors group-open:bg-gradient-to-b group-open:from-teal-500 group-open:to-teal-700"
+        className="bg-border-strong/60 absolute inset-y-0 left-0 w-1 transition-colors group-open:bg-gradient-to-b group-open:from-teal-500 group-open:to-teal-700"
       />
       <summary className="flex cursor-pointer flex-wrap items-center gap-4 px-4 py-3.5 pl-5 outline-none">
-        <div className="min-w-[140px] text-[12.5px] text-text-3">
+        <div className="text-text-3 min-w-[140px] text-[12.5px]">
           {formatDate(entry.scheduledStart)}
-          <div className="mt-0.5 font-mono text-[13px] tracking-[0.02em] text-text-2">
+          <div className="text-text-2 mt-0.5 font-mono text-[13px] tracking-[0.02em]">
             {formatTime(entry.scheduledStart)} – {formatTime(entry.scheduledEnd)}
           </div>
         </div>
         <div className="min-w-0 flex-1">
-          <div className="font-medium text-[14.5px] text-foreground">
-            {entry.classGroupName}
-          </div>
-          <div className="mt-0.5 text-[12.5px] text-text-3">
-            {entry.programLabel}
-          </div>
-          <div className="mt-1 truncate text-[13px] italic text-text-2">
-            {entry.topic}
-          </div>
+          <div className="text-foreground text-[14.5px] font-medium">{entry.classGroupName}</div>
+          <div className="text-text-3 mt-0.5 text-[12.5px]">{entry.programLabel}</div>
+          <div className="text-text-2 mt-1 truncate text-[13px] italic">{entry.topic}</div>
         </div>
         <span
           className={cn(
-            "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 font-mono text-[11px] uppercase tracking-[0.06em]",
+            "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 font-mono text-[11px] tracking-[0.06em] uppercase",
             STATUS_TONE[entry.status],
           )}
         >
@@ -294,37 +274,35 @@ function BitacoraCard({ entry }: { entry: TeacherBitacoraEntry }) {
         </span>
       </summary>
 
-      <div className="border-t border-border/60 bg-bone-50/30 px-5 py-4">
+      <div className="border-border/60 bg-bone-50/30 border-t px-5 py-4">
         <div className="grid gap-4 md:grid-cols-2">
           <Block icon={BookOpen} label="Tema">
-            <p className="whitespace-pre-line text-[13.5px] leading-[1.55] text-foreground">
+            <p className="text-foreground text-[13.5px] leading-[1.55] whitespace-pre-line">
               {entry.topic}
             </p>
           </Block>
           <Block icon={ClipboardList} label="Actividades">
-            <p className="whitespace-pre-line text-[13.5px] leading-[1.55] text-foreground">
+            <p className="text-foreground text-[13.5px] leading-[1.55] whitespace-pre-line">
               {entry.activities}
             </p>
           </Block>
           {entry.homework && (
             <Block icon={NotebookPen} label="Tarea">
-              <p className="whitespace-pre-line text-[13.5px] leading-[1.55] text-foreground">
+              <p className="text-foreground text-[13.5px] leading-[1.55] whitespace-pre-line">
                 {entry.homework}
               </p>
             </Block>
           )}
           {entry.materialsUsed && (
             <Block icon={FolderOpen} label="Materiales usados">
-              <p className="whitespace-pre-line text-[13.5px] leading-[1.55] text-foreground">
+              <p className="text-foreground text-[13.5px] leading-[1.55] whitespace-pre-line">
                 {entry.materialsUsed}
               </p>
             </Block>
           )}
         </div>
-        <div className="mt-4 flex items-center justify-between border-t border-border/60 pt-3 text-[12px] text-text-3">
-          <span className="font-mono">
-            Actualizada {formatRelative(entry.updatedAt)}
-          </span>
+        <div className="border-border/60 text-text-3 mt-4 flex items-center justify-between border-t pt-3 text-[12px]">
+          <span className="font-mono">Actualizada {formatRelative(entry.updatedAt)}</span>
           <Link
             href={`/docente/clases/${entry.sessionId}` as Route}
             className="inline-flex items-center gap-1 text-teal-500 hover:underline"
@@ -349,7 +327,7 @@ function Block({
 }) {
   return (
     <div>
-      <div className="mb-1.5 inline-flex items-center gap-1.5 font-mono text-[11px] uppercase tracking-[0.08em] text-text-3">
+      <div className="text-text-3 mb-1.5 inline-flex items-center gap-1.5 font-mono text-[11px] tracking-[0.08em] uppercase">
         <Icon size={11} strokeWidth={1.6} />
         {label}
       </div>

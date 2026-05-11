@@ -11,10 +11,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { CopyButton } from "@/components/ui/copy-button"
-import {
-  UpdateClassGroupSchema,
-  type UpdateClassGroupInput,
-} from "@/modules/classGroups/schemas"
+import { UpdateClassGroupSchema, type UpdateClassGroupInput } from "@/modules/classGroups/schemas"
 import { updateClassGroup } from "@/modules/classGroups/update.action"
 
 type Props = {
@@ -29,12 +26,7 @@ type Props = {
   disabled?: boolean
 }
 
-export function MetadataForm({
-  classGroupId,
-  initialValues,
-  modality,
-  disabled,
-}: Props) {
+export function MetadataForm({ classGroupId, initialValues, modality, disabled }: Props) {
   const showMeeting = modality === "VIRTUAL" || modality === "HIBRIDO"
   const showLocation = modality === "PRESENCIAL" || modality === "HIBRIDO"
   const router = useRouter()
@@ -93,9 +85,7 @@ export function MetadataForm({
           disabled={disabled}
           {...register("name")}
         />
-        {errors.name && (
-          <p className="mt-1 text-[12px] text-danger">{errors.name.message}</p>
-        )}
+        {errors.name && <p className="text-danger mt-1 text-[12px]">{errors.name.message}</p>}
       </div>
 
       {showMeeting && (
@@ -114,21 +104,15 @@ export function MetadataForm({
               {...register("defaultMeetingUrl")}
             />
             {initialValues.defaultMeetingUrl && (
-              <CopyButton
-                value={initialValues.defaultMeetingUrl}
-                label="Copiar link de la clase"
-              />
+              <CopyButton value={initialValues.defaultMeetingUrl} label="Copiar link de la clase" />
             )}
           </div>
-          <p className="mt-1 text-[12px] text-text-3">
-            Lo carga el docente desde su panel cuando esté listo; coordinación
-            puede pisarlo desde acá. Se aplica a todas las sesiones futuras
-            del aula.
+          <p className="text-text-3 mt-1 text-[12px]">
+            Lo carga el docente desde su panel cuando esté listo; coordinación puede pisarlo desde
+            acá. Se aplica a todas las sesiones futuras del aula.
           </p>
           {errors.defaultMeetingUrl && (
-            <p className="mt-1 text-[12px] text-danger">
-              {errors.defaultMeetingUrl.message}
-            </p>
+            <p className="text-danger mt-1 text-[12px]">{errors.defaultMeetingUrl.message}</p>
           )}
         </div>
       )}
@@ -146,9 +130,7 @@ export function MetadataForm({
             {...register("defaultLocation")}
           />
           {errors.defaultLocation && (
-            <p className="mt-1 text-[12px] text-danger">
-              {errors.defaultLocation.message}
-            </p>
+            <p className="text-danger mt-1 text-[12px]">{errors.defaultLocation.message}</p>
           )}
         </div>
       )}
@@ -165,14 +147,12 @@ export function MetadataForm({
           placeholder="Para uso de coordinación. No las ven el docente ni el estudiante."
           {...register("notes")}
         />
-        {errors.notes && (
-          <p className="mt-1 text-[12px] text-danger">{errors.notes.message}</p>
-        )}
+        {errors.notes && <p className="text-danger mt-1 text-[12px]">{errors.notes.message}</p>}
       </div>
 
       <div className="flex items-center justify-end gap-3 pt-1">
         {savedAt && !isDirty && (
-          <span className="inline-flex items-center gap-1.5 text-[12.5px] text-text-3">
+          <span className="text-text-3 inline-flex items-center gap-1.5 text-[12.5px]">
             <Check size={13} strokeWidth={1.8} className="text-teal-500" />
             Guardado
           </span>

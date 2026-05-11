@@ -28,6 +28,7 @@ SCHEDULED ──► NO_SHOW        (nadie llegó, decisión del docente)
 **Ruta**: `/docente/clases` (guard: `requireRole(['TEACHER', 'DIRECTOR'])`)
 
 Muestra sesiones asignadas al docente filtradas por fecha. Estados visuales:
+
 - Próxima clase (>1h antes): card normal.
 - En vivo (entre `scheduledStart` y `scheduledEnd + 30min`): card destacada con CTA "Iniciar clase".
 - Sin cerrar (pasó el horario, todavía SCHEDULED): card en warning con CTA "Cerrar clase".
@@ -41,9 +42,10 @@ No es obligatorio pero ayuda al reporte.
 
 ### 3. Tomar asistencia
 
-**Ruta**: `/docente/clases/[id]` 
+**Ruta**: `/docente/clases/[id]`
 
 La UI lista los `ClassParticipant`. Por cada uno:
+
 - Nombre del estudiante.
 - Select con `AttendanceStatus`: `PRESENT | ABSENT | LATE | EXCUSED`.
 - Campo notas individual (opcional).
@@ -69,6 +71,7 @@ await prisma.$transaction(async (tx) => {
 ### 4. Escribir bitácora
 
 Mismo formulario, sección "Bitácora":
+
 - `topic`: título corto del tema cubierto (required).
 - `activities`: descripción de actividades (required, textarea).
 - `homework`: tareas asignadas (opcional).
@@ -83,9 +86,9 @@ Esta es la operación que **actualiza contadores** y debe ser transaccional.
 **Action** `close.action.ts`:
 
 ```typescript
-import { prisma } from '@/lib/prisma'
-import { getSetting } from '@/modules/settings'
-import { differenceInMinutes } from 'date-fns'
+import { prisma } from "@/lib/prisma"
+import { getSetting } from "@/modules/settings"
+import { differenceInMinutes } from "date-fns"
 
 export async function closeClassSession(sessionId: string, userId: string) {
   return prisma.$transaction(async (tx) => {
@@ -97,46 +100,51 @@ export async function closeClassSession(sessionId: string, userId: string) {
         log: true,
       },
     })
-    
+
     if (!session) throw new NotFoundError()
-    if (session.status === 'COMPLETED') throw new AlreadyClosedError()
-    if (session.teacherId !== userId && !await isAdmin(userId)) throw new ForbiddenError()
-    if (!session.log) throw new ValidationError('Bitácora requerida para cerrar')
-    
-    const absenceConsumes = await getSetting<boolean>('absence_counts_as_consumed')
+    if (session.status === "COMPLETED") throw new AlreadyClosedError()
+    if (session.teacherId !== userId && !(await isAdmin(userId))) throw new ForbiddenError()
+    if (!session.log) throw new ValidationError("Bitácora requerida para cerrar")
+
+    const absenceConsumes = await getSetting<boolean>("absence_counts_as_consumed")
     const actualEnd = session.actualEnd ?? new Date()
     const actualStart = session.actualStart ?? session.scheduledStart
     const realDurationMinutes = differenceInMinutes(actualEnd, actualStart)
-    const scheduledDurationMinutes = differenceInMinutes(session.scheduledEnd, session.scheduledStart)
+    const scheduledDurationMinutes = differenceInMinutes(
+      session.scheduledEnd,
+      session.scheduledStart,
+    )
     const baseDurationMinutes = Math.min(realDurationMinutes, scheduledDurationMinutes)
     const baseHours = baseDurationMinutes / 60
-    
+
     // Verificar que ningún participante esté en periodo de payroll cerrado (ADR-014)
     const lockedTeachers = await tx.payrollPeriod.findMany({
       where: {
         teacherId: session.teacherId,
-        status: { in: ['CLOSED', 'PAID'] },
+        status: { in: ["CLOSED", "PAID"] },
         startDate: { lte: session.scheduledStart },
-        endDate:   { gte: session.scheduledStart },
+        endDate: { gte: session.scheduledStart },
       },
     })
     if (lockedTeachers.length > 0) throw new PayrollLockedError()
-    
+
     // Snapshot de tarifa al cerrar (ADR-006)
     const rateSnapshot = session.teacher.hourlyRate
-    
+
     // Actualizar cada participante
     for (const p of session.participants) {
-      const counts = p.attendance === 'PRESENT' || p.attendance === 'LATE'
-        || (p.attendance === 'ABSENT' && absenceConsumes)
-      
+      const counts =
+        p.attendance === "PRESENT" ||
+        p.attendance === "LATE" ||
+        (p.attendance === "ABSENT" && absenceConsumes)
+
       const hoursCounted = counts ? baseHours : 0
-      
+
       await tx.classParticipant.update({
         where: { id: p.id },
         data: { hoursCounted, rateSnapshot },
       })
-      
+
       // Actualizar contador denormalizado en Enrollment
       if (hoursCounted > 0) {
         await tx.enrollment.update({
@@ -145,11 +153,11 @@ export async function closeClassSession(sessionId: string, userId: string) {
         })
       }
     }
-    
+
     // Cerrar la sesión
     await tx.classSession.update({
       where: { id: sessionId },
-      data: { status: 'COMPLETED', actualEnd },
+      data: { status: "COMPLETED", actualEnd },
     })
   })
 }

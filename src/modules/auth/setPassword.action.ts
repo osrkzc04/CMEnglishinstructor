@@ -39,9 +39,7 @@ type Result =
       field?: keyof SetPasswordInput
     }
 
-export async function setPasswordWithToken(
-  input: SetPasswordInput,
-): Promise<Result> {
+export async function setPasswordWithToken(input: SetPasswordInput): Promise<Result> {
   const parsed = SetPasswordSchema.safeParse(input)
   if (!parsed.success) {
     const issue = parsed.error.issues[0]
@@ -63,9 +61,7 @@ export async function setPasswordWithToken(
     where: { id: consumed.userId },
     data: {
       passwordHash,
-      ...(consumed.purpose === "activation"
-        ? { status: UserStatus.ACTIVE }
-        : {}),
+      ...(consumed.purpose === "activation" ? { status: UserStatus.ACTIVE } : {}),
     },
   })
 

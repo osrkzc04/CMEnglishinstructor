@@ -10,8 +10,8 @@ export const metadata: Metadata = {
 
 export default function GraciasPage() {
   return (
-    <div className="min-h-screen bg-bone">
-      <header className="border-b border-border bg-surface">
+    <div className="bg-bone min-h-screen">
+      <header className="border-border bg-surface border-b">
         <div className="mx-auto flex max-w-3xl items-center justify-between px-6 py-5">
           <Link href="/" aria-label="Inicio" className="block">
             <BrandMark />
@@ -20,19 +20,18 @@ export default function GraciasPage() {
       </header>
 
       <main className="mx-auto max-w-2xl px-6 py-20 lg:py-28">
-        <div className="rounded-xl border border-border bg-surface p-10 text-center lg:p-14">
+        <div className="border-border bg-surface rounded-xl border p-10 text-center lg:p-14">
           <div className="mx-auto mb-6 inline-flex items-center justify-center rounded-full bg-teal-500/10 p-3 text-teal-500">
             <CheckCircle2 size={36} strokeWidth={1.6} />
           </div>
-          <h1 className="font-serif text-[30px] font-normal leading-tight tracking-[-0.015em] text-foreground">
+          <h1 className="text-foreground font-serif text-[30px] leading-tight font-normal tracking-[-0.015em]">
             Recibimos tu postulación
           </h1>
-          <p className="mt-3 text-[15px] leading-[1.6] text-text-2">
-            Te enviamos una confirmación a tu correo. Vamos a revisar tu
-            perfil con calma y, si encaja con lo que buscamos, te escribimos
-            para coordinar una entrevista.
+          <p className="text-text-2 mt-3 text-[15px] leading-[1.6]">
+            Te enviamos una confirmación a tu correo. Vamos a revisar tu perfil con calma y, si
+            encaja con lo que buscamos, te escribimos para coordinar una entrevista.
           </p>
-          <p className="mt-2 text-[14px] leading-[1.6] text-text-3">
+          <p className="text-text-3 mt-2 text-[14px] leading-[1.6]">
             El proceso suele tomarnos entre 5 y 10 días hábiles.
           </p>
           <div className="mt-8">

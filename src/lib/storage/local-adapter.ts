@@ -28,7 +28,10 @@ export class LocalAdapter implements StorageAdapter {
     return path.join(this.root, normalized)
   }
 
-  async upload(key: string, data: Buffer | Uint8Array | Blob): Promise<{ key: string; size: number }> {
+  async upload(
+    key: string,
+    data: Buffer | Uint8Array | Blob,
+  ): Promise<{ key: string; size: number }> {
     const fullPath = this.resolve(key)
     await fs.mkdir(path.dirname(fullPath), { recursive: true })
     const buffer = data instanceof Blob ? Buffer.from(await data.arrayBuffer()) : Buffer.from(data)

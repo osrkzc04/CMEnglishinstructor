@@ -23,7 +23,7 @@ const MODALITY_LABEL: Record<string, string> = {
 export function AulasTable({ items }: { items: ClassGroupListItem[] }) {
   if (items.length === 0) {
     return (
-      <div className="rounded-xl border border-border bg-surface">
+      <div className="border-border bg-surface rounded-xl border">
         <EmptyState
           title="Sin aulas"
           description="Crea la primera aula para empezar a agrupar matrículas con horario y docente."
@@ -33,7 +33,7 @@ export function AulasTable({ items }: { items: ClassGroupListItem[] }) {
   }
 
   return (
-    <div className="overflow-hidden rounded-xl border border-border bg-surface">
+    <div className="border-border bg-surface overflow-hidden rounded-xl border">
       <Table>
         <TableHeader>
           <tr>
@@ -50,16 +50,13 @@ export function AulasTable({ items }: { items: ClassGroupListItem[] }) {
           {items.map((row) => (
             <TableRow key={row.id}>
               <TableCell>
-                <div className="font-medium text-foreground">{row.name}</div>
-                <div className="mt-0.5 text-[12.5px] text-text-3">
-                  {row.slotsCount}{" "}
-                  {row.slotsCount === 1 ? "clase/sem" : "clases/sem"}
+                <div className="text-foreground font-medium">{row.name}</div>
+                <div className="text-text-3 mt-0.5 text-[12.5px]">
+                  {row.slotsCount} {row.slotsCount === 1 ? "clase/sem" : "clases/sem"}
                 </div>
               </TableCell>
               <TableCell>
-                <div className="text-[13.5px] text-foreground">
-                  {row.programLabel}
-                </div>
+                <div className="text-foreground text-[13.5px]">{row.programLabel}</div>
                 {row.cefrLevelCode && (
                   <div className="mt-1">
                     <Tag>CEFR {row.cefrLevelCode}</Tag>
@@ -67,20 +64,18 @@ export function AulasTable({ items }: { items: ClassGroupListItem[] }) {
                 )}
               </TableCell>
               <TableCell>
-                <span className="text-[13px] text-text-2">
+                <span className="text-text-2 text-[13px]">
                   {MODALITY_LABEL[row.modality] ?? row.modality}
                 </span>
               </TableCell>
               <TableCell>
                 {row.currentTeacherName ? (
-                  <span className="text-[13px] text-foreground">
-                    {row.currentTeacherName}
-                  </span>
+                  <span className="text-foreground text-[13px]">{row.currentTeacherName}</span>
                 ) : (
-                  <span className="text-[12.5px] text-warning">Sin asignar</span>
+                  <span className="text-warning text-[12.5px]">Sin asignar</span>
                 )}
               </TableCell>
-              <TableCell className="text-center font-mono text-[13px] tracking-[0.02em] text-text-2">
+              <TableCell className="text-text-2 text-center font-mono text-[13px] tracking-[0.02em]">
                 {row.enrollmentsCount}
               </TableCell>
               <TableCell>
@@ -90,7 +85,7 @@ export function AulasTable({ items }: { items: ClassGroupListItem[] }) {
                 <Link
                   href={`/admin/aulas/${row.id}` as Route}
                   aria-label={`Ver aula ${row.name}`}
-                  className="inline-flex items-center gap-1.5 rounded-md border border-border bg-surface px-2.5 py-1.5 text-[12.5px] text-text-2 transition-colors hover:border-teal-500 hover:text-teal-500"
+                  className="border-border bg-surface text-text-2 inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1.5 text-[12.5px] transition-colors hover:border-teal-500 hover:text-teal-500"
                 >
                   Ver
                   <ArrowUpRight size={12} strokeWidth={1.6} />

@@ -22,10 +22,7 @@ export const dynamic = "force-dynamic"
 
 export async function GET(req: Request) {
   if (!env.CRON_SECRET) {
-    return NextResponse.json(
-      { error: "CRON_SECRET no configurado" },
-      { status: 500 },
-    )
+    return NextResponse.json({ error: "CRON_SECRET no configurado" }, { status: 500 })
   }
 
   const auth = req.headers.get("authorization") ?? ""

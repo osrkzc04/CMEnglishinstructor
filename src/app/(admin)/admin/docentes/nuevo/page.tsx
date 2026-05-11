@@ -27,7 +27,7 @@ export default async function NuevoDocentePage() {
       ]}
     >
       <header className="mb-6">
-        <h1 className="font-serif text-[32px] font-normal leading-[1.18] tracking-[-0.02em]">
+        <h1 className="font-serif text-[32px] leading-[1.18] font-normal tracking-[-0.02em]">
           Nuevo docente
         </h1>
       </header>

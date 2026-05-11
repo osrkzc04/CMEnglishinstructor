@@ -23,11 +23,7 @@ export default async function StudentMaterialesFolderPage({
   const detail = await getFolderDetail(folderId)
   if (!detail) notFound()
 
-  const allowed = await canAccessProgramLevel(
-    user.id,
-    user.role!,
-    detail.programLevelId,
-  )
+  const allowed = await canAccessProgramLevel(user.id, user.role!, detail.programLevelId)
   // Sin acceso → 404 (no leak de existencia).
   if (!allowed) notFound()
 
@@ -46,19 +42,15 @@ export default async function StudentMaterialesFolderPage({
       ]}
     >
       <header className="mb-6">
-        <p className="mb-2 font-mono text-[12px] uppercase tracking-[0.08em] text-text-3">
+        <p className="text-text-3 mb-2 font-mono text-[12px] tracking-[0.08em] uppercase">
           {detail.programName} · {detail.levelName}
         </p>
-        <h1 className="font-serif text-[28px] font-normal leading-[1.2] tracking-[-0.02em]">
+        <h1 className="font-serif text-[28px] leading-[1.2] font-normal tracking-[-0.02em]">
           {detail.isRoot ? detail.levelName : detail.name}
         </h1>
       </header>
 
-      <FolderViewer
-        folder={detail}
-        basePath="/estudiante/materiales"
-        rootLabel="Materiales"
-      />
+      <FolderViewer folder={detail} basePath="/estudiante/materiales" rootLabel="Materiales" />
     </AppShell>
   )
 }

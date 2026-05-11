@@ -77,14 +77,7 @@ export function NavProgress() {
   // Listeners globales: clicks a links + submits.
   useEffect(() => {
     function onClick(e: MouseEvent) {
-      if (
-        e.defaultPrevented ||
-        e.button !== 0 ||
-        e.metaKey ||
-        e.ctrlKey ||
-        e.shiftKey ||
-        e.altKey
-      )
+      if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey)
         return
       const target = e.target as HTMLElement | null
       if (!target) return
@@ -93,17 +86,8 @@ export function NavProgress() {
       const href = anchor.getAttribute("href")
       if (!href) return
       if (anchor.target === "_blank") return
-      if (
-        href.startsWith("#") ||
-        href.startsWith("mailto:") ||
-        href.startsWith("tel:")
-      )
-        return
-      if (
-        href.startsWith("http") &&
-        !href.startsWith(window.location.origin)
-      )
-        return
+      if (href.startsWith("#") || href.startsWith("mailto:") || href.startsWith("tel:")) return
+      if (href.startsWith("http") && !href.startsWith(window.location.origin)) return
       start()
     }
 
@@ -126,10 +110,7 @@ export function NavProgress() {
   if (progress === null) return null
 
   return (
-    <div
-      aria-hidden
-      className="pointer-events-none fixed inset-x-0 top-0 z-[100] h-[2px]"
-    >
+    <div aria-hidden className="pointer-events-none fixed inset-x-0 top-0 z-[100] h-[2px]">
       <div
         className="h-full bg-teal-500 shadow-[0_0_8px_rgba(39,159,137,0.55)] transition-[width,opacity] duration-200 ease-out"
         style={{

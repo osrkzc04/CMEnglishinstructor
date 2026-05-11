@@ -34,8 +34,7 @@ export default async function DocentesPage({
   const user = await requireRole(["DIRECTOR", "COORDINATOR"])
   const sp = await searchParams
 
-  const safeStatus =
-    sp.status && isUserStatus(sp.status) ? sp.status : undefined
+  const safeStatus = sp.status && isUserStatus(sp.status) ? sp.status : undefined
 
   const filters = TeacherListFiltersSchema.parse({
     q: sp.q,
@@ -43,10 +42,7 @@ export default async function DocentesPage({
     page: sp.page,
   })
 
-  const [list, stats] = await Promise.all([
-    listTeachers(filters),
-    getTeacherStats(),
-  ])
+  const [list, stats] = await Promise.all([listTeachers(filters), getTeacherStats()])
 
   return (
     <AppShell
@@ -56,23 +52,17 @@ export default async function DocentesPage({
         email: user.email ?? "",
         roleLabel: roleLabel(user.role!),
       }}
-      breadcrumbs={[
-        { label: "Admin", href: "/admin/dashboard" as Route },
-        { label: "Docentes" },
-      ]}
+      breadcrumbs={[{ label: "Admin", href: "/admin/dashboard" as Route }, { label: "Docentes" }]}
     >
       <header className="mb-6">
-        <h1 className="font-serif text-[32px] font-normal leading-[1.18] tracking-[-0.02em]">
+        <h1 className="font-serif text-[32px] leading-[1.18] font-normal tracking-[-0.02em]">
           Docentes
         </h1>
       </header>
 
       <StatsStrip stats={stats} />
 
-      <DocentesToolbar
-        initialQuery={filters.q ?? ""}
-        initialStatus={filters.status ?? "ALL"}
-      />
+      <DocentesToolbar initialQuery={filters.q ?? ""} initialStatus={filters.status ?? "ALL"} />
 
       <DocentesTable items={list.items} />
 

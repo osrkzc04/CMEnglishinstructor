@@ -4,10 +4,7 @@ import { revalidatePath } from "next/cache"
 import { UserStatus } from "@prisma/client"
 import { prisma } from "@/lib/prisma"
 import { requireRole } from "@/modules/auth/guards"
-import {
-  TeacherPersonalDataSchema,
-  type TeacherPersonalDataInput,
-} from "./schemas"
+import { TeacherPersonalDataSchema, type TeacherPersonalDataInput } from "./schemas"
 
 type Result =
   | { success: true }

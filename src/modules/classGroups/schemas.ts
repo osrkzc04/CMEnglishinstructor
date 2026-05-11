@@ -133,9 +133,7 @@ export const TeacherUpdateClassGroupSchema = z.object({
   defaultMeetingUrl: MeetingUrlSchema,
 })
 
-export type TeacherUpdateClassGroupInput = z.infer<
-  typeof TeacherUpdateClassGroupSchema
->
+export type TeacherUpdateClassGroupInput = z.infer<typeof TeacherUpdateClassGroupSchema>
 
 // -----------------------------------------------------------------------------
 //  Cambiar estado (cerrar / cancelar)

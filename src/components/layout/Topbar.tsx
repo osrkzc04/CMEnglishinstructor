@@ -2,14 +2,7 @@
 
 import Link from "next/link"
 import type { Route } from "next"
-import {
-  Bell,
-  MessageSquare,
-  Moon,
-  PanelLeft,
-  Search,
-  Sun,
-} from "lucide-react"
+import { Bell, MessageSquare, Moon, PanelLeft, Search, Sun } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useSidebar } from "@/components/layout/sidebar-context"
 import { useTheme } from "@/components/theme/ThemeProvider"
@@ -52,7 +45,7 @@ export function Topbar({ breadcrumbs, cta }: TopbarProps) {
   return (
     <header
       className={cn(
-        "sticky top-0 z-[5] flex h-[60px] items-center gap-4 border-b border-border bg-surface px-7",
+        "border-border bg-surface sticky top-0 z-[5] flex h-[60px] items-center gap-4 border-b px-7",
         "shadow-[0_1px_0_rgba(35,54,65,0.04),_0_6px_18px_rgba(35,54,65,0.05)]",
       )}
     >
@@ -61,27 +54,27 @@ export function Topbar({ breadcrumbs, cta }: TopbarProps) {
         onClick={toggleSidebar}
         aria-label="Colapsar menú"
         title="Colapsar menú"
-        className="grid h-8 w-8 shrink-0 place-items-center rounded-md border border-border text-text-3 transition-colors duration-[150ms] hover:border-border-strong hover:bg-background hover:text-foreground"
+        className="border-border text-text-3 hover:border-border-strong hover:bg-background hover:text-foreground grid h-8 w-8 shrink-0 place-items-center rounded-md border transition-colors duration-[150ms]"
       >
         <PanelLeft size={16} strokeWidth={1.6} />
       </button>
 
       {/* Breadcrumbs */}
-      <nav aria-label="Breadcrumb" className="flex shrink-0 items-center gap-2.5 text-[14px] text-text-3">
+      <nav
+        aria-label="Breadcrumb"
+        className="text-text-3 flex shrink-0 items-center gap-2.5 text-[14px]"
+      >
         {breadcrumbs.map((b, i) => {
           const isLast = i === breadcrumbs.length - 1
           return (
             <span key={`${b.label}-${i}`} className="flex items-center gap-2.5">
               {i > 0 && <span className="text-text-4">/</span>}
               {isLast ? (
-                <span className="font-serif text-[15px] italic tracking-[-0.005em] text-foreground">
+                <span className="text-foreground font-serif text-[15px] tracking-[-0.005em] italic">
                   {b.label}
                 </span>
               ) : b.href ? (
-                <Link
-                  href={b.href}
-                  className="text-text-3 transition-colors hover:text-foreground"
-                >
+                <Link href={b.href} className="text-text-3 hover:text-foreground transition-colors">
                   {b.label}
                 </Link>
               ) : (
@@ -101,7 +94,7 @@ export function Topbar({ breadcrumbs, cta }: TopbarProps) {
       <div className="flex shrink-0 items-center gap-2">
         <ThemeToggle />
 
-        <span aria-hidden className="mx-1 h-9 w-px bg-border" />
+        <span aria-hidden className="bg-border mx-1 h-9 w-px" />
 
         <IconButton title="Notificaciones" hasDot>
           <Bell size={16} strokeWidth={1.6} />
@@ -123,21 +116,24 @@ export function Topbar({ breadcrumbs, cta }: TopbarProps) {
 function SearchBox() {
   return (
     <div className="relative hidden flex-1 md:block md:max-w-[380px]">
-      <span aria-hidden className="pointer-events-none absolute left-[11px] top-1/2 -translate-y-1/2 text-text-4">
+      <span
+        aria-hidden
+        className="text-text-4 pointer-events-none absolute top-1/2 left-[11px] -translate-y-1/2"
+      >
         <Search size={14} strokeWidth={1.6} />
       </span>
       <input
         type="text"
         placeholder="Buscar estudiantes, clases, materiales…"
         className={cn(
-          "w-full rounded-md border border-border bg-background py-[9px] pl-[34px] pr-12 text-[14px] text-foreground placeholder:text-text-4",
-          "transition-colors duration-[150ms] hover:border-border-strong",
-          "focus:border-teal-500 focus:bg-surface focus:outline-none",
+          "border-border bg-background text-foreground placeholder:text-text-4 w-full rounded-md border py-[9px] pr-12 pl-[34px] text-[14px]",
+          "hover:border-border-strong transition-colors duration-[150ms]",
+          "focus:bg-surface focus:border-teal-500 focus:outline-none",
         )}
       />
       <span
         aria-hidden
-        className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 rounded-sm border border-border px-1.5 py-px font-mono text-[10.5px] leading-none text-text-3"
+        className="border-border text-text-3 pointer-events-none absolute top-1/2 right-2 -translate-y-1/2 rounded-sm border px-1.5 py-px font-mono text-[10.5px] leading-none"
       >
         ⌘K
       </span>
@@ -157,7 +153,7 @@ function ThemeToggle() {
     <div
       role="tablist"
       aria-label="Modo"
-      className="inline-flex items-center rounded-md border border-border bg-background p-0.5"
+      className="border-border bg-background inline-flex items-center rounded-md border p-0.5"
     >
       <button
         type="button"
@@ -211,13 +207,13 @@ function IconButton({
       type="button"
       title={title}
       aria-label={title}
-      className="relative inline-flex items-center gap-1.5 rounded-md border border-transparent p-2 text-text-3 transition-[background-color,color,border-color] duration-[120ms] hover:border-border hover:bg-background hover:text-foreground"
+      className="text-text-3 hover:border-border hover:bg-background hover:text-foreground relative inline-flex items-center gap-1.5 rounded-md border border-transparent p-2 transition-[background-color,color,border-color] duration-[120ms]"
     >
       {children}
       {hasDot && (
         <span
           aria-hidden
-          className="absolute right-[5px] top-[5px] h-1.5 w-1.5 rounded-full bg-teal-500 ring-[1.5px] ring-surface"
+          className="ring-surface absolute top-[5px] right-[5px] h-1.5 w-1.5 rounded-full bg-teal-500 ring-[1.5px]"
         />
       )}
     </button>

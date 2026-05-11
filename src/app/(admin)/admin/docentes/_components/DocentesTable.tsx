@@ -37,7 +37,7 @@ export function DocentesTable({ items }: { items: TeacherListItem[] }) {
 
   if (items.length === 0) {
     return (
-      <div className="rounded-xl border border-border bg-surface">
+      <div className="border-border bg-surface rounded-xl border">
         <EmptyState
           title="Sin resultados"
           description="No hay docentes que coincidan con los filtros."
@@ -47,7 +47,7 @@ export function DocentesTable({ items }: { items: TeacherListItem[] }) {
   }
 
   return (
-    <div className="overflow-hidden rounded-xl border border-border bg-surface">
+    <div className="border-border bg-surface overflow-hidden rounded-xl border">
       <Table>
         <TableHeader>
           <tr>
@@ -66,22 +66,22 @@ export function DocentesTable({ items }: { items: TeacherListItem[] }) {
             return (
               <TableRow key={row.id}>
                 <TableCell>
-                  <div className="font-medium text-foreground">
+                  <div className="text-foreground font-medium">
                     {row.firstName} {row.lastName}
                   </div>
-                  <div className="mt-0.5 font-mono text-[12px] tracking-[0.02em] text-text-3">
+                  <div className="text-text-3 mt-0.5 font-mono text-[12px] tracking-[0.02em]">
                     {row.document ?? "—"}
                   </div>
                 </TableCell>
                 <TableCell>
                   <div className="text-foreground">{row.email}</div>
-                  <div className="mt-0.5 font-mono text-[12px] tracking-[0.02em] text-text-3">
+                  <div className="text-text-3 mt-0.5 font-mono text-[12px] tracking-[0.02em]">
                     {row.phone ?? "—"}
                   </div>
                 </TableCell>
                 <TableCell>
                   {row.levelCount > 0 ? (
-                    <span className="font-mono text-[13px] tracking-[0.02em] text-foreground">
+                    <span className="text-foreground font-mono text-[13px] tracking-[0.02em]">
                       {row.levelCount}
                     </span>
                   ) : (
@@ -90,7 +90,7 @@ export function DocentesTable({ items }: { items: TeacherListItem[] }) {
                 </TableCell>
                 <TableCell>
                   {row.availabilityHours > 0 ? (
-                    <span className="font-mono text-[12.5px] tracking-[0.02em] text-text-2">
+                    <span className="text-text-2 font-mono text-[12.5px] tracking-[0.02em]">
                       {formatHours(row.availabilityHours)}{" "}
                       <span className="text-text-3">h/sem</span>
                     </span>
@@ -100,7 +100,7 @@ export function DocentesTable({ items }: { items: TeacherListItem[] }) {
                 </TableCell>
                 <TableCell>
                   {row.activeAssignments > 0 ? (
-                    <span className="font-mono text-[13px] tracking-[0.02em] text-foreground">
+                    <span className="text-foreground font-mono text-[13px] tracking-[0.02em]">
                       {row.activeAssignments}{" "}
                       <span className="text-text-3">
                         {row.activeAssignments === 1 ? "vigente" : "vigentes"}
@@ -119,19 +119,17 @@ export function DocentesTable({ items }: { items: TeacherListItem[] }) {
                       href={`/admin/docentes/${row.id}` as Route}
                       aria-label={`Ver detalle de ${row.firstName} ${row.lastName}`}
                       title="Ver detalle"
-                      className="grid h-7 w-7 place-items-center rounded-md border border-border bg-surface text-text-3 transition-colors hover:border-teal-500 hover:text-teal-500"
+                      className="border-border bg-surface text-text-3 grid h-7 w-7 place-items-center rounded-md border transition-colors hover:border-teal-500 hover:text-teal-500"
                     >
                       <ArrowRight size={13} strokeWidth={1.6} />
                     </Link>
                     <button
                       type="button"
-                      aria-label={
-                        isActive ? "Desactivar docente" : "Activar docente"
-                      }
+                      aria-label={isActive ? "Desactivar docente" : "Activar docente"}
                       title={isActive ? "Desactivar" : "Activar"}
                       onClick={() => toggleStatus(row)}
                       disabled={isPending}
-                      className="grid h-7 w-7 place-items-center rounded-md border border-border bg-surface text-text-3 transition-colors hover:border-border-strong hover:text-foreground disabled:cursor-not-allowed disabled:opacity-50"
+                      className="border-border bg-surface text-text-3 hover:border-border-strong hover:text-foreground grid h-7 w-7 place-items-center rounded-md border transition-colors disabled:cursor-not-allowed disabled:opacity-50"
                     >
                       {isActive ? (
                         <PowerOff size={13} strokeWidth={1.6} />

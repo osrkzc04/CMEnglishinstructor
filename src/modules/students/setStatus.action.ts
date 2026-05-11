@@ -20,10 +20,7 @@ const InputSchema = z.object({
  * Soft-delete preferido sobre `delete` directo — los estudiantes acumulan
  * historia (matrículas, sesiones, bitácoras) que no debemos romper.
  */
-export async function setStudentStatus(input: {
-  id: string
-  status: UserStatus
-}): Promise<Result> {
+export async function setStudentStatus(input: { id: string; status: UserStatus }): Promise<Result> {
   await requireRole(["DIRECTOR", "COORDINATOR"])
 
   const parsed = InputSchema.safeParse(input)
@@ -42,10 +39,7 @@ export async function setStudentStatus(input: {
   // Si pasa ACTIVE → INACTIVE: notificar por cortesía y revocar tokens
   // pendientes (activación / reset). Si volviera a entrar via un link viejo
   // sería incongruente con su nuevo estado.
-  if (
-    target.status === UserStatus.ACTIVE &&
-    parsed.data.status === UserStatus.INACTIVE
-  ) {
+  if (target.status === UserStatus.ACTIVE && parsed.data.status === UserStatus.INACTIVE) {
     await revokeUserTokens(target.id)
     await sendDeactivationEmail({
       userId: target.id,

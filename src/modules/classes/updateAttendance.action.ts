@@ -3,10 +3,7 @@
 import { revalidatePath } from "next/cache"
 import { SessionStatus } from "@prisma/client"
 import { prisma } from "@/lib/prisma"
-import {
-  UpdateAttendanceSchema,
-  type UpdateAttendanceInput,
-} from "./schemas"
+import { UpdateAttendanceSchema, type UpdateAttendanceInput } from "./schemas"
 import { requireSessionEditor } from "./authorize"
 
 type Result = { success: true } | { success: false; error: string }
@@ -19,9 +16,7 @@ type Result = { success: true } | { success: false; error: string }
  * snapshot, y editar ahí necesitaría una ventana de edición que está fuera
  * del alcance MVP (ver `docs/backlog.md`).
  */
-export async function updateAttendance(
-  input: UpdateAttendanceInput,
-): Promise<Result> {
+export async function updateAttendance(input: UpdateAttendanceInput): Promise<Result> {
   const parsed = UpdateAttendanceSchema.safeParse(input)
   if (!parsed.success) {
     return { success: false, error: parsed.error.issues[0]?.message ?? "Datos inválidos" }

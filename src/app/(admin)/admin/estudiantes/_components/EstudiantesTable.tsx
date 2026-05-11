@@ -41,7 +41,7 @@ export function EstudiantesTable({ items }: { items: StudentListItem[] }) {
 
   if (items.length === 0) {
     return (
-      <div className="rounded-xl border border-border bg-surface">
+      <div className="border-border bg-surface rounded-xl border">
         <EmptyState
           title="Sin resultados"
           description="No hay estudiantes que coincidan con los filtros."
@@ -51,7 +51,7 @@ export function EstudiantesTable({ items }: { items: StudentListItem[] }) {
   }
 
   return (
-    <div className="overflow-hidden rounded-xl border border-border bg-surface">
+    <div className="border-border bg-surface overflow-hidden rounded-xl border">
       <Table>
         <TableHeader>
           <tr>
@@ -70,16 +70,16 @@ export function EstudiantesTable({ items }: { items: StudentListItem[] }) {
             return (
               <TableRow key={row.id}>
                 <TableCell>
-                  <div className="font-medium text-foreground">
+                  <div className="text-foreground font-medium">
                     {row.firstName} {row.lastName}
                   </div>
-                  <div className="mt-0.5 font-mono text-[12px] tracking-[0.02em] text-text-3">
+                  <div className="text-text-3 mt-0.5 font-mono text-[12px] tracking-[0.02em]">
                     {row.document ?? "—"}
                   </div>
                 </TableCell>
                 <TableCell>
                   <div className="text-foreground">{row.email}</div>
-                  <div className="mt-0.5 font-mono text-[12px] tracking-[0.02em] text-text-3">
+                  <div className="text-text-3 mt-0.5 font-mono text-[12px] tracking-[0.02em]">
                     {row.phone ?? "—"}
                   </div>
                 </TableCell>
@@ -88,9 +88,7 @@ export function EstudiantesTable({ items }: { items: StudentListItem[] }) {
                     <>
                       <div className="text-foreground">{row.company}</div>
                       {row.position && (
-                        <div className="mt-0.5 text-[12.5px] text-text-3">
-                          {row.position}
-                        </div>
+                        <div className="text-text-3 mt-0.5 text-[12.5px]">{row.position}</div>
                       )}
                     </>
                   ) : (
@@ -102,7 +100,7 @@ export function EstudiantesTable({ items }: { items: StudentListItem[] }) {
                 </TableCell>
                 <TableCell>
                   {row.activeEnrollments > 0 ? (
-                    <span className="font-mono text-[13px] tracking-[0.02em] text-foreground">
+                    <span className="text-foreground font-mono text-[13px] tracking-[0.02em]">
                       {row.activeEnrollments}{" "}
                       <span className="text-text-3">
                         {row.activeEnrollments === 1 ? "activa" : "activas"}
@@ -112,7 +110,7 @@ export function EstudiantesTable({ items }: { items: StudentListItem[] }) {
                     <span className="text-text-4">—</span>
                   )}
                 </TableCell>
-                <TableCell className="font-mono text-[12.5px] tracking-[0.02em] text-text-2">
+                <TableCell className="text-text-2 font-mono text-[12.5px] tracking-[0.02em]">
                   {formatDate(row.createdAt)}
                 </TableCell>
                 <TableCell>
@@ -121,19 +119,17 @@ export function EstudiantesTable({ items }: { items: StudentListItem[] }) {
                       href={`/admin/estudiantes/${row.id}` as Route}
                       aria-label={`Ver detalle de ${row.firstName} ${row.lastName}`}
                       title="Ver detalle"
-                      className="grid h-7 w-7 place-items-center rounded-md border border-border bg-surface text-text-3 transition-colors hover:border-teal-500 hover:text-teal-500"
+                      className="border-border bg-surface text-text-3 grid h-7 w-7 place-items-center rounded-md border transition-colors hover:border-teal-500 hover:text-teal-500"
                     >
                       <Eye size={13} strokeWidth={1.6} />
                     </Link>
                     <button
                       type="button"
-                      aria-label={
-                        isActive ? "Desactivar estudiante" : "Activar estudiante"
-                      }
+                      aria-label={isActive ? "Desactivar estudiante" : "Activar estudiante"}
                       title={isActive ? "Desactivar" : "Activar"}
                       onClick={() => toggleStatus(row)}
                       disabled={isPending}
-                      className="grid h-7 w-7 place-items-center rounded-md border border-border bg-surface text-text-3 transition-colors hover:border-border-strong hover:text-foreground disabled:cursor-not-allowed disabled:opacity-50"
+                      className="border-border bg-surface text-text-3 hover:border-border-strong hover:text-foreground grid h-7 w-7 place-items-center rounded-md border transition-colors disabled:cursor-not-allowed disabled:opacity-50"
                     >
                       {isActive ? (
                         <PowerOff size={13} strokeWidth={1.6} />

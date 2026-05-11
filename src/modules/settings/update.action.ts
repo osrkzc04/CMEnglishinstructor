@@ -3,10 +3,7 @@
 import { revalidatePath } from "next/cache"
 import { requireRole } from "@/modules/auth/guards"
 import { setSetting } from "./index"
-import {
-  SystemSettingsSchema,
-  type SystemSettingsInput,
-} from "./schemas"
+import { SystemSettingsSchema, type SystemSettingsInput } from "./schemas"
 
 /**
  * Action invocada desde el form de `/admin/configuracion/sistema`. Persiste
@@ -32,9 +29,7 @@ type Result =
       field?: keyof SystemSettingsInput
     }
 
-export async function updateSystemSettings(
-  input: SystemSettingsInput,
-): Promise<Result> {
+export async function updateSystemSettings(input: SystemSettingsInput): Promise<Result> {
   const user = await requireRole(["DIRECTOR", "COORDINATOR"])
 
   const parsed = SystemSettingsSchema.safeParse(input)

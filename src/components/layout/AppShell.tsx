@@ -33,9 +33,7 @@ export function AppShell({ children, role, user, breadcrumbs, cta }: AppShellPro
         <Sidebar role={role} user={{ name: user.name, roleLabel: user.roleLabel }} />
         <div className="flex min-w-0 flex-1 flex-col">
           <Topbar breadcrumbs={breadcrumbs} cta={cta} />
-          <main className="flex-1 bg-background px-10 pb-12 pt-8">
-            {children}
-          </main>
+          <main className="bg-background flex-1 px-10 pt-8 pb-12">{children}</main>
           <AppFooter />
         </div>
       </div>

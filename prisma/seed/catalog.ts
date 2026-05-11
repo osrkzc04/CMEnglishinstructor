@@ -62,8 +62,7 @@ export async function seedCatalog(prisma: PrismaClient): Promise<void> {
     data: {
       languageId: english.id,
       name: "General English",
-      description:
-        "Inglés general para adultos, enfocado en comunicación cotidiana y profesional.",
+      description: "Inglés general para adultos, enfocado en comunicación cotidiana y profesional.",
       baseHours: 48,
       classDuration: 60,
       pricePerHour: 25.0,
@@ -146,8 +145,7 @@ export async function seedCatalog(prisma: PrismaClient): Promise<void> {
     data: {
       languageId: english.id,
       name: "Business English",
-      description:
-        "Inglés empresarial para ejecutivos y profesionales corporativos.",
+      description: "Inglés empresarial para ejecutivos y profesionales corporativos.",
       baseHours: 72,
       classDuration: 60,
       pricePerHour: 35.0,
@@ -221,8 +219,7 @@ export async function seedCatalog(prisma: PrismaClient): Promise<void> {
     data: {
       languageId: english.id,
       name: "Kids Learning",
-      description:
-        "Programa integral de inglés para niños, combinando lectura y escritura.",
+      description: "Programa integral de inglés para niños, combinando lectura y escritura.",
       baseHours: 40,
       classDuration: 60,
       pricePerHour: 20.0,

@@ -4,10 +4,7 @@ import { revalidatePath } from "next/cache"
 import { ClassGroupStatus } from "@prisma/client"
 import { prisma } from "@/lib/prisma"
 import { ForbiddenError, requireAuth } from "@/modules/auth/guards"
-import {
-  TeacherUpdateClassGroupSchema,
-  type TeacherUpdateClassGroupInput,
-} from "./schemas"
+import { TeacherUpdateClassGroupSchema, type TeacherUpdateClassGroupInput } from "./schemas"
 
 type Result =
   | { success: true }
@@ -37,9 +34,7 @@ export async function teacherUpdateClassGroup(
   const parsed = TeacherUpdateClassGroupSchema.safeParse(input)
   if (!parsed.success) {
     const issue = parsed.error.issues[0]
-    const field = issue?.path[0] as
-      | keyof TeacherUpdateClassGroupInput
-      | undefined
+    const field = issue?.path[0] as keyof TeacherUpdateClassGroupInput | undefined
     return { success: false, error: issue?.message ?? "Datos inválidos", field }
   }
   const data = parsed.data

@@ -18,16 +18,11 @@ type SearchParams = {
   page?: string
 }
 
-export default async function AulasPage({
-  searchParams,
-}: {
-  searchParams: Promise<SearchParams>
-}) {
+export default async function AulasPage({ searchParams }: { searchParams: Promise<SearchParams> }) {
   const user = await requireRole(["DIRECTOR", "COORDINATOR"])
   const sp = await searchParams
 
-  const safeStatus =
-    sp.status && isClassGroupStatus(sp.status) ? sp.status : undefined
+  const safeStatus = sp.status && isClassGroupStatus(sp.status) ? sp.status : undefined
 
   const filters = ClassGroupListFiltersSchema.parse({
     q: sp.q,
@@ -45,28 +40,22 @@ export default async function AulasPage({
         email: user.email ?? "",
         roleLabel: roleLabel(user.role!),
       }}
-      breadcrumbs={[
-        { label: "Admin", href: "/admin/dashboard" as Route },
-        { label: "Aulas" },
-      ]}
+      breadcrumbs={[{ label: "Admin", href: "/admin/dashboard" as Route }, { label: "Aulas" }]}
     >
       <header className="mb-6">
-        <p className="mb-2 font-mono text-[12px] uppercase tracking-[0.08em] text-text-3">
+        <p className="text-text-3 mb-2 font-mono text-[12px] tracking-[0.08em] uppercase">
           Operación
         </p>
-        <h1 className="font-serif text-[32px] font-normal leading-[1.18] tracking-[-0.02em]">
+        <h1 className="font-serif text-[32px] leading-[1.18] font-normal tracking-[-0.02em]">
           Aulas
         </h1>
-        <p className="mt-2 max-w-2xl text-[14px] leading-[1.55] text-text-3">
-          Cada aula agrupa matrículas del mismo nivel con un horario y un
-          docente. Una clase 1-a-1 es un aula con un solo alumno.
+        <p className="text-text-3 mt-2 max-w-2xl text-[14px] leading-[1.55]">
+          Cada aula agrupa matrículas del mismo nivel con un horario y un docente. Una clase 1-a-1
+          es un aula con un solo alumno.
         </p>
       </header>
 
-      <AulasToolbar
-        initialQuery={filters.q ?? ""}
-        initialStatus={filters.status ?? "ALL"}
-      />
+      <AulasToolbar initialQuery={filters.q ?? ""} initialStatus={filters.status ?? "ALL"} />
 
       <AulasTable items={list.items} />
 

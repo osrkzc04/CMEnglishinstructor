@@ -12,10 +12,7 @@ import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import {
-  NewTeacherSchema,
-  type NewTeacherInput,
-} from "@/modules/teachers/schemas"
+import { NewTeacherSchema, type NewTeacherInput } from "@/modules/teachers/schemas"
 import { createTeacher } from "@/modules/teachers/create.action"
 import type { CefrLanguageGroup } from "@/modules/teachers/queries"
 import { AvailabilityGrid } from "@/app/(admin)/admin/docentes/_components/AvailabilityGrid"
@@ -128,12 +125,7 @@ export function NewTeacherForm({ cefrGroups }: Props) {
               {...register("phone")}
             />
           </Field>
-          <Field
-            id="document"
-            label="Documento"
-            optional
-            error={errors.document?.message}
-          >
+          <Field id="document" label="Documento" optional error={errors.document?.message}>
             <Input
               id="document"
               placeholder="Cédula o pasaporte"
@@ -145,8 +137,8 @@ export function NewTeacherForm({ cefrGroups }: Props) {
             <select
               id="status"
               className={cn(
-                "block w-full rounded-md border border-border bg-surface px-3 py-2 text-[13.5px] text-foreground",
-                "transition-colors duration-[150ms] hover:border-border-strong focus:border-teal-500 focus:outline-none",
+                "border-border bg-surface text-foreground block w-full rounded-md border px-3 py-2 text-[13.5px]",
+                "hover:border-border-strong transition-colors duration-[150ms] focus:border-teal-500 focus:outline-none",
               )}
               {...register("status")}
             >
@@ -164,17 +156,15 @@ export function NewTeacherForm({ cefrGroups }: Props) {
           render={() => (
             <div className="space-y-5">
               {cefrGroups.length === 0 ? (
-                <p className="text-[13px] text-text-3">
-                  No hay niveles configurados.
-                </p>
+                <p className="text-text-3 text-[13px]">No hay niveles configurados.</p>
               ) : (
                 cefrGroups.map((g) => (
                   <div key={g.languageId}>
-                    <p className="mb-2.5 font-mono text-[11px] uppercase tracking-[0.08em] text-text-3">
+                    <p className="text-text-3 mb-2.5 font-mono text-[11px] tracking-[0.08em] uppercase">
                       {g.languageName}
                     </p>
                     {g.levels.length === 0 ? (
-                      <p className="text-[13px] text-text-4">
+                      <p className="text-text-4 text-[13px]">
                         Sin niveles definidos para este idioma.
                       </p>
                     ) : (
@@ -187,14 +177,11 @@ export function NewTeacherForm({ cefrGroups }: Props) {
                               className={cn(
                                 "inline-flex cursor-pointer items-center gap-2 rounded-md border px-3 py-2 text-[13px] transition-colors duration-[120ms]",
                                 isSelected
-                                  ? "border-teal-500/60 bg-teal-500/[0.08] text-foreground"
+                                  ? "text-foreground border-teal-500/60 bg-teal-500/[0.08]"
                                   : "border-border bg-surface text-text-2 hover:border-border-strong hover:text-foreground",
                               )}
                             >
-                              <Checkbox
-                                checked={isSelected}
-                                onChange={() => toggleLevel(opt.id)}
-                              />
+                              <Checkbox checked={isSelected} onChange={() => toggleLevel(opt.id)} />
                               <span className="font-mono text-[12.5px] tracking-[0.04em]">
                                 {opt.code}
                               </span>
@@ -212,9 +199,7 @@ export function NewTeacherForm({ cefrGroups }: Props) {
           )}
         />
         {errors.levelIds && (
-          <p className="mt-2 text-[12.5px] text-danger">
-            {errors.levelIds.message}
-          </p>
+          <p className="text-danger mt-2 text-[12.5px]">{errors.levelIds.message}</p>
         )}
       </Section>
 
@@ -231,9 +216,7 @@ export function NewTeacherForm({ cefrGroups }: Props) {
           )}
         />
         {errors.blocks && typeof errors.blocks.message === "string" && (
-          <p className="mt-2 text-[12.5px] text-danger">
-            {errors.blocks.message}
-          </p>
+          <p className="text-danger mt-2 text-[12.5px]">{errors.blocks.message}</p>
         )}
       </Section>
 
@@ -262,17 +245,11 @@ export function NewTeacherForm({ cefrGroups }: Props) {
   )
 }
 
-function Section({
-  title,
-  children,
-}: {
-  title: string
-  children: React.ReactNode
-}) {
+function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <section className="rounded-xl border border-border bg-surface px-6 py-5">
+    <section className="border-border bg-surface rounded-xl border px-6 py-5">
       <header className="mb-4">
-        <h2 className="font-serif text-[22px] font-normal tracking-[-0.01em] text-foreground">
+        <h2 className="text-foreground font-serif text-[22px] font-normal tracking-[-0.01em]">
           {title}
         </h2>
       </header>
@@ -301,13 +278,13 @@ function Field({
       <div className="mb-1.5 flex items-baseline justify-between gap-2">
         <Label htmlFor={id}>{label}</Label>
         {optional && (
-          <span className="font-sans text-[11px] normal-case tracking-normal text-text-4">
+          <span className="text-text-4 font-sans text-[11px] tracking-normal normal-case">
             opcional
           </span>
         )}
       </div>
       {children}
-      {error && <p className="mt-1 text-[12px] text-danger">{error}</p>}
+      {error && <p className="text-danger mt-1 text-[12px]">{error}</p>}
     </div>
   )
 }

@@ -25,9 +25,7 @@ async function main() {
   const user = process.env.SMTP_USER
   const password = process.env.SMTP_PASSWORD
   const secure = process.env.SMTP_SECURE === "true"
-  const from =
-    process.env.EMAIL_FROM ??
-    "CM English Instructor <no-reply@cmenglishinstructor.com>"
+  const from = process.env.EMAIL_FROM ?? "CM English Instructor <no-reply@cmenglishinstructor.com>"
   const replyTo = process.env.EMAIL_REPLY_TO
 
   if (!host || !user || !password) {
@@ -104,10 +102,8 @@ async function main() {
     console.log("\n✓ Enviado.")
     console.log("  messageId:", info.messageId)
     if (info.response) console.log("  response: ", info.response)
-    if (info.accepted?.length)
-      console.log("  accepted: ", info.accepted.join(", "))
-    if (info.rejected?.length)
-      console.log("  rejected: ", info.rejected.join(", "))
+    if (info.accepted?.length) console.log("  accepted: ", info.accepted.join(", "))
+    if (info.rejected?.length) console.log("  rejected: ", info.rejected.join(", "))
   } catch (err) {
     console.error("\n✗ Falló el envío:")
     console.error(err)

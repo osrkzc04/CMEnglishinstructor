@@ -98,15 +98,15 @@ export async function startTestSession(token: string) {
       where: { token },
       include: { session: true, template: { include: { topicFilters: true } } },
     })
-    
-    if (!invite) throw new NotFoundError('Invitation')
+
+    if (!invite) throw new NotFoundError("Invitation")
     if (invite.expiresAt < new Date() && !invite.session) throw new ExpiredError()
-    if (invite.session?.status === 'IN_PROGRESS') return invite.session // resumir
+    if (invite.session?.status === "IN_PROGRESS") return invite.session // resumir
     if (invite.session) throw new AlreadyUsedError()
-    
+
     // Sortear preguntas según template
     const questions = await sampleQuestions(tx, invite.template)
-    
+
     // Crear session con deadline
     const deadline = new Date(Date.now() + invite.template.timeLimitMinutes * 60_000)
     const session = await tx.testSession.create({
@@ -116,10 +116,10 @@ export async function startTestSession(token: string) {
         candidateName: invite.candidateName,
         candidateEmail: invite.candidateEmail,
         deadline,
-        status: 'IN_PROGRESS',
+        status: "IN_PROGRESS",
       },
     })
-    
+
     // Crear snapshot de cada pregunta
     await tx.testSessionQuestion.createMany({
       data: questions.map((q, idx) => ({
@@ -129,21 +129,31 @@ export async function startTestSession(token: string) {
         promptSnapshot: q.prompt,
         typeSnapshot: q.type,
         pointsSnapshot: q.points,
-        optionsSnapshot: q.type === 'MULTIPLE_CHOICE'
-          ? q.options.map(o => ({ id: o.id, text: o.text, isCorrect: o.isCorrect, order: o.order }))
-          : null,
-        acceptedAnswersSnapshot: q.type === 'FILL_IN'
-          ? q.fillAnswers.map(a => ({ answer: a.acceptedAnswer, caseSensitive: a.caseSensitive }))
-          : null,
+        optionsSnapshot:
+          q.type === "MULTIPLE_CHOICE"
+            ? q.options.map((o) => ({
+                id: o.id,
+                text: o.text,
+                isCorrect: o.isCorrect,
+                order: o.order,
+              }))
+            : null,
+        acceptedAnswersSnapshot:
+          q.type === "FILL_IN"
+            ? q.fillAnswers.map((a) => ({
+                answer: a.acceptedAnswer,
+                caseSensitive: a.caseSensitive,
+              }))
+            : null,
       })),
     })
-    
+
     // Marcar token usado
     await tx.inviteToken.update({
       where: { id: invite.id },
       data: { usedAt: new Date() },
     })
-    
+
     return session
   })
 }
@@ -156,6 +166,7 @@ El `sampleQuestions` aplica filtros de `TestTemplateTopic` para garantizar que s
 **Ruta**: `/prueba/[token]/rendir` (Client Component)
 
 La UI muestra:
+
 - Pregunta actual (según `TestSessionQuestion.order`).
 - Snapshot de opciones renderizadas (NO consulta `Question` vivo).
 - Navegación: "Anterior" / "Siguiente" / "Ir a pregunta N".
@@ -166,21 +177,26 @@ Hooks del frontend para `TestSessionEvent`:
 
 ```typescript
 useEffect(() => {
-  const onBlur = () => postEvent('FOCUS_LOST')
-  const onFocus = () => postEvent('FOCUS_REGAINED')
-  const onCopy = (e) => { e.preventDefault(); postEvent('COPY_ATTEMPT') }
-  const onVisibility = () => {
-    if (document.hidden) postEvent('FOCUS_LOST')
-    else postEvent('FOCUS_REGAINED')
+  const onBlur = () => postEvent("FOCUS_LOST")
+  const onFocus = () => postEvent("FOCUS_REGAINED")
+  const onCopy = (e) => {
+    e.preventDefault()
+    postEvent("COPY_ATTEMPT")
   }
-  
-  window.addEventListener('blur', onBlur)
-  window.addEventListener('focus', onFocus)
-  document.addEventListener('copy', onCopy)
-  document.addEventListener('paste', onCopy)
-  document.addEventListener('visibilitychange', onVisibility)
-  
-  return () => { /* cleanup */ }
+  const onVisibility = () => {
+    if (document.hidden) postEvent("FOCUS_LOST")
+    else postEvent("FOCUS_REGAINED")
+  }
+
+  window.addEventListener("blur", onBlur)
+  window.addEventListener("focus", onFocus)
+  document.addEventListener("copy", onCopy)
+  document.addEventListener("paste", onCopy)
+  document.addEventListener("visibilitychange", onVisibility)
+
+  return () => {
+    /* cleanup */
+  }
 }, [])
 ```
 
@@ -197,13 +213,13 @@ export async function answerQuestion(sessionId: string, input: AnswerInput) {
   return prisma.$transaction(async (tx) => {
     const session = await tx.testSession.findUnique({ where: { id: sessionId } })
     if (!session) throw new NotFoundError()
-    if (session.status !== 'IN_PROGRESS') throw new InvalidStateError()
-    
+    if (session.status !== "IN_PROGRESS") throw new InvalidStateError()
+
     if (new Date() > addMilliseconds(session.deadline, GRACE_MS)) {
       await finalizeAsTimedOut(tx, sessionId)
       throw new TimedOutError()
     }
-    
+
     await tx.testSessionQuestion.update({
       where: { sessionId_order: { sessionId, order: input.questionOrder } },
       data: {
@@ -212,7 +228,7 @@ export async function answerQuestion(sessionId: string, input: AnswerInput) {
         answeredAt: new Date(),
       },
     })
-    
+
     return {
       savedAt: new Date(),
       remainingMs: Math.max(0, session.deadline.getTime() - Date.now()),
@@ -237,13 +253,13 @@ export async function submitTestSession(sessionId: string) {
       include: { questions: true },
     })
     if (!session) throw new NotFoundError()
-    if (session.status !== 'IN_PROGRESS') throw new InvalidStateError()
-    
+    if (session.status !== "IN_PROGRESS") throw new InvalidStateError()
+
     const isTimedOut = new Date() > addMilliseconds(session.deadline, GRACE_MS)
-    
+
     // Auto-calificar
     const { autoScore, maxAutoScore, gradedQuestions } = await autoGrade(session.questions)
-    
+
     // Guardar resultados por pregunta
     for (const g of gradedQuestions) {
       await tx.testSessionQuestion.update({
@@ -251,17 +267,17 @@ export async function submitTestSession(sessionId: string) {
         data: { isCorrect: g.isCorrect, pointsAwarded: g.points },
       })
     }
-    
+
     await tx.testSession.update({
       where: { id: sessionId },
       data: {
         autoScore,
         maxAutoScore,
         submittedAt: new Date(),
-        status: isTimedOut ? 'TIMED_OUT' : 'SUBMITTED',
+        status: isTimedOut ? "TIMED_OUT" : "SUBMITTED",
       },
     })
-    
+
     return session
   })
 }
@@ -280,7 +296,7 @@ Después (fuera de transacción): `enqueueEmail('TEST_RESULT_READY', directoraEm
 ```typescript
 const stale = await prisma.testSession.findMany({
   where: {
-    status: 'IN_PROGRESS',
+    status: "IN_PROGRESS",
     deadline: { lt: new Date(Date.now() - 5 * 60_000) },
   },
 })
@@ -298,6 +314,7 @@ En `src/modules/tests/sessions/sampling.ts`. Aplica filtros de tópico para gara
 ### `autoGrade(questions)` → `{ autoScore, maxAutoScore, gradedQuestions }`
 
 En `src/modules/tests/grading/auto-grade.ts`. Función pura:
+
 - Para `MULTIPLE_CHOICE`: compara `selectedOptionId` con la opción marcada `isCorrect` en el snapshot.
 - Para `FILL_IN`: compara `textAnswer` contra `acceptedAnswersSnapshot` (case-sensitive o no según cada respuesta). Si no matchea ninguna, deja `isCorrect = null` (revisión manual).
 

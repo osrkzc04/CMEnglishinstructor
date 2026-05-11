@@ -4,10 +4,7 @@ import { z } from "zod"
 import { revalidatePath } from "next/cache"
 import { prisma } from "@/lib/prisma"
 import { requireRole } from "@/modules/auth/guards"
-import {
-  materializeClassSessions,
-  type MaterializeResult,
-} from "./materialize"
+import { materializeClassSessions, type MaterializeResult } from "./materialize"
 
 const InputSchema = z
   .object({
@@ -22,9 +19,7 @@ const InputSchema = z
 
 export type MaterializeRangeInput = z.infer<typeof InputSchema>
 
-type Result =
-  | { success: true; counters: MaterializeResult }
-  | { success: false; error: string }
+type Result = { success: true; counters: MaterializeResult } | { success: false; error: string }
 
 const ERROR_MESSAGES = {
   group_not_found: "Aula no encontrada",
@@ -38,9 +33,7 @@ const ERROR_MESSAGES = {
  * si ya existían sesiones para esos días, se mantienen y se cuentan como
  * "ya existía". Saltea holidays y unavailability del docente vigente.
  */
-export async function materializeRange(
-  input: MaterializeRangeInput,
-): Promise<Result> {
+export async function materializeRange(input: MaterializeRangeInput): Promise<Result> {
   await requireRole(["DIRECTOR", "COORDINATOR"])
 
   const parsed = InputSchema.safeParse(input)

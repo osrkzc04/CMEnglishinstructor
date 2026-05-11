@@ -54,9 +54,7 @@ export function NewFolderDialog({ open, onOpenChange, parentId, onCreated }: Pro
       <DialogContent size="sm">
         <DialogHeader>
           <DialogTitle>Nueva carpeta</DialogTitle>
-          <DialogDescription>
-            Se creará dentro de la carpeta actual.
-          </DialogDescription>
+          <DialogDescription>Se creará dentro de la carpeta actual.</DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit}>
           <DialogBody>

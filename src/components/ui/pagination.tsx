@@ -15,11 +15,7 @@ export type PaginationProps = React.HTMLAttributes<HTMLElement>
 
 export function Pagination({ className, children, ...props }: PaginationProps) {
   return (
-    <nav
-      aria-label="Paginación"
-      className={cn("inline-flex gap-1", className)}
-      {...props}
-    >
+    <nav aria-label="Paginación" className={cn("inline-flex gap-1", className)} {...props}>
       {children}
     </nav>
   )
@@ -36,7 +32,7 @@ export const PaginationItem = React.forwardRef<HTMLButtonElement, PaginationItem
       type="button"
       aria-current={isCurrent ? "page" : undefined}
       className={cn(
-        "inline-flex min-w-8 items-center justify-center rounded-md border border-border px-2.5 py-1.5 font-mono text-[12.5px] text-text-2 transition-colors duration-[150ms]",
+        "border-border text-text-2 inline-flex min-w-8 items-center justify-center rounded-md border px-2.5 py-1.5 font-mono text-[12.5px] transition-colors duration-[150ms]",
         "hover:border-text-3 hover:text-foreground",
         isCurrent &&
           "border-ink-900 bg-ink-900 text-bone hover:border-ink-900 hover:text-bone dark:border-bone dark:bg-bone dark:text-ink-900 dark:hover:text-ink-900",
@@ -70,7 +66,7 @@ export function PaginationEllipsis() {
   return (
     <span
       aria-hidden
-      className="inline-flex min-w-8 items-center justify-center font-mono text-[12.5px] text-text-3"
+      className="text-text-3 inline-flex min-w-8 items-center justify-center font-mono text-[12.5px]"
     >
       …
     </span>

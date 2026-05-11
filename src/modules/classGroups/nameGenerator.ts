@@ -60,9 +60,7 @@ export function generateClassGroupName(args: {
   const days = orderedDays.filter((d) => daySet.has(d)).map((d) => DAY_LABELS[d])
 
   // Hora más temprana entre los slots
-  const earliest = [...slots].sort((a, b) =>
-    a.startTime.localeCompare(b.startTime),
-  )[0]?.startTime
+  const earliest = [...slots].sort((a, b) => a.startTime.localeCompare(b.startTime))[0]?.startTime
 
   const head = abbreviateLevel(programName, levelCode)
   const daysLabel = days.join("-")

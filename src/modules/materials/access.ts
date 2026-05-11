@@ -53,10 +53,7 @@ export async function canAccessProgramLevel(
  * Devuelve los `programLevelIds` accesibles. Útil para listar las raíces
  * que ve cada rol en su pantalla de materiales.
  */
-export async function listAccessibleProgramLevels(
-  userId: string,
-  role: Role,
-): Promise<string[]> {
+export async function listAccessibleProgramLevels(userId: string, role: Role): Promise<string[]> {
   if (role === Role.DIRECTOR || role === Role.COORDINATOR) {
     const all = await prisma.programLevel.findMany({ select: { id: true } })
     return all.map((l) => l.id)

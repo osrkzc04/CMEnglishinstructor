@@ -2,7 +2,7 @@
 
 Plataforma de gestión académica para **Carolina Monsalve — CM English Instructor**. Inscripciones, pruebas de ubicación/certificación, gestión de docentes, dictado de clases virtuales/presenciales, bitácoras, facturación.
 
-> *Helping Everyone Communicate*
+> _Helping Everyone Communicate_
 
 ## Stack
 
@@ -34,6 +34,7 @@ pnpm dev
 Abre http://localhost:3000.
 
 **Usuarios demo** (generados por el seed):
+
 - Director: `directora@cmenglish.test` / `Demo2026!`
 - Coordinador: `coordinacion@cmenglish.test` / `Demo2026!`
 - Docente: `docente@cmenglish.test` / `Demo2026!`

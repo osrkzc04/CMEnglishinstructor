@@ -7,9 +7,7 @@ import { requireRole } from "@/modules/auth/guards"
 import { validateTeacherForSlots } from "./eligibility"
 import { notifyClassGroupAssignment } from "./emails"
 
-type Result =
-  | { success: true; assignmentId: string }
-  | { success: false; error: string }
+type Result = { success: true; assignmentId: string } | { success: false; error: string }
 
 /**
  * Asigna o rota el docente del aula.
@@ -62,9 +60,7 @@ export async function setClassGroupTeacher(args: {
   if (conflict.uncoveredSlots.length > 0)
     reasons.push("no tiene disponibilidad para todos los horarios")
   if (conflict.doubleBookedSlots.length > 0) {
-    const groups = [
-      ...new Set(conflict.doubleBookedSlots.map((d) => d.classGroupName)),
-    ].join(", ")
+    const groups = [...new Set(conflict.doubleBookedSlots.map((d) => d.classGroupName))].join(", ")
     reasons.push(`ya está dictando otra aula con horario solapado (${groups})`)
   }
   if (reasons.length > 0) {
@@ -119,9 +115,7 @@ export async function setClassGroupTeacher(args: {
 
 function startOfTodayUTC(): Date {
   const now = new Date()
-  return new Date(
-    Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()),
-  )
+  return new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()))
 }
 
 function addDays(d: Date, days: number): Date {

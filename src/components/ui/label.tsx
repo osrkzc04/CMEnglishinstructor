@@ -17,7 +17,7 @@ export const Label = React.forwardRef<
   <LabelPrimitive.Root
     ref={ref}
     className={cn(
-      "block font-mono text-[11px] uppercase leading-none tracking-[0.08em] text-text-3",
+      "text-text-3 block font-mono text-[11px] leading-none tracking-[0.08em] uppercase",
       "peer-disabled:cursor-not-allowed peer-disabled:opacity-60",
       className,
     )}
@@ -30,17 +30,13 @@ Label.displayName = LabelPrimitive.Root.displayName
  * Hint inline a la derecha del label (ej. "¿Olvidaste tu contraseña?").
  * Texto regular Geist, sin uppercase ni tracking.
  */
-export const LabelHint = React.forwardRef<
-  HTMLSpanElement,
-  React.HTMLAttributes<HTMLSpanElement>
->(({ className, ...props }, ref) => (
-  <span
-    ref={ref}
-    className={cn(
-      "font-sans text-[12px] normal-case tracking-normal text-text-3",
-      className,
-    )}
-    {...props}
-  />
-))
+export const LabelHint = React.forwardRef<HTMLSpanElement, React.HTMLAttributes<HTMLSpanElement>>(
+  ({ className, ...props }, ref) => (
+    <span
+      ref={ref}
+      className={cn("text-text-3 font-sans text-[12px] tracking-normal normal-case", className)}
+      {...props}
+    />
+  ),
+)
 LabelHint.displayName = "LabelHint"

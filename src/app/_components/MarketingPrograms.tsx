@@ -46,57 +46,52 @@ const PROGRAMS = [
 
 export function MarketingPrograms() {
   return (
-    <section
-      id="programas"
-      className="bg-surface-alt/40 py-20 md:py-24"
-    >
+    <section id="programas" className="bg-surface-alt/40 py-20 md:py-24">
       <div className="mx-auto w-full max-w-[1180px] px-6">
         <Reveal as="header" className="mb-12 max-w-[680px]">
-          <p className="mb-3 font-mono text-[11px] uppercase tracking-[0.1em] text-text-3">
+          <p className="text-text-3 mb-3 font-mono text-[11px] tracking-[0.1em] uppercase">
             Programas
           </p>
-          <h2 className="font-serif text-[36px] leading-[1.12] tracking-[-0.02em] text-foreground sm:text-[44px]">
+          <h2 className="text-foreground font-serif text-[36px] leading-[1.12] tracking-[-0.02em] sm:text-[44px]">
             Una propuesta editorial para
-            <em className="font-light italic text-text-2"> cada audiencia</em>.
+            <em className="text-text-2 font-light italic"> cada audiencia</em>.
           </h2>
-          <p className="mt-4 text-[16px] leading-[1.65] text-text-2">
-            Cuatro líneas con currículos publicados por editoriales reconocidas
-            (National Geographic Learning, Pearson, Vistas). Cada plan se ajusta
-            a tu nivel actual, tu objetivo y tu ritmo.
+          <p className="text-text-2 mt-4 text-[16px] leading-[1.65]">
+            Cuatro líneas con currículos publicados por editoriales reconocidas (National Geographic
+            Learning, Pearson, Vistas). Cada plan se ajusta a tu nivel actual, tu objetivo y tu
+            ritmo.
           </p>
         </Reveal>
 
         <div className="grid gap-4 md:grid-cols-2">
           {PROGRAMS.map((p, i) => (
             <Reveal key={p.title} delay={i * 80}>
-              <article className="group relative flex h-full flex-col overflow-hidden rounded-xl border border-border bg-surface p-6 transition-[border-color,transform] duration-300 ease-out hover:-translate-y-0.5 hover:border-teal-500/40 motion-reduce:transition-none motion-reduce:transform-none">
+              <article className="group border-border bg-surface relative flex h-full flex-col overflow-hidden rounded-xl border p-6 transition-[border-color,transform] duration-300 ease-out hover:-translate-y-0.5 hover:border-teal-500/40 motion-reduce:transform-none motion-reduce:transition-none">
                 {/* Acento teal a la izquierda — entra al hacer hover. */}
                 <span
                   aria-hidden
                   className="absolute inset-y-6 left-0 w-[2px] origin-top scale-y-0 rounded-r bg-teal-500 transition-transform duration-300 ease-out group-hover:scale-y-100 motion-reduce:transition-none"
                 />
-                <p className="font-mono text-[11px] uppercase tracking-[0.1em] text-text-3">
+                <p className="text-text-3 font-mono text-[11px] tracking-[0.1em] uppercase">
                   {p.eyebrow}
                 </p>
-                <h3 className="mt-2 font-serif text-[26px] leading-[1.18] tracking-[-0.015em] text-foreground">
+                <h3 className="text-foreground mt-2 font-serif text-[26px] leading-[1.18] tracking-[-0.015em]">
                   {p.title}
                 </h3>
-                <p className="mt-3 text-[15px] leading-[1.6] text-text-2">
-                  {p.description}
-                </p>
+                <p className="text-text-2 mt-3 text-[15px] leading-[1.6]">{p.description}</p>
 
                 <div className="mt-6 flex flex-wrap items-center gap-1.5">
                   {p.programs.map((name) => (
                     <span
                       key={name}
-                      className="inline-flex items-center rounded-md border border-border bg-background px-2 py-1 font-mono text-[11px] uppercase tracking-[0.06em] text-text-2"
+                      className="border-border bg-background text-text-2 inline-flex items-center rounded-md border px-2 py-1 font-mono text-[11px] tracking-[0.06em] uppercase"
                     >
                       {name}
                     </span>
                   ))}
                 </div>
 
-                <div className="mt-auto flex items-center justify-between border-t border-border pt-4 font-mono text-[11px] uppercase tracking-[0.08em] text-text-3">
+                <div className="border-border text-text-3 mt-auto flex items-center justify-between border-t pt-4 font-mono text-[11px] tracking-[0.08em] uppercase">
                   <span>Cobertura MCER</span>
                   <span className="text-foreground">{p.cefr}</span>
                 </div>

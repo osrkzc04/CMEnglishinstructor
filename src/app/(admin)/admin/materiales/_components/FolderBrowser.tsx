@@ -52,18 +52,13 @@ export function FolderBrowser({ folder }: Props) {
   return (
     <>
       <div className="mb-4 flex flex-wrap items-center gap-2">
-        <Button
-          variant="ghost"
-          size="md"
-          onClick={() => setAction({ kind: "newFolder" })}
-        >
+        <Button variant="ghost" size="md" onClick={() => setAction({ kind: "newFolder" })}>
           <FolderPlus size={14} strokeWidth={1.6} />
           Nueva carpeta
         </Button>
         <UploadButton folderId={folder.id} onComplete={refresh} />
-        <div className="ml-auto text-[12.5px] text-text-3">
-          {folder.items.length}{" "}
-          {folder.items.length === 1 ? "elemento" : "elementos"}
+        <div className="text-text-3 ml-auto text-[12.5px]">
+          {folder.items.length} {folder.items.length === 1 ? "elemento" : "elementos"}
         </div>
       </div>
 
@@ -74,7 +69,7 @@ export function FolderBrowser({ folder }: Props) {
           description="Subí archivos o creá subcarpetas para organizar el material."
         />
       ) : (
-        <div className="overflow-hidden rounded-xl border border-border bg-surface">
+        <div className="border-border bg-surface overflow-hidden rounded-xl border">
           <Table>
             <TableHeader>
               <tr>
@@ -90,9 +85,7 @@ export function FolderBrowser({ folder }: Props) {
                   key={`${item.kind}-${item.id}`}
                   item={item}
                   menuOpen={openMenuId === item.id}
-                  onMenuToggle={() =>
-                    setOpenMenuId(openMenuId === item.id ? null : item.id)
-                  }
+                  onMenuToggle={() => setOpenMenuId(openMenuId === item.id ? null : item.id)}
                   onRename={() => {
                     setOpenMenuId(null)
                     setAction({
@@ -180,7 +173,7 @@ function ItemRow({
         {item.kind === "folder" ? (
           <Link
             href={`/admin/materiales/${item.id}` as Route}
-            className="group inline-flex items-center gap-2.5 text-foreground"
+            className="group text-foreground inline-flex items-center gap-2.5"
           >
             <Folder size={15} strokeWidth={1.6} className="text-text-3 group-hover:text-teal-500" />
             <span className="font-medium group-hover:text-teal-500">{item.name}</span>
@@ -192,15 +185,15 @@ function ItemRow({
           </span>
         )}
         {item.kind === "folder" && (
-          <div className="mt-0.5 ml-[26px] text-[12px] text-text-3">
+          <div className="text-text-3 mt-0.5 ml-[26px] text-[12px]">
             {item.childFolderCount} carpetas · {item.fileCount} archivos
           </div>
         )}
       </TableCell>
-      <TableCell className="font-mono text-[12.5px] text-text-3">
+      <TableCell className="text-text-3 font-mono text-[12.5px]">
         {item.kind === "file" ? formatBytes(item.size) : "—"}
       </TableCell>
-      <TableCell className="text-[12.5px] text-text-3">
+      <TableCell className="text-text-3 text-[12.5px]">
         {formatDate(item.kind === "file" ? item.uploadedAt : item.updatedAt)}
       </TableCell>
       <TableCell className="text-right">
@@ -208,7 +201,7 @@ function ItemRow({
           {item.kind === "file" && (
             <a
               href={`/api/materials/files/${item.id}/download`}
-              className="inline-flex items-center justify-center rounded-md border border-border bg-surface p-1.5 text-text-2 transition-colors hover:border-teal-500 hover:text-teal-500"
+              className="border-border bg-surface text-text-2 inline-flex items-center justify-center rounded-md border p-1.5 transition-colors hover:border-teal-500 hover:text-teal-500"
               aria-label={`Descargar ${item.name}`}
               download
             >
@@ -219,19 +212,19 @@ function ItemRow({
             type="button"
             aria-label={`Acciones para ${item.name}`}
             onClick={onMenuToggle}
-            className="inline-flex items-center justify-center rounded-md border border-border bg-surface p-1.5 text-text-2 transition-colors hover:border-teal-500 hover:text-teal-500"
+            className="border-border bg-surface text-text-2 inline-flex items-center justify-center rounded-md border p-1.5 transition-colors hover:border-teal-500 hover:text-teal-500"
           >
             <MoreHorizontal size={13} strokeWidth={1.6} />
           </button>
           {menuOpen && (
             <div
               role="menu"
-              className="absolute right-0 top-full z-10 mt-1 min-w-[160px] rounded-md border border-border bg-surface py-1 shadow-md"
+              className="border-border bg-surface absolute top-full right-0 z-10 mt-1 min-w-[160px] rounded-md border py-1 shadow-md"
             >
               <button
                 type="button"
                 role="menuitem"
-                className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-[13px] text-text-2 transition-colors hover:bg-bone-100 hover:text-foreground"
+                className="text-text-2 hover:bg-bone-100 hover:text-foreground flex w-full items-center gap-2 px-3 py-1.5 text-left text-[13px] transition-colors"
                 onClick={onRename}
               >
                 <Pencil size={12} strokeWidth={1.6} />
@@ -240,7 +233,7 @@ function ItemRow({
               <button
                 type="button"
                 role="menuitem"
-                className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-[13px] text-danger transition-colors hover:bg-bone-100"
+                className="text-danger hover:bg-bone-100 flex w-full items-center gap-2 px-3 py-1.5 text-left text-[13px] transition-colors"
                 onClick={onDelete}
               >
                 <Trash2 size={12} strokeWidth={1.6} />

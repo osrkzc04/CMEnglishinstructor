@@ -39,7 +39,12 @@ export async function listProgramLevelRoots(opts?: {
         where: { parentId: null, deletedAt: null },
         select: {
           id: true,
-          _count: { select: { children: { where: { deletedAt: null } }, files: { where: { deletedAt: null } } } },
+          _count: {
+            select: {
+              children: { where: { deletedAt: null } },
+              files: { where: { deletedAt: null } },
+            },
+          },
         },
         take: 1,
       },

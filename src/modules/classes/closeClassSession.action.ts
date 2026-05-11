@@ -3,10 +3,7 @@
 import { revalidatePath } from "next/cache"
 import { Prisma, SessionStatus, AttendanceStatus } from "@prisma/client"
 import { prisma } from "@/lib/prisma"
-import {
-  CloseClassSessionSchema,
-  type CloseClassSessionInput,
-} from "./schemas"
+import { CloseClassSessionSchema, type CloseClassSessionInput } from "./schemas"
 import { requireSessionEditor } from "./authorize"
 
 type Result =
@@ -39,9 +36,7 @@ type Result =
  *         marca justificada por contexto fuera del sistema)
  *       PENDING                                         → bloquea cierre
  */
-export async function closeClassSession(
-  input: CloseClassSessionInput,
-): Promise<Result> {
+export async function closeClassSession(input: CloseClassSessionInput): Promise<Result> {
   const parsed = CloseClassSessionSchema.safeParse(input)
   if (!parsed.success) {
     return { success: false, error: parsed.error.issues[0]?.message ?? "Datos inválidos" }
@@ -94,8 +89,7 @@ export async function closeClassSession(
   // la duración real.
   const now = new Date()
   const actualStart = pre.actualStart ?? pre.scheduledStart
-  const actualEnd =
-    pre.actualEnd ?? (now < pre.scheduledEnd ? now : pre.scheduledEnd)
+  const actualEnd = pre.actualEnd ?? (now < pre.scheduledEnd ? now : pre.scheduledEnd)
   const realMinutes = Math.max(
     0,
     Math.round((actualEnd.getTime() - actualStart.getTime()) / 60_000),
@@ -175,8 +169,7 @@ function decideHoursCount(args: {
       // Si avisó con ≥24h, no consume — queda como hora a reponer. Si avisó
       // tarde o no avisó, sí consume (penaliza).
       if (args.noticedAbsenceAt === null) return true
-      const advanceMs =
-        args.scheduledStart.getTime() - args.noticedAbsenceAt.getTime()
+      const advanceMs = args.scheduledStart.getTime() - args.noticedAbsenceAt.getTime()
       return advanceMs < args.twentyFourHoursMs
     }
     default:

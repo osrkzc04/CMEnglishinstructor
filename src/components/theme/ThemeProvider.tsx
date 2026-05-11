@@ -31,7 +31,8 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const stored = window.localStorage.getItem(STORAGE_KEY) as Theme | null
-    const initial: Theme = stored === "light" || stored === "dark" || stored === "system" ? stored : "system"
+    const initial: Theme =
+      stored === "light" || stored === "dark" || stored === "system" ? stored : "system"
     setThemeState(initial)
   }, [])
 

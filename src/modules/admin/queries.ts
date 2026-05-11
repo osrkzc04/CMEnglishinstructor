@@ -134,70 +134,66 @@ export async function getAdminDashboard(): Promise<AdminDashboard> {
   // ---------------------------------------------------------------------------
   //  KPIs base — counts simples
   // ---------------------------------------------------------------------------
-  const [
-    activeStudents,
-    pendingApplications,
-    activeEnrollments,
-    todaySessionRows,
-  ] = await Promise.all([
-    prisma.user.count({
-      where: { role: "STUDENT", status: UserStatus.ACTIVE },
-    }),
-    prisma.teacherApplication.count({
-      where: { status: ApplicationStatus.PENDING },
-    }),
-    prisma.enrollment.count({
-      where: { status: EnrollmentStatus.ACTIVE },
-    }),
-    prisma.classSession.findMany({
-      where: {
-        scheduledStart: { gte: todayStart, lt: todayEnd },
-      },
-      orderBy: { scheduledStart: "asc" },
-      select: {
-        id: true,
-        scheduledStart: true,
-        scheduledEnd: true,
-        status: true,
-        modality: true,
-        teacherId: true,
-        classGroupId: true,
-        classGroup: {
-          select: {
-            name: true,
-            programLevel: {
-              select: {
-                name: true,
-                cefrLevelCode: true,
-                program: {
-                  select: {
-                    name: true,
-                    course: { select: { name: true } },
+  const [activeStudents, pendingApplications, activeEnrollments, todaySessionRows] =
+    await Promise.all([
+      prisma.user.count({
+        where: { role: "STUDENT", status: UserStatus.ACTIVE },
+      }),
+      prisma.teacherApplication.count({
+        where: { status: ApplicationStatus.PENDING },
+      }),
+      prisma.enrollment.count({
+        where: { status: EnrollmentStatus.ACTIVE },
+      }),
+      prisma.classSession.findMany({
+        where: {
+          scheduledStart: { gte: todayStart, lt: todayEnd },
+        },
+        orderBy: { scheduledStart: "asc" },
+        select: {
+          id: true,
+          scheduledStart: true,
+          scheduledEnd: true,
+          status: true,
+          modality: true,
+          teacherId: true,
+          classGroupId: true,
+          classGroup: {
+            select: {
+              name: true,
+              programLevel: {
+                select: {
+                  name: true,
+                  cefrLevelCode: true,
+                  program: {
+                    select: {
+                      name: true,
+                      course: { select: { name: true } },
+                    },
                   },
                 },
               },
-            },
-            enrollments: {
-              where: { status: EnrollmentStatus.ACTIVE },
-              select: {
-                student: {
-                  select: {
-                    user: { select: { firstName: true, lastName: true } },
+              enrollments: {
+                where: { status: EnrollmentStatus.ACTIVE },
+                select: {
+                  student: {
+                    select: {
+                      user: { select: { firstName: true, lastName: true } },
+                    },
                   },
                 },
               },
             },
           },
-        },
-        teacher: {
-          select: {
-            user: { select: { firstName: true, lastName: true } },
+          teacher: {
+            select: {
+              user: { select: { firstName: true, lastName: true } },
+            },
           },
+          _count: { select: { participants: true } },
         },
-        _count: { select: { participants: true } },
-      },
-    }),
-  ])
+      }),
+    ])
 
   // ---------------------------------------------------------------------------
   //  Agenda + KPI "Clases hoy" (derivados de la misma carga)
@@ -217,52 +213,49 @@ export async function getAdminDashboard(): Promise<AdminDashboard> {
     else if (s.status === SessionStatus.NO_SHOW) todayCounters.no_show += 1
     else {
       const isLive =
-        s.scheduledStart.getTime() <= now.getTime() &&
-        now.getTime() < s.scheduledEnd.getTime()
+        s.scheduledStart.getTime() <= now.getTime() && now.getTime() < s.scheduledEnd.getTime()
       if (isLive) todayCounters.live += 1
       else todayCounters.scheduled += 1
     }
   }
 
-  const agenda: AdminAgendaEntry[] = todaySessionRows
-    .slice(0, AGENDA_LIMIT)
-    .map((s) => {
-      const enrollments = s.classGroup.enrollments
-      const primaryLabel =
-        enrollments.length === 1 && enrollments[0]
-          ? `${enrollments[0].student.user.firstName} ${enrollments[0].student.user.lastName}`
-          : s.classGroup.name
-      const isLive =
-        s.status === SessionStatus.SCHEDULED &&
-        s.scheduledStart.getTime() <= now.getTime() &&
-        now.getTime() < s.scheduledEnd.getTime()
-      const liftedStatus: AdminAgendaEntry["status"] =
-        s.status === SessionStatus.COMPLETED
-          ? "completed"
-          : s.status === SessionStatus.CANCELLED
-            ? "cancelled"
-            : s.status === SessionStatus.NO_SHOW
-              ? "no_show"
-              : isLive
-                ? "live"
-                : "scheduled"
-      const teacherFirst = s.teacher.user.firstName
-      const teacherLast = s.teacher.user.lastName
-      return {
-        id: s.id,
-        scheduledStart: s.scheduledStart,
-        scheduledEnd: s.scheduledEnd,
-        classGroupId: s.classGroupId,
-        primaryLabel,
-        programLabel: `${s.classGroup.programLevel.program.course.name} · ${s.classGroup.programLevel.program.name}`,
-        cefrLevelCode: s.classGroup.programLevel.cefrLevelCode,
-        modality: s.modality,
-        teacherInitials: initials(`${teacherFirst} ${teacherLast}`),
-        teacherName: `${teacherFirst[0] ?? ""}. ${teacherLast}`.trim(),
-        status: liftedStatus,
-        participantCount: s._count.participants,
-      }
-    })
+  const agenda: AdminAgendaEntry[] = todaySessionRows.slice(0, AGENDA_LIMIT).map((s) => {
+    const enrollments = s.classGroup.enrollments
+    const primaryLabel =
+      enrollments.length === 1 && enrollments[0]
+        ? `${enrollments[0].student.user.firstName} ${enrollments[0].student.user.lastName}`
+        : s.classGroup.name
+    const isLive =
+      s.status === SessionStatus.SCHEDULED &&
+      s.scheduledStart.getTime() <= now.getTime() &&
+      now.getTime() < s.scheduledEnd.getTime()
+    const liftedStatus: AdminAgendaEntry["status"] =
+      s.status === SessionStatus.COMPLETED
+        ? "completed"
+        : s.status === SessionStatus.CANCELLED
+          ? "cancelled"
+          : s.status === SessionStatus.NO_SHOW
+            ? "no_show"
+            : isLive
+              ? "live"
+              : "scheduled"
+    const teacherFirst = s.teacher.user.firstName
+    const teacherLast = s.teacher.user.lastName
+    return {
+      id: s.id,
+      scheduledStart: s.scheduledStart,
+      scheduledEnd: s.scheduledEnd,
+      classGroupId: s.classGroupId,
+      primaryLabel,
+      programLabel: `${s.classGroup.programLevel.program.course.name} · ${s.classGroup.programLevel.program.name}`,
+      cefrLevelCode: s.classGroup.programLevel.cefrLevelCode,
+      modality: s.modality,
+      teacherInitials: initials(`${teacherFirst} ${teacherLast}`),
+      teacherName: `${teacherFirst[0] ?? ""}. ${teacherLast}`.trim(),
+      status: liftedStatus,
+      participantCount: s._count.participants,
+    }
+  })
 
   // ---------------------------------------------------------------------------
   //  Postulaciones pendientes
@@ -275,18 +268,14 @@ export async function getAdminDashboard(): Promise<AdminDashboard> {
       appliedLevels: { include: { level: true } },
     },
   })
-  const pendingApplicationsList: AdminPendingApplication[] = pendingRows.map(
-    (a) => ({
-      id: a.id,
-      fullName: `${a.firstName} ${a.lastName}`,
-      initials: initials(`${a.firstName} ${a.lastName}`),
-      email: a.email,
-      levelsLabel: buildLevelsLabel(
-        a.appliedLevels.map((l) => l.level.code),
-      ),
-      createdAt: a.createdAt,
-    }),
-  )
+  const pendingApplicationsList: AdminPendingApplication[] = pendingRows.map((a) => ({
+    id: a.id,
+    fullName: `${a.firstName} ${a.lastName}`,
+    initials: initials(`${a.firstName} ${a.lastName}`),
+    email: a.email,
+    levelsLabel: buildLevelsLabel(a.appliedLevels.map((l) => l.level.code)),
+    createdAt: a.createdAt,
+  }))
 
   // ---------------------------------------------------------------------------
   //  Carga por docente
@@ -323,16 +312,12 @@ export async function getAdminDashboard(): Promise<AdminDashboard> {
   const teacherLoadRows = teacherProfiles
     .map<AdminTeacherLoad>((t) => {
       const assignedMinutes = t.teacherAssignments.reduce(
-        (acc, a) =>
-          acc + a.classGroup.slots.reduce((s, sl) => s + sl.durationMinutes, 0),
+        (acc, a) => acc + a.classGroup.slots.reduce((s, sl) => s + sl.durationMinutes, 0),
         0,
       )
       const capacityMinutes =
         t.availability.length > 0
-          ? t.availability.reduce(
-              (acc, a) => acc + minutesBetween(a.startTime, a.endTime),
-              0,
-            )
+          ? t.availability.reduce((acc, a) => acc + minutesBetween(a.startTime, a.endTime), 0)
           : WEEKLY_CAPACITY_HOURS_DEFAULT * 60
       return {
         id: t.userId,
@@ -352,9 +337,7 @@ export async function getAdminDashboard(): Promise<AdminDashboard> {
   const totalAssigned = teacherLoadRows.reduce((a, t) => a + t.hours, 0)
   const totalCapacity = teacherLoadRows.reduce((a, t) => a + t.capacity, 0)
   const teacherUtilizationPct =
-    totalCapacity > 0
-      ? Math.round((totalAssigned / totalCapacity) * 100)
-      : null
+    totalCapacity > 0 ? Math.round((totalAssigned / totalCapacity) * 100) : null
 
   // ---------------------------------------------------------------------------
   //  Distribución por nivel CEFR (matrículas activas)
@@ -374,9 +357,7 @@ export async function getAdminDashboard(): Promise<AdminDashboard> {
       where: { id: { in: ids } },
       select: { id: true, cefrLevelCode: true },
     })
-    const cefrById = new Map(
-      levelsRich.map((l) => [l.id, l.cefrLevelCode ?? null] as const),
-    )
+    const cefrById = new Map(levelsRich.map((l) => [l.id, l.cefrLevelCode ?? null] as const))
     for (const g of cefrGroups) {
       const cefr = cefrById.get(g.programLevelId) ?? null
       if (cefr === null) sin += g._count._all
@@ -428,79 +409,78 @@ export async function getAdminDashboard(): Promise<AdminDashboard> {
   // ---------------------------------------------------------------------------
   //  Actividad reciente — fusión de varios feeds, top-N por timestamp
   // ---------------------------------------------------------------------------
-  const [appRecent, sessionsRecent, enrollmentsRecent, testsRecent] =
-    await Promise.all([
-      prisma.teacherApplication.findMany({
-        where: { createdAt: { gte: weekAgo } },
-        orderBy: { createdAt: "desc" },
-        take: 5,
-        select: {
-          id: true,
-          firstName: true,
-          lastName: true,
-          status: true,
-          createdAt: true,
-          reviewedAt: true,
-        },
-      }),
-      prisma.classSession.findMany({
-        where: {
-          status: { in: [SessionStatus.COMPLETED, SessionStatus.CANCELLED, SessionStatus.NO_SHOW] },
-          scheduledEnd: { gte: weekAgo },
-        },
-        orderBy: { scheduledEnd: "desc" },
-        take: 8,
-        select: {
-          id: true,
-          status: true,
-          actualEnd: true,
-          cancelledAt: true,
-          scheduledEnd: true,
-          classGroupId: true,
-          classGroup: { select: { name: true } },
-          teacher: {
-            select: {
-              user: { select: { firstName: true, lastName: true } },
-            },
+  const [appRecent, sessionsRecent, enrollmentsRecent, testsRecent] = await Promise.all([
+    prisma.teacherApplication.findMany({
+      where: { createdAt: { gte: weekAgo } },
+      orderBy: { createdAt: "desc" },
+      take: 5,
+      select: {
+        id: true,
+        firstName: true,
+        lastName: true,
+        status: true,
+        createdAt: true,
+        reviewedAt: true,
+      },
+    }),
+    prisma.classSession.findMany({
+      where: {
+        status: { in: [SessionStatus.COMPLETED, SessionStatus.CANCELLED, SessionStatus.NO_SHOW] },
+        scheduledEnd: { gte: weekAgo },
+      },
+      orderBy: { scheduledEnd: "desc" },
+      take: 8,
+      select: {
+        id: true,
+        status: true,
+        actualEnd: true,
+        cancelledAt: true,
+        scheduledEnd: true,
+        classGroupId: true,
+        classGroup: { select: { name: true } },
+        teacher: {
+          select: {
+            user: { select: { firstName: true, lastName: true } },
           },
         },
-      }),
-      prisma.enrollment.findMany({
-        where: { createdAt: { gte: weekAgo } },
-        orderBy: { createdAt: "desc" },
-        take: 5,
-        select: {
-          id: true,
-          createdAt: true,
-          student: {
-            select: {
-              user: { select: { firstName: true, lastName: true } },
-            },
-          },
-          programLevel: {
-            select: {
-              name: true,
-              program: { select: { name: true } },
-            },
+      },
+    }),
+    prisma.enrollment.findMany({
+      where: { createdAt: { gte: weekAgo } },
+      orderBy: { createdAt: "desc" },
+      take: 5,
+      select: {
+        id: true,
+        createdAt: true,
+        student: {
+          select: {
+            user: { select: { firstName: true, lastName: true } },
           },
         },
-      }),
-      prisma.testSession.findMany({
-        where: {
-          submittedAt: { gte: weekAgo, not: null },
+        programLevel: {
+          select: {
+            name: true,
+            program: { select: { name: true } },
+          },
         },
-        orderBy: { submittedAt: "desc" },
-        take: 5,
-        select: {
-          id: true,
-          candidateName: true,
-          submittedAt: true,
-          finalScore: true,
-          autoScore: true,
-          maxAutoScore: true,
-        },
-      }),
-    ])
+      },
+    }),
+    prisma.testSession.findMany({
+      where: {
+        submittedAt: { gte: weekAgo, not: null },
+      },
+      orderBy: { submittedAt: "desc" },
+      take: 5,
+      select: {
+        id: true,
+        candidateName: true,
+        submittedAt: true,
+        finalScore: true,
+        autoScore: true,
+        maxAutoScore: true,
+      },
+    }),
+  ])
 
   const activityItems: AdminActivityItem[] = []
   for (const a of appRecent) {
@@ -577,8 +557,7 @@ export async function getAdminDashboard(): Promise<AdminDashboard> {
   }
   for (const t of testsRecent) {
     if (!t.submittedAt) continue
-    const score =
-      t.finalScore ?? t.autoScore ?? 0
+    const score = t.finalScore ?? t.autoScore ?? 0
     const max = t.maxAutoScore ?? 0
     const scoreLabel = max > 0 ? `${score}/${max}` : `${score} pts`
     activityItems.push({
@@ -653,10 +632,6 @@ function startOfGuayaquilDay(now: Date): Date {
   const guayaquilOffsetMs = 5 * 60 * 60 * 1000
   const localMs = now.getTime() - guayaquilOffsetMs
   const local = new Date(localMs)
-  const utcMidnight = Date.UTC(
-    local.getUTCFullYear(),
-    local.getUTCMonth(),
-    local.getUTCDate(),
-  )
+  const utcMidnight = Date.UTC(local.getUTCFullYear(), local.getUTCMonth(), local.getUTCDate())
   return new Date(utcMidnight + guayaquilOffsetMs)
 }

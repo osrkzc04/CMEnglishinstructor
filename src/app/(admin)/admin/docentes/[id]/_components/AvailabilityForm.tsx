@@ -82,22 +82,17 @@ export function AvailabilityForm({ teacherId, initialBlocks }: Props) {
       />
 
       {errors.blocks && typeof errors.blocks.message === "string" && (
-        <p className="text-[12.5px] text-danger">{errors.blocks.message}</p>
+        <p className="text-danger text-[12.5px]">{errors.blocks.message}</p>
       )}
 
       <div className="flex items-center justify-end gap-3 pt-1">
         {savedAt && !isDirty && (
-          <span className="inline-flex items-center gap-1.5 text-[12.5px] text-text-3">
+          <span className="text-text-3 inline-flex items-center gap-1.5 text-[12.5px]">
             <Check size={13} strokeWidth={1.8} className="text-teal-500" />
             Cambios guardados
           </span>
         )}
-        <Button
-          type="submit"
-          variant="primary"
-          size="md"
-          disabled={isPending || !isDirty}
-        >
+        <Button type="submit" variant="primary" size="md" disabled={isPending || !isDirty}>
           {isPending ? (
             <>
               <Loader2 size={14} strokeWidth={1.6} className="animate-spin" />

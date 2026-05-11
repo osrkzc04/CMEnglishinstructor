@@ -41,7 +41,7 @@ export function TeacherPendingsCard({ items }: { items: TeacherPendingEntry[] })
         <CardTitle>Pendientes</CardTitle>
         <Link
           href={"/docente/clases" as Route}
-          className="inline-flex items-center gap-1.5 border-b border-border-strong pb-px text-[13px] text-text-2 transition-colors hover:border-teal-500 hover:text-teal-500"
+          className="border-border-strong text-text-2 inline-flex items-center gap-1.5 border-b pb-px text-[13px] transition-colors hover:border-teal-500 hover:text-teal-500"
         >
           Ir a clases
           <ArrowRight size={11} strokeWidth={1.6} />
@@ -49,7 +49,7 @@ export function TeacherPendingsCard({ items }: { items: TeacherPendingEntry[] })
       </CardHeader>
       <div>
         {items.length === 0 ? (
-          <p className="px-[22px] py-6 text-[13.5px] text-text-3">
+          <p className="text-text-3 px-[22px] py-6 text-[13.5px]">
             Estás al día. Sin clases por cerrar.
           </p>
         ) : (
@@ -64,21 +64,21 @@ function PendingRow({ item }: { item: TeacherPendingEntry }) {
   return (
     <Link
       href={`/docente/clases/${item.id}` as Route}
-      className="group grid grid-cols-[36px_1fr_auto_auto] items-center gap-3.5 border-b border-border px-[22px] py-3.5 transition-colors duration-[120ms] last:border-b-0 hover:bg-surface-alt"
+      className="group border-border hover:bg-surface-alt grid grid-cols-[36px_1fr_auto_auto] items-center gap-3.5 border-b px-[22px] py-3.5 transition-colors duration-[120ms] last:border-b-0"
     >
-      <div className="grid h-8 w-8 place-items-center rounded-md border border-border bg-bone-50 font-mono text-[12px] tracking-[0.02em] text-text-2">
+      <div className="border-border bg-bone-50 text-text-2 grid h-8 w-8 place-items-center rounded-md border font-mono text-[12px] tracking-[0.02em]">
         {initials(item.classGroupName)}
       </div>
       <div className="min-w-0">
-        <div className="truncate text-[14px] leading-[1.3] text-foreground">
+        <div className="text-foreground truncate text-[14px] leading-[1.3]">
           {item.classGroupName}
         </div>
-        <div className="mt-0.5 truncate font-mono text-[12px] tracking-[0.02em] text-text-3">
+        <div className="text-text-3 mt-0.5 truncate font-mono text-[12px] tracking-[0.02em]">
           {item.programLabel}
         </div>
-        <div className="mt-0.5 font-mono text-[11.5px] tracking-[0.02em] text-text-3">
-          {formatDateShort(item.scheduledStart)} ·{" "}
-          {formatTime(item.scheduledStart)}–{formatTime(item.scheduledEnd)}
+        <div className="text-text-3 mt-0.5 font-mono text-[11.5px] tracking-[0.02em]">
+          {formatDateShort(item.scheduledStart)} · {formatTime(item.scheduledStart)}–
+          {formatTime(item.scheduledEnd)}
         </div>
       </div>
       <ReasonPill reason={item.reason} />
@@ -93,11 +93,9 @@ function ReasonPill({ reason }: { reason: TeacherPendingEntry["reason"] }) {
   return (
     <span
       className={cn(
-        "rounded-sm border px-2 py-[3px] font-mono text-[11px] uppercase tracking-[0.06em] leading-[1.4]",
-        reason === "live" &&
-          "border-teal-500/35 bg-teal-500/[0.07] text-teal-500",
-        reason === "overdue" &&
-          "border-warning/35 bg-warning/[0.07] text-warning",
+        "rounded-sm border px-2 py-[3px] font-mono text-[11px] leading-[1.4] tracking-[0.06em] uppercase",
+        reason === "live" && "border-teal-500/35 bg-teal-500/[0.07] text-teal-500",
+        reason === "overdue" && "border-warning/35 bg-warning/[0.07] text-warning",
         reason === "missing" && "border-info/35 bg-info/[0.07] text-info",
       )}
     >

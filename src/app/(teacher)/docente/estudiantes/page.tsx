@@ -1,21 +1,11 @@
 import type { Route } from "next"
 import type { Metadata } from "next"
 import Link from "next/link"
-import {
-  AlertTriangle,
-  ArrowUpRight,
-  Mail,
-  Phone,
-  School,
-  Users,
-} from "lucide-react"
+import { AlertTriangle, ArrowUpRight, Mail, Phone, School, Users } from "lucide-react"
 import { AppShell } from "@/components/layout/AppShell"
 import { requireRole } from "@/modules/auth/guards"
 import { roleLabel } from "@/modules/auth/role-labels"
-import {
-  listTeacherStudents,
-  type TeacherStudentRow,
-} from "@/modules/teachers/queries"
+import { listTeacherStudents, type TeacherStudentRow } from "@/modules/teachers/queries"
 import { Avatar } from "@/components/ui/avatar"
 import { HoursProgress } from "@/components/shared/HoursProgress"
 import { ProgressBar } from "@/components/ui/progress-bar"
@@ -68,19 +58,18 @@ export default async function TeacherEstudiantesPage({
     >
       <header className="mb-7 flex flex-wrap items-end justify-between gap-4">
         <div>
-          <p className="mb-2 font-mono text-[12px] uppercase tracking-[0.08em] text-text-3">
+          <p className="text-text-3 mb-2 font-mono text-[12px] tracking-[0.08em] uppercase">
             Mi día
           </p>
-          <h1 className="font-serif text-[32px] font-normal leading-[1.18] tracking-[-0.02em]">
+          <h1 className="font-serif text-[32px] leading-[1.18] font-normal tracking-[-0.02em]">
             Mis estudiantes
           </h1>
-          <p className="mt-2 max-w-[620px] text-[14px] leading-[1.55] text-text-3">
-            Quiénes están en tus aulas, cómo van con las horas y su asistencia.
-            Las alertas en amarillo marcan a quienes ya están cerca del fin del
-            nivel o tienen asistencia baja.
+          <p className="text-text-3 mt-2 max-w-[620px] text-[14px] leading-[1.55]">
+            Quiénes están en tus aulas, cómo van con las horas y su asistencia. Las alertas en
+            amarillo marcan a quienes ya están cerca del fin del nivel o tienen asistencia baja.
           </p>
         </div>
-        <div className="flex flex-wrap items-center gap-3 font-mono text-[12.5px] tracking-[0.04em] text-text-3">
+        <div className="text-text-3 flex flex-wrap items-center gap-3 font-mono text-[12.5px] tracking-[0.04em]">
           <span>
             {rows.length} {rows.length === 1 ? "estudiante" : "estudiantes"}
           </span>
@@ -152,7 +141,7 @@ function AulaFilter({
 }) {
   return (
     <div className="mb-6 flex flex-wrap items-center gap-2">
-      <span className="font-mono text-[11px] uppercase tracking-[0.08em] text-text-3">
+      <span className="text-text-3 font-mono text-[11px] tracking-[0.08em] uppercase">
         Filtrar por aula
       </span>
       <Link
@@ -196,17 +185,17 @@ function AlertCard({
   description: string
 }) {
   return (
-    <div className="flex items-start gap-3 rounded-xl border border-warning/35 bg-warning/[0.05] px-4 py-3">
-      <Icon size={18} strokeWidth={1.6} className="mt-0.5 shrink-0 text-warning" />
+    <div className="border-warning/35 bg-warning/[0.05] flex items-start gap-3 rounded-xl border px-4 py-3">
+      <Icon size={18} strokeWidth={1.6} className="text-warning mt-0.5 shrink-0" />
       <div className="min-w-0">
-        <div className="font-mono text-[11px] uppercase tracking-[0.08em] text-warning">
+        <div className="text-warning font-mono text-[11px] tracking-[0.08em] uppercase">
           {label}
         </div>
         <div className="mt-0.5 flex items-baseline gap-2">
-          <span className="font-serif text-[22px] font-normal leading-none tracking-[-0.01em] text-foreground">
+          <span className="text-foreground font-serif text-[22px] leading-none font-normal tracking-[-0.01em]">
             {count}
           </span>
-          <span className="text-[12.5px] text-text-2">{description}</span>
+          <span className="text-text-2 text-[12.5px]">{description}</span>
         </div>
       </div>
     </div>
@@ -216,20 +205,16 @@ function AlertCard({
 function StudentCard({ row }: { row: TeacherStudentRow }) {
   const initials = computeInitials(row.studentName)
   const hoursPct =
-    row.totalHours > 0
-      ? Math.min(100, Math.round((row.consumedHours / row.totalHours) * 100))
-      : 0
+    row.totalHours > 0 ? Math.min(100, Math.round((row.consumedHours / row.totalHours) * 100)) : 0
   const hoursWarn = hoursPct >= 80
   const attendancePct =
-    row.registeredCount > 0
-      ? Math.round((row.attendedCount / row.registeredCount) * 100)
-      : null
+    row.registeredCount > 0 ? Math.round((row.attendedCount / row.registeredCount) * 100) : null
   const attendanceLow = attendancePct !== null && attendancePct < 70
 
   return (
     <article
       className={cn(
-        "relative overflow-hidden rounded-xl border bg-surface px-4 py-4 pl-5 transition-colors",
+        "bg-surface relative overflow-hidden rounded-xl border px-4 py-4 pl-5 transition-colors",
         hoursWarn || attendanceLow
           ? "border-warning/30 hover:border-warning/50"
           : "border-border hover:border-border-strong",
@@ -246,10 +231,10 @@ function StudentCard({ row }: { row: TeacherStudentRow }) {
         <div className="flex items-start gap-3">
           <Avatar size="md" initials={initials} />
           <div className="min-w-0 flex-1">
-            <div className="font-medium text-[15px] leading-[1.2] text-foreground">
+            <div className="text-foreground text-[15px] leading-[1.2] font-medium">
               {row.studentName}
             </div>
-            <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-[12.5px] text-text-3">
+            <div className="text-text-3 mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-[12.5px]">
               <a
                 href={`mailto:${row.studentEmail}`}
                 className="inline-flex items-center gap-1.5 hover:text-teal-500"
@@ -267,10 +252,10 @@ function StudentCard({ row }: { row: TeacherStudentRow }) {
                 </a>
               )}
             </div>
-            <div className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-[12px] text-text-3">
+            <div className="text-text-3 mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-[12px]">
               <Link
                 href={`/docente/aulas/${row.classGroup.id}` as Route}
-                className="inline-flex items-center gap-1 text-text-2 transition-colors hover:text-teal-500"
+                className="text-text-2 inline-flex items-center gap-1 transition-colors hover:text-teal-500"
               >
                 <School size={11} strokeWidth={1.6} />
                 {row.classGroup.name}
@@ -292,22 +277,16 @@ function StudentCard({ row }: { row: TeacherStudentRow }) {
             total={row.totalHours}
             size="sm"
           />
-          {hoursWarn && (
-            <p className="mt-1 text-[11.5px] text-warning">
-              Cerca del fin del nivel
-            </p>
-          )}
+          {hoursWarn && <p className="text-warning mt-1 text-[11.5px]">Cerca del fin del nivel</p>}
         </div>
 
         <div>
           {attendancePct === null ? (
-            <div className="font-mono text-[12px] text-text-3">
-              Sin clases registradas todavía
-            </div>
+            <div className="text-text-3 font-mono text-[12px]">Sin clases registradas todavía</div>
           ) : (
             <>
               <div className="mb-1 flex items-baseline justify-between gap-2">
-                <span className="font-mono text-[11px] uppercase tracking-[0.08em] text-text-3">
+                <span className="text-text-3 font-mono text-[11px] tracking-[0.08em] uppercase">
                   Asistencia
                 </span>
                 <span
@@ -324,11 +303,9 @@ function StudentCard({ row }: { row: TeacherStudentRow }) {
                 variant={attendanceLow ? "warn" : "default"}
                 bordered
               />
-              <p className="mt-1.5 font-mono text-[11.5px] text-text-3">
+              <p className="text-text-3 mt-1.5 font-mono text-[11.5px]">
                 {row.attendedCount} asistencias · {row.absentCount} faltas
-                {row.excusedCount > 0
-                  ? ` · ${row.excusedCount} justificadas`
-                  : ""}
+                {row.excusedCount > 0 ? ` · ${row.excusedCount} justificadas` : ""}
               </p>
             </>
           )}

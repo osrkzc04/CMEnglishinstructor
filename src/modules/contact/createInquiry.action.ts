@@ -4,10 +4,7 @@ import { headers } from "next/headers"
 import { verifyTurnstile } from "@/lib/security/turnstile"
 import { checkLimit } from "@/lib/security/rateLimit"
 import { sendContactInquiryEmail } from "./emails"
-import {
-  PublicInquirySchema,
-  type PublicInquiryInput,
-} from "./publicSchemas"
+import { PublicInquirySchema, type PublicInquiryInput } from "./publicSchemas"
 
 /**
  * Action invocada desde el form de contacto del landing. NO requiere
@@ -42,9 +39,7 @@ const IP_LIMIT = 1
 const EMAIL_WINDOW_MS = 60 * 60 * 1000
 const EMAIL_LIMIT = 3
 
-export async function createPublicInquiry(
-  input: PublicInquiryInput,
-): Promise<Result> {
+export async function createPublicInquiry(input: PublicInquiryInput): Promise<Result> {
   const parsed = PublicInquirySchema.safeParse(input)
   if (!parsed.success) {
     const issue = parsed.error.issues[0]
@@ -75,8 +70,7 @@ export async function createPublicInquiry(
   if (!captcha.ok) {
     return {
       success: false,
-      error:
-        "No pudimos validar la verificación anti-spam. Recarga la página e intenta de nuevo.",
+      error: "No pudimos validar la verificación anti-spam. Recarga la página e intenta de nuevo.",
       field: "turnstileToken",
     }
   }

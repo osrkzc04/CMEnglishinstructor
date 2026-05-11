@@ -7,11 +7,7 @@ export const metadata: Metadata = { title: "Restablecer contraseña" }
 
 type RouteParams = { token: string }
 
-export default async function RecuperarTokenPage({
-  params,
-}: {
-  params: Promise<RouteParams>
-}) {
+export default async function RecuperarTokenPage({ params }: { params: Promise<RouteParams> }) {
   const { token } = await params
   const peeked = await peekUserToken(token)
   const isValid = peeked && peeked.purpose === "reset"

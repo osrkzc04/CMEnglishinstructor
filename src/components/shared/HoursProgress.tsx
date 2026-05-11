@@ -21,25 +21,18 @@ type Props = {
   className?: string
 }
 
-export function HoursProgress({
-  consumed,
-  total,
-  label,
-  size = "md",
-  className,
-}: Props) {
+export function HoursProgress({ consumed, total, label, size = "md", className }: Props) {
   const safeTotal = total > 0 ? total : 1
   const pct = (consumed / safeTotal) * 100
   const clampedPct = Math.min(100, Math.max(0, pct))
-  const variant: "default" | "warn" | "info" =
-    pct > 100 ? "warn" : pct >= 90 ? "info" : "default"
+  const variant: "default" | "warn" | "info" = pct > 100 ? "warn" : pct >= 90 ? "info" : "default"
 
   return (
     <div className={cn("space-y-1.5", className)}>
       {label && (
         <div className="flex items-baseline justify-between gap-2 text-[12px]">
           <span className="text-text-3">{label}</span>
-          <span className="font-mono text-text-2">
+          <span className="text-text-2 font-mono">
             {format(consumed)} / {format(total)} h
           </span>
         </div>
@@ -51,12 +44,9 @@ export function HoursProgress({
         className={size === "sm" ? "h-1" : undefined}
       />
       {!label && (
-        <div className="flex items-baseline justify-between text-[11.5px] text-text-3">
+        <div className="text-text-3 flex items-baseline justify-between text-[11.5px]">
           <span>
-            <span className="font-mono text-text-2">
-              {format(consumed)}
-            </span>{" "}
-            de {format(total)} h
+            <span className="text-text-2 font-mono">{format(consumed)}</span> de {format(total)} h
           </span>
           <span className="font-mono">{Math.round(clampedPct)}%</span>
         </div>

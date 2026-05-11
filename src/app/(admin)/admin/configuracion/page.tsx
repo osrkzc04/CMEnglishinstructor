@@ -26,8 +26,7 @@ const SECTIONS: {
   {
     href: "/admin/configuracion/cursos" as Route,
     title: "Cursos y programas",
-    description:
-      "Estructura del catálogo: idiomas, cursos y programas que agrupan a los niveles.",
+    description: "Estructura del catálogo: idiomas, cursos y programas que agrupan a los niveles.",
     icon: BookOpen,
     status: "soon",
   },
@@ -58,15 +57,15 @@ export default async function AdminConfiguracionPage() {
       ]}
     >
       <header className="mb-7 max-w-2xl">
-        <p className="mb-2 font-mono text-[12px] uppercase tracking-[0.08em] text-text-3">
+        <p className="text-text-3 mb-2 font-mono text-[12px] tracking-[0.08em] uppercase">
           Sistema
         </p>
-        <h1 className="font-serif text-[32px] font-normal leading-[1.18] tracking-[-0.02em]">
+        <h1 className="font-serif text-[32px] leading-[1.18] font-normal tracking-[-0.02em]">
           Configuración
         </h1>
-        <p className="mt-2 text-[14px] leading-[1.55] text-text-3">
-          Catálogo y parámetros globales. Lo que cambies acá impacta a las
-          aulas y matrículas que se creen de aquí en adelante.
+        <p className="text-text-3 mt-2 text-[14px] leading-[1.55]">
+          Catálogo y parámetros globales. Lo que cambies acá impacta a las aulas y matrículas que se
+          creen de aquí en adelante.
         </p>
       </header>
 
@@ -75,27 +74,25 @@ export default async function AdminConfiguracionPage() {
           const Icon = section.icon
           const inner = (
             <>
-              <div className="grid h-9 w-9 shrink-0 place-items-center rounded-lg border border-border bg-surface-alt text-text-3">
+              <div className="border-border bg-surface-alt text-text-3 grid h-9 w-9 shrink-0 place-items-center rounded-lg border">
                 <Icon size={15} strokeWidth={1.6} />
               </div>
               <div className="min-w-0 flex-1">
                 <div className="flex items-center justify-between gap-2">
-                  <h2 className="font-medium text-foreground">{section.title}</h2>
+                  <h2 className="text-foreground font-medium">{section.title}</h2>
                   {section.status === "available" ? (
                     <ArrowUpRight
                       size={14}
                       strokeWidth={1.6}
-                      className="shrink-0 text-text-3 transition-colors group-hover:text-teal-500"
+                      className="text-text-3 shrink-0 transition-colors group-hover:text-teal-500"
                     />
                   ) : (
-                    <span className="font-mono text-[10px] uppercase tracking-[0.08em] text-text-4">
+                    <span className="text-text-4 font-mono text-[10px] tracking-[0.08em] uppercase">
                       próximamente
                     </span>
                   )}
                 </div>
-                <p className="mt-1 text-[12.5px] text-text-3">
-                  {section.description}
-                </p>
+                <p className="text-text-3 mt-1 text-[12.5px]">{section.description}</p>
               </div>
             </>
           )
@@ -104,12 +101,12 @@ export default async function AdminConfiguracionPage() {
               {section.status === "available" ? (
                 <Link
                   href={section.href}
-                  className="group flex items-start gap-3 rounded-xl border border-border bg-surface p-4 transition-colors hover:border-teal-500"
+                  className="group border-border bg-surface flex items-start gap-3 rounded-xl border p-4 transition-colors hover:border-teal-500"
                 >
                   {inner}
                 </Link>
               ) : (
-                <div className="flex items-start gap-3 rounded-xl border border-border bg-surface p-4 opacity-60">
+                <div className="border-border bg-surface flex items-start gap-3 rounded-xl border p-4 opacity-60">
                   {inner}
                 </div>
               )}

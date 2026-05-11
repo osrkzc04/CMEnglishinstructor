@@ -8,10 +8,7 @@ import { AlertTriangle, Check, Loader2 } from "lucide-react"
 import { Alert } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
-import {
-  TeacherLevelsSchema,
-  type TeacherLevelsInput,
-} from "@/modules/teachers/schemas"
+import { TeacherLevelsSchema, type TeacherLevelsInput } from "@/modules/teachers/schemas"
 import { updateTeacherLevels } from "@/modules/teachers/updateLevels.action"
 import type { CefrLanguageGroup } from "@/modules/teachers/queries"
 import { cn } from "@/lib/utils"
@@ -28,11 +25,7 @@ type Props = {
   groups: CefrLanguageGroup[]
 }
 
-export function TeachableLevelsForm({
-  teacherId,
-  initialLevelIds,
-  groups,
-}: Props) {
+export function TeachableLevelsForm({ teacherId, initialLevelIds, groups }: Props) {
   const router = useRouter()
   const [serverError, setServerError] = useState<string | null>(null)
   const [savedAt, setSavedAt] = useState<Date | null>(null)
@@ -91,17 +84,15 @@ export function TeachableLevelsForm({
         render={() => (
           <div className="space-y-5">
             {groups.length === 0 ? (
-              <p className="text-[13px] text-text-3">
-                No hay niveles configurados en el catálogo.
-              </p>
+              <p className="text-text-3 text-[13px]">No hay niveles configurados en el catálogo.</p>
             ) : (
               groups.map((g) => (
                 <div key={g.languageId}>
-                  <p className="mb-2.5 font-mono text-[11px] uppercase tracking-[0.08em] text-text-3">
+                  <p className="text-text-3 mb-2.5 font-mono text-[11px] tracking-[0.08em] uppercase">
                     {g.languageName}
                   </p>
                   {g.levels.length === 0 ? (
-                    <p className="text-[13px] text-text-4">
+                    <p className="text-text-4 text-[13px]">
                       Sin niveles definidos para este idioma.
                     </p>
                   ) : (
@@ -114,14 +105,11 @@ export function TeachableLevelsForm({
                             className={cn(
                               "inline-flex cursor-pointer items-center gap-2 rounded-md border px-3 py-2 text-[13px] transition-colors duration-[120ms]",
                               isSelected
-                                ? "border-teal-500/60 bg-teal-500/[0.08] text-foreground"
+                                ? "text-foreground border-teal-500/60 bg-teal-500/[0.08]"
                                 : "border-border bg-surface text-text-2 hover:border-border-strong hover:text-foreground",
                             )}
                           >
-                            <Checkbox
-                              checked={isSelected}
-                              onChange={() => toggle(opt.id)}
-                            />
+                            <Checkbox checked={isSelected} onChange={() => toggle(opt.id)} />
                             <span className="font-mono text-[12.5px] tracking-[0.04em]">
                               {opt.code}
                             </span>
@@ -139,23 +127,16 @@ export function TeachableLevelsForm({
         )}
       />
 
-      {errors.levelIds && (
-        <p className="text-[12.5px] text-danger">{errors.levelIds.message}</p>
-      )}
+      {errors.levelIds && <p className="text-danger text-[12.5px]">{errors.levelIds.message}</p>}
 
       <div className="flex items-center justify-end gap-3 pt-1">
         {savedAt && !isDirty && (
-          <span className="inline-flex items-center gap-1.5 text-[12.5px] text-text-3">
+          <span className="text-text-3 inline-flex items-center gap-1.5 text-[12.5px]">
             <Check size={13} strokeWidth={1.8} className="text-teal-500" />
             Cambios guardados
           </span>
         )}
-        <Button
-          type="submit"
-          variant="primary"
-          size="md"
-          disabled={isPending || !isDirty}
-        >
+        <Button type="submit" variant="primary" size="md" disabled={isPending || !isDirty}>
           {isPending ? (
             <>
               <Loader2 size={14} strokeWidth={1.6} className="animate-spin" />

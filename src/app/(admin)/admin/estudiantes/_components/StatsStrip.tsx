@@ -21,11 +21,8 @@ export function StatsStrip({ stats }: { stats: StudentStats }) {
   return (
     <div className="mb-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
       {cards.map((card) => (
-        <div
-          key={card.label}
-          className="rounded-xl border border-border bg-surface px-4 py-3.5"
-        >
-          <p className="font-mono text-[11px] uppercase tracking-[0.08em] text-text-3">
+        <div key={card.label} className="border-border bg-surface rounded-xl border px-4 py-3.5">
+          <p className="text-text-3 font-mono text-[11px] tracking-[0.08em] uppercase">
             {card.label}
           </p>
           <p
@@ -33,8 +30,8 @@ export function StatsStrip({ stats }: { stats: StudentStats }) {
               card.tone === "teal"
                 ? "mt-1 font-serif text-[26px] leading-[1.1] tracking-[-0.01em] text-teal-500"
                 : card.tone === "warning"
-                  ? "mt-1 font-serif text-[26px] leading-[1.1] tracking-[-0.01em] text-warning"
-                  : "mt-1 font-serif text-[26px] leading-[1.1] tracking-[-0.01em] text-foreground"
+                  ? "text-warning mt-1 font-serif text-[26px] leading-[1.1] tracking-[-0.01em]"
+                  : "text-foreground mt-1 font-serif text-[26px] leading-[1.1] tracking-[-0.01em]"
             }
           >
             {card.value}

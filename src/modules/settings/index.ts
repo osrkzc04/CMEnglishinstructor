@@ -48,8 +48,7 @@ const SETTINGS = {
     key: "absence_counts_as_consumed",
     type: SettingType.BOOLEAN,
     default: false as boolean,
-    description:
-      "Si una ausencia (ABSENT) cuenta como hora consumida del estudiante.",
+    description: "Si una ausencia (ABSENT) cuenta como hora consumida del estudiante.",
   } satisfies SettingDef<boolean>,
   classDefaultDurationMinutes: {
     key: "class_default_duration_minutes",
@@ -82,9 +81,7 @@ export const getSetting = cache(
 export async function getSettings<K extends SettingKey>(
   keys: K[],
 ): Promise<{ [P in K]: (typeof SETTINGS)[P]["default"] }> {
-  const entries = await Promise.all(
-    keys.map(async (k) => [k, await getSetting(k)] as const),
-  )
+  const entries = await Promise.all(keys.map(async (k) => [k, await getSetting(k)] as const))
   return Object.fromEntries(entries) as {
     [P in K]: (typeof SETTINGS)[P]["default"]
   }

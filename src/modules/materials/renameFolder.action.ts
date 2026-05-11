@@ -6,9 +6,7 @@ import { requireRole } from "@/modules/auth/guards"
 import { RenameFolderSchema, type RenameFolderInput } from "./schemas"
 import { findFolderByNameInParent } from "./queries"
 
-type Result =
-  | { success: true }
-  | { success: false; error: string; field?: keyof RenameFolderInput }
+type Result = { success: true } | { success: false; error: string; field?: keyof RenameFolderInput }
 
 export async function renameFolder(input: RenameFolderInput): Promise<Result> {
   await requireRole(["DIRECTOR", "COORDINATOR"])

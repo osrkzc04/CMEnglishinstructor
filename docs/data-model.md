@@ -84,6 +84,7 @@ Language  (English, Español)
 ```
 
 Cada nivel aporta algo:
+
 - `Language`: el idioma que se enseña.
 - `Course`: "tipo de programa" — define `baseHours`, `pricePerHour`, `classDuration`.
 - `Program`: libro o plataforma específica — tiene `publisher`, `platformUrl`, y un `structureType` que distingue programas progresivos (Time Zones), modulares (Specialization) e integrales (Kids).
@@ -141,6 +142,7 @@ Define cómo se compone una prueba: qué filtros de tópico, cuántas preguntas 
 ### Invitaciones y token
 
 `InviteToken` contiene:
+
 - `token`: string aleatorio de ~32 bytes hex, va en la URL pública.
 - `expiresAt`: normalmente `createdAt + 24h` (configurable vía `AppSetting`).
 - `usedAt`: se marca al iniciar la sesión de prueba.
@@ -178,18 +180,18 @@ Facturación del docente es principalmente **vista calculada** (suma `hoursCount
 
 Un solo modelo para todas las configuraciones parametrizables. Cada setting tiene `type` (`STRING`, `NUMBER`, `BOOLEAN`, `JSON`) que permite castear el valor. Settings iniciales (ver `prisma/seed.ts`):
 
-| Key | Default | Descripción |
-|---|---|---|
-| `default_class_duration_minutes` | `45` | Duración de clase |
-| `default_price_per_hour` | `25` | Precio base |
-| `invite_token_expiration_hours` | `24` | Validez del link de prueba |
-| `candidate_can_view_results` | `false` | ¿Candidato ve su resultado? |
-| `candidate_result_detail_level` | `none` | `none` \| `score_only` \| `full` |
-| `absence_counts_as_consumed` | `false` | ¿Ausencia resta horas? |
-| `notification_weekly_schedule_day` | `sunday` | Día envío de cronograma |
-| `notification_weekly_schedule_hour` | `18` | Hora envío |
-| `reminder_class_hours_before` | `2` | Horas antes del recordatorio |
-| `log_edit_window_hours` | `24` | Ventana para editar bitácora |
+| Key                                 | Default  | Descripción                      |
+| ----------------------------------- | -------- | -------------------------------- |
+| `default_class_duration_minutes`    | `45`     | Duración de clase                |
+| `default_price_per_hour`            | `25`     | Precio base                      |
+| `invite_token_expiration_hours`     | `24`     | Validez del link de prueba       |
+| `candidate_can_view_results`        | `false`  | ¿Candidato ve su resultado?      |
+| `candidate_result_detail_level`     | `none`   | `none` \| `score_only` \| `full` |
+| `absence_counts_as_consumed`        | `false`  | ¿Ausencia resta horas?           |
+| `notification_weekly_schedule_day`  | `sunday` | Día envío de cronograma          |
+| `notification_weekly_schedule_hour` | `18`     | Hora envío                       |
+| `reminder_class_hours_before`       | `2`      | Horas antes del recordatorio     |
+| `log_edit_window_hours`             | `24`     | Ventana para editar bitácora     |
 
 ### `EmailNotification` — cola con historial
 

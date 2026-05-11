@@ -31,16 +31,15 @@ export default async function NuevaAulaPage() {
       ]}
     >
       <header className="mb-7 max-w-3xl">
-        <p className="mb-2 font-mono text-[12px] uppercase tracking-[0.08em] text-text-3">
+        <p className="text-text-3 mb-2 font-mono text-[12px] tracking-[0.08em] uppercase">
           Operación
         </p>
-        <h1 className="font-serif text-[32px] font-normal leading-[1.18] tracking-[-0.02em]">
+        <h1 className="font-serif text-[32px] leading-[1.18] font-normal tracking-[-0.02em]">
           Nueva aula
         </h1>
-        <p className="mt-2 text-[14px] leading-[1.55] text-text-3">
-          Elegí el nivel, los candidatos y los horarios. El matchmaker te
-          muestra dónde cuadra la disponibilidad de docente y estudiantes para
-          que cierres el aula en una sola pasada.
+        <p className="text-text-3 mt-2 text-[14px] leading-[1.55]">
+          Elegí el nivel, los candidatos y los horarios. El matchmaker te muestra dónde cuadra la
+          disponibilidad de docente y estudiantes para que cierres el aula en una sola pasada.
         </p>
       </header>
 

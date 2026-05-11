@@ -42,10 +42,10 @@ export function ProgressRing({
     >
       <span
         aria-hidden
-        className="absolute rounded-full bg-surface"
+        className="bg-surface absolute rounded-full"
         style={{ inset: innerInset }}
       />
-      <span className="relative font-mono text-[13px] tabular-nums text-foreground">
+      <span className="text-foreground relative font-mono text-[13px] tabular-nums">
         {children ?? `${Math.round(clamped)}%`}
       </span>
     </div>

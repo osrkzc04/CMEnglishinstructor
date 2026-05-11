@@ -21,13 +21,7 @@ export type LevelEntry = {
   variant: "info" | "default" | "warn" | "danger"
 }
 
-export function LevelsCard({
-  items,
-  meta,
-}: {
-  items: LevelEntry[]
-  meta: string
-}) {
+export function LevelsCard({ items, meta }: { items: LevelEntry[]; meta: string }) {
   return (
     <Card>
       <CardHeader>
@@ -46,9 +40,9 @@ export function LevelsCard({
 function LevelRow({ row }: { row: LevelEntry }) {
   const pct = Math.round((row.count / row.total) * 100)
   return (
-    <div className="border-b border-dashed border-border py-3 last:border-b-0">
+    <div className="border-border border-b border-dashed py-3 last:border-b-0">
       <div className="mb-2 flex items-baseline justify-between">
-        <div className="text-[13.5px] text-foreground">
+        <div className="text-foreground text-[13.5px]">
           {row.name}
           {row.tag && (
             <Tag className="ml-1.5 align-baseline" style={{ fontSize: 11 }}>
@@ -56,7 +50,7 @@ function LevelRow({ row }: { row: LevelEntry }) {
             </Tag>
           )}
         </div>
-        <div className="font-mono text-[12.5px] text-foreground tabular-nums">
+        <div className="text-foreground font-mono text-[12.5px] tabular-nums">
           {row.count} <span className="text-text-3">/ {row.total}</span> · {pct}%
         </div>
       </div>

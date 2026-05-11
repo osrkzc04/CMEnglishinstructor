@@ -50,17 +50,13 @@ export function CopyButton({ value, label = "Copiar", className }: Props) {
       onClick={handleCopy}
       aria-label={label}
       className={cn(
-        "inline-flex items-center justify-center gap-1 rounded-md border border-border bg-surface px-2 py-1.5 text-[12.5px] text-text-2 transition-colors hover:border-teal-500 hover:text-teal-500",
+        "border-border bg-surface text-text-2 inline-flex items-center justify-center gap-1 rounded-md border px-2 py-1.5 text-[12.5px] transition-colors hover:border-teal-500 hover:text-teal-500",
         copied && "border-teal-500 text-teal-600",
         error && "border-danger/50 text-danger",
         className,
       )}
     >
-      {copied ? (
-        <Check size={12} strokeWidth={1.8} />
-      ) : (
-        <Copy size={12} strokeWidth={1.6} />
-      )}
+      {copied ? <Check size={12} strokeWidth={1.8} /> : <Copy size={12} strokeWidth={1.6} />}
       {copied ? "Copiado" : error ? "Error" : "Copiar"}
     </button>
   )

@@ -16,7 +16,7 @@ export const NameSchema = z
   .min(1, "Nombre requerido")
   .max(120, "Máximo 120 caracteres")
   .refine((v) => !FORBIDDEN.test(v), {
-    message: "El nombre no puede contener / \\ : * ? \" < > |",
+    message: 'El nombre no puede contener / \\ : * ? " < > |',
   })
   .refine((v) => v !== "." && v !== "..", { message: "Nombre inválido" })
 

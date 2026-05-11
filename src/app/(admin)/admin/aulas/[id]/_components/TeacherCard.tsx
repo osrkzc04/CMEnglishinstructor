@@ -44,12 +44,10 @@ export function TeacherCard({
   return (
     <div>
       {currentAssignment ? (
-        <div className="flex flex-wrap items-baseline justify-between gap-3 rounded-md border border-border bg-surface-alt px-4 py-3">
+        <div className="border-border bg-surface-alt flex flex-wrap items-baseline justify-between gap-3 rounded-md border px-4 py-3">
           <div>
-            <p className="text-[14px] text-foreground">
-              {currentAssignment.teacherName}
-            </p>
-            <p className="mt-0.5 text-[12px] text-text-3">
+            <p className="text-foreground text-[14px]">{currentAssignment.teacherName}</p>
+            <p className="text-text-3 mt-0.5 text-[12px]">
               Desde {formatDate(currentAssignment.startDate)}
             </p>
           </div>
@@ -61,8 +59,8 @@ export function TeacherCard({
           )}
         </div>
       ) : (
-        <div className="flex flex-wrap items-center justify-between gap-3 rounded-md border border-warning/40 bg-warning/[0.06] px-4 py-3">
-          <p className="text-[13px] text-warning">
+        <div className="border-warning/40 bg-warning/[0.06] flex flex-wrap items-center justify-between gap-3 rounded-md border px-4 py-3">
+          <p className="text-warning text-[13px]">
             Sin docente asignado. El aula no genera clases hasta que tenga uno.
           </p>
           {canEdit && (
@@ -76,17 +74,17 @@ export function TeacherCard({
 
       {pastAssignments.length > 0 && (
         <div className="mt-4">
-          <p className="mb-2 font-mono text-[11px] uppercase tracking-[0.08em] text-text-3">
+          <p className="text-text-3 mb-2 font-mono text-[11px] tracking-[0.08em] uppercase">
             Histórico
           </p>
           <ul className="space-y-1.5">
             {pastAssignments.map((a) => (
               <li
                 key={a.id}
-                className="flex flex-wrap items-baseline justify-between gap-3 border-b border-border pb-2 text-[13px] last:border-b-0 last:pb-0"
+                className="border-border flex flex-wrap items-baseline justify-between gap-3 border-b pb-2 text-[13px] last:border-b-0 last:pb-0"
               >
                 <span className="text-foreground">{a.teacherName}</span>
-                <span className="font-mono text-[12px] tracking-[0.02em] text-text-3">
+                <span className="text-text-3 font-mono text-[12px] tracking-[0.02em]">
                   {formatDate(a.startDate)}
                   {" — "}
                   {a.endDate ? formatDate(a.endDate) : "vigente"}
@@ -156,9 +154,8 @@ function SetTeacherDialog({
         <DialogHeader>
           <DialogTitle>Asignar docente al aula</DialogTitle>
           <DialogDescription>
-            Los docentes elegibles cubren el nivel CEFR, tienen disponibilidad
-            para todos los horarios del aula y no chocan con otra aula
-            simultánea.
+            Los docentes elegibles cubren el nivel CEFR, tienen disponibilidad para todos los
+            horarios del aula y no chocan con otra aula simultánea.
           </DialogDescription>
         </DialogHeader>
 
@@ -174,14 +171,12 @@ function SetTeacherDialog({
           )}
 
           {filtered.length === 0 ? (
-            <p className="text-[13.5px] text-text-3">
-              No hay docentes para mostrar.
-            </p>
+            <p className="text-text-3 text-[13.5px]">No hay docentes para mostrar.</p>
           ) : (
             <>
               {eligible.length > 0 && (
                 <div>
-                  <p className="mb-2 font-mono text-[11px] uppercase tracking-[0.08em] text-text-3">
+                  <p className="text-text-3 mb-2 font-mono text-[11px] tracking-[0.08em] uppercase">
                     Elegibles ({eligible.length})
                   </p>
                   <div className="space-y-1.5">
@@ -198,7 +193,7 @@ function SetTeacherDialog({
               )}
               {notEligible.length > 0 && (
                 <div>
-                  <p className="mb-2 font-mono text-[11px] uppercase tracking-[0.08em] text-text-3">
+                  <p className="text-text-3 mb-2 font-mono text-[11px] tracking-[0.08em] uppercase">
                     Con conflictos ({notEligible.length})
                   </p>
                   <div className="space-y-1.5">
@@ -222,11 +217,7 @@ function SetTeacherDialog({
           <Button variant="ghost" onClick={onClose} disabled={isPending}>
             Cancelar
           </Button>
-          <Button
-            variant="primary"
-            onClick={handleSubmit}
-            disabled={!selectedId || isPending}
-          >
+          <Button variant="primary" onClick={handleSubmit} disabled={!selectedId || isPending}>
             {isPending ? (
               <>
                 <Loader2 size={14} strokeWidth={1.6} className="animate-spin" />
@@ -278,23 +269,21 @@ function CandidateRow({
         selected
           ? "border-teal-500 bg-teal-500/[0.06]"
           : disabled
-          ? "border-border bg-surface-alt opacity-70"
-          : "border-border bg-surface hover:border-border-strong",
+            ? "border-border bg-surface-alt opacity-70"
+            : "border-border bg-surface hover:border-border-strong",
       ].join(" ")}
     >
       <div className="flex flex-wrap items-baseline justify-between gap-2">
         <div>
-          <p className="text-[14px] font-medium text-foreground">
+          <p className="text-foreground text-[14px] font-medium">
             {candidate.firstName} {candidate.lastName}
           </p>
-          <p className="mt-0.5 text-[12px] text-text-3">{candidate.email}</p>
+          <p className="text-text-3 mt-0.5 text-[12px]">{candidate.email}</p>
         </div>
-        {!disabled && (
-          <Tag>${candidate.hourlyRate}/hora</Tag>
-        )}
+        {!disabled && <Tag>${candidate.hourlyRate}/hora</Tag>}
       </div>
       {reasons.length > 0 && (
-        <ul className="mt-2 space-y-0.5 text-[12px] text-warning">
+        <ul className="text-warning mt-2 space-y-0.5 text-[12px]">
           {reasons.map((r, i) => (
             <li key={i}>• {r}</li>
           ))}

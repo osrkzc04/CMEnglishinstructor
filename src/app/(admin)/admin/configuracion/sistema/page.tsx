@@ -46,17 +46,16 @@ export default async function AdminConfiguracionSistemaPage() {
       ]}
     >
       <header className="mb-7 max-w-2xl">
-        <p className="mb-2 font-mono text-[12px] uppercase tracking-[0.08em] text-text-3">
+        <p className="text-text-3 mb-2 font-mono text-[12px] tracking-[0.08em] uppercase">
           Sistema
         </p>
-        <h1 className="font-serif text-[32px] font-normal leading-[1.18] tracking-[-0.02em]">
+        <h1 className="font-serif text-[32px] leading-[1.18] font-normal tracking-[-0.02em]">
           Parámetros del sistema
         </h1>
-        <p className="mt-2 text-[14px] leading-[1.55] text-text-3">
-          Valores por defecto que rigen las reglas del producto. Lo que
-          cambies acá impacta a las aulas y matrículas que se creen de aquí
-          en adelante. Las aulas existentes mantienen sus snapshots — no se
-          edita histórico retroactivamente.
+        <p className="text-text-3 mt-2 text-[14px] leading-[1.55]">
+          Valores por defecto que rigen las reglas del producto. Lo que cambies acá impacta a las
+          aulas y matrículas que se creen de aquí en adelante. Las aulas existentes mantienen sus
+          snapshots — no se edita histórico retroactivamente.
         </p>
       </header>
 

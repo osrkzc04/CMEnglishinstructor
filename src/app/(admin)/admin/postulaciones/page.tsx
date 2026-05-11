@@ -44,8 +44,7 @@ export default async function PostulacionesPage({
 
   // Validación defensiva: si llega un `status` que no es enum válido, lo
   // descartamos (en vez de tirar 500).
-  const safeStatus =
-    sp.status && isApplicationStatus(sp.status) ? sp.status : undefined
+  const safeStatus = sp.status && isApplicationStatus(sp.status) ? sp.status : undefined
 
   const filters = ApplicationListFiltersSchema.parse({
     q: sp.q,
@@ -74,10 +73,10 @@ export default async function PostulacionesPage({
       ]}
     >
       <header className="mb-6">
-        <p className="mb-2 font-mono text-[12px] uppercase tracking-[0.08em] text-text-3">
+        <p className="text-text-3 mb-2 font-mono text-[12px] tracking-[0.08em] uppercase">
           Equipo docente
         </p>
-        <h1 className="font-serif text-[32px] font-normal leading-[1.18] tracking-[-0.02em]">
+        <h1 className="font-serif text-[32px] leading-[1.18] font-normal tracking-[-0.02em]">
           Postulaciones
         </h1>
       </header>

@@ -24,14 +24,7 @@ type Props = {
   onDeleted: () => void
 }
 
-export function DeleteItemDialog({
-  open,
-  onOpenChange,
-  itemKind,
-  id,
-  name,
-  onDeleted,
-}: Props) {
+export function DeleteItemDialog({ open, onOpenChange, itemKind, id, name, onDeleted }: Props) {
   const [error, setError] = useState<string | null>(null)
   const [isPending, startTransition] = useTransition()
 
@@ -54,14 +47,11 @@ export function DeleteItemDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent size="sm">
         <DialogHeader>
-          <DialogTitle>
-            Eliminar {itemKind === "folder" ? "carpeta" : "archivo"}
-          </DialogTitle>
+          <DialogTitle>Eliminar {itemKind === "folder" ? "carpeta" : "archivo"}</DialogTitle>
         </DialogHeader>
         <DialogBody>
-          <p className="text-[13.5px] text-text-2">
-            Vas a eliminar{" "}
-            <span className="font-medium text-foreground">{name}</span>
+          <p className="text-text-2 text-[13.5px]">
+            Vas a eliminar <span className="text-foreground font-medium">{name}</span>
             {itemKind === "folder"
               ? " y todo lo que contenga (subcarpetas y archivos). Esta acción no se puede deshacer."
               : ". Esta acción no se puede deshacer."}

@@ -16,15 +16,7 @@ import { renderEmail } from "@/lib/email/template"
  * que llegó sigue siendo el original.
  */
 
-const DAYS_ES_LONG = [
-  "Domingo",
-  "Lunes",
-  "Martes",
-  "Miércoles",
-  "Jueves",
-  "Viernes",
-  "Sábado",
-]
+const DAYS_ES_LONG = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"]
 
 const MODALITY_LABEL: Record<Modality, string> = {
   VIRTUAL: "Virtual",
@@ -118,9 +110,7 @@ type SendArgs = {
   snapshot: ClassGroupAssignmentSnapshot
 }
 
-export async function sendClassGroupAssignmentEmail(
-  args: SendArgs,
-): Promise<{ ok: boolean }> {
+export async function sendClassGroupAssignmentEmail(args: SendArgs): Promise<{ ok: boolean }> {
   const html = buildHtml(args)
   const subject = `${args.audience === "teacher" ? "Aula asignada" : "Tu nueva aula"} — ${args.snapshot.classGroupName}`
   const type =
@@ -239,9 +229,7 @@ export async function notifyClassGroupAssignment(args: {
   }
 
   for (const s of students) {
-    const others = allStudentNames.filter(
-      (n) => n !== `${s.firstName} ${s.lastName}`,
-    )
+    const others = allStudentNames.filter((n) => n !== `${s.firstName} ${s.lastName}`)
     const result = await sendClassGroupAssignmentEmail({
       to: s.email,
       recipientName: s.firstName,
@@ -276,11 +264,8 @@ function buildHtml(args: SendArgs): string {
 
   const baseUrl = env.AUTH_URL.replace(/\/$/, "")
   const ctaUrl =
-    audience === "teacher"
-      ? `${baseUrl}/docente/dashboard`
-      : `${baseUrl}/estudiante/dashboard`
-  const ctaLabel =
-    audience === "teacher" ? "Abrir mi panel del docente" : "Ir a mi panel"
+    audience === "teacher" ? `${baseUrl}/docente/dashboard` : `${baseUrl}/estudiante/dashboard`
+  const ctaLabel = audience === "teacher" ? "Abrir mi panel del docente" : "Ir a mi panel"
 
   const body: string[] = []
 
@@ -333,10 +318,7 @@ function buildHtml(args: SendArgs): string {
         ? `Aula ${snapshot.classGroupName} — horario asignado`
         : `Tu nueva aula con ${teacherName}`,
     eyebrow: audience === "teacher" ? "ASIGNACIÓN" : "TU AULA",
-    heading:
-      audience === "teacher"
-        ? "Aula asignada"
-        : "Empezamos pronto",
+    heading: audience === "teacher" ? "Aula asignada" : "Empezamos pronto",
     body,
     cta: { label: ctaLabel, url: ctaUrl },
     fineprint:

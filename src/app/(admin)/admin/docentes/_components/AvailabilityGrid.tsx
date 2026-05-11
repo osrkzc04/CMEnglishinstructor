@@ -109,10 +109,7 @@ function cellsToBlocks(cells: Set<string>): AvailabilityBlock[] {
       endTime: slotToTime(prev + 1),
     })
   }
-  blocks.sort(
-    (a, b) =>
-      a.dayOfWeek - b.dayOfWeek || a.startTime.localeCompare(b.startTime),
-  )
+  blocks.sort((a, b) => a.dayOfWeek - b.dayOfWeek || a.startTime.localeCompare(b.startTime))
   return blocks
 }
 
@@ -195,14 +192,14 @@ export function AvailabilityGrid({ blocks, onChange, disabled }: Props) {
 
   return (
     <div className="select-none">
-      <div className="overflow-hidden rounded-lg border border-border bg-surface">
+      <div className="border-border bg-surface overflow-hidden rounded-lg border">
         {/* Header de días */}
-        <div className="grid grid-cols-[60px_repeat(7,minmax(0,1fr))] border-b border-border bg-surface-alt">
+        <div className="border-border bg-surface-alt grid grid-cols-[60px_repeat(7,minmax(0,1fr))] border-b">
           <div />
           {DAYS.map((d) => (
             <div
               key={d.idx}
-              className="border-l border-border px-2 py-2 text-center font-mono text-[11px] uppercase tracking-[0.08em] text-text-3"
+              className="border-border text-text-3 border-l px-2 py-2 text-center font-mono text-[11px] tracking-[0.08em] uppercase"
             >
               {d.short}
             </div>
@@ -225,9 +222,9 @@ export function AvailabilityGrid({ blocks, onChange, disabled }: Props) {
                   className={cn(
                     "flex items-start justify-end pr-2 font-mono tracking-[0.02em]",
                     isHour
-                      ? "border-t border-border text-[10.5px] text-text-3"
+                      ? "border-border text-text-3 border-t text-[10.5px]"
                       : isHalf
-                        ? "text-[10px] text-text-4"
+                        ? "text-text-4 text-[10px]"
                         : "text-text-4",
                   )}
                   style={{ height: `${CELL_HEIGHT_PX}px`, lineHeight: `${CELL_HEIGHT_PX}px` }}
@@ -261,13 +258,13 @@ export function AvailabilityGrid({ blocks, onChange, disabled }: Props) {
                       }}
                       style={{ height: `${CELL_HEIGHT_PX}px` }}
                       className={cn(
-                        "block w-full border-l border-border transition-colors",
+                        "border-border block w-full border-l transition-colors",
                         topBorder,
                         active
                           ? "bg-teal-500/[0.18] hover:bg-teal-500/[0.28]"
                           : "bg-surface hover:bg-surface-alt",
                         "focus:outline-none focus-visible:relative focus-visible:z-[1] focus-visible:ring-2 focus-visible:ring-teal-500/60",
-                        disabled && "cursor-not-allowed opacity-60 hover:bg-surface",
+                        disabled && "hover:bg-surface cursor-not-allowed opacity-60",
                       )}
                     />
                   )
@@ -278,22 +275,22 @@ export function AvailabilityGrid({ blocks, onChange, disabled }: Props) {
         </div>
 
         {/* Cierre con la hora final */}
-        <div className="grid grid-cols-[60px_repeat(7,minmax(0,1fr))] border-t border-border bg-surface-alt">
-          <div className="flex items-center justify-end pr-2 py-1 font-mono text-[10.5px] tracking-[0.02em] text-text-4">
+        <div className="border-border bg-surface-alt grid grid-cols-[60px_repeat(7,minmax(0,1fr))] border-t">
+          <div className="text-text-4 flex items-center justify-end py-1 pr-2 font-mono text-[10.5px] tracking-[0.02em]">
             {slotToTime(SLOTS_PER_DAY)}
           </div>
           {DAYS.map((d) => (
-            <div key={`closer-${d.idx}`} className="border-l border-border" />
+            <div key={`closer-${d.idx}`} className="border-border border-l" />
           ))}
         </div>
       </div>
 
       <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
-        <p className="text-[12.5px] text-text-3">
+        <p className="text-text-3 text-[12.5px]">
           Click o arrastrá sobre la grilla para marcar bloques disponibles.
         </p>
         {cells.size > 0 && (
-          <p className="font-mono text-[11px] tracking-[0.02em] text-text-3">
+          <p className="text-text-3 font-mono text-[11px] tracking-[0.02em]">
             {formatTotalHours(cells)} h por semana
           </p>
         )}

@@ -32,33 +32,31 @@ export type ProgramLevelOption = {
   programName: string
 }
 
-export const listProgramLevelOptions = cache(
-  async (): Promise<ProgramLevelOption[]> => {
-    const rows = await prisma.programLevel.findMany({
-      // Pickers solo ven niveles activos. Para el panel admin usar
-      // `listAllProgramLevels` que ignora el filtro.
-      where: { isActive: true },
-      orderBy: [{ programId: "asc" }, { order: "asc" }],
-      include: {
-        program: {
-          include: {
-            course: { include: { language: true } },
-          },
+export const listProgramLevelOptions = cache(async (): Promise<ProgramLevelOption[]> => {
+  const rows = await prisma.programLevel.findMany({
+    // Pickers solo ven niveles activos. Para el panel admin usar
+    // `listAllProgramLevels` que ignora el filtro.
+    where: { isActive: true },
+    orderBy: [{ programId: "asc" }, { order: "asc" }],
+    include: {
+      program: {
+        include: {
+          course: { include: { language: true } },
         },
       },
-    })
-    return rows.map((r) => ({
-      id: r.id,
-      code: r.code,
-      name: r.name,
-      cefrLevelCode: r.cefrLevelCode ?? null,
-      classDurationMinutes: r.program.course.classDuration,
-      languageId: r.program.course.language.id,
-      languageName: r.program.course.language.name,
-      courseId: r.program.course.id,
-      courseName: r.program.course.name,
-      programId: r.program.id,
-      programName: r.program.name,
-    }))
-  },
-)
+    },
+  })
+  return rows.map((r) => ({
+    id: r.id,
+    code: r.code,
+    name: r.name,
+    cefrLevelCode: r.cefrLevelCode ?? null,
+    classDurationMinutes: r.program.course.classDuration,
+    languageId: r.program.course.language.id,
+    languageName: r.program.course.language.name,
+    courseId: r.program.course.id,
+    courseName: r.program.course.name,
+    programId: r.program.id,
+    programName: r.program.name,
+  }))
+})

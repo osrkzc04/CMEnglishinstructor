@@ -32,9 +32,7 @@ export async function sendContactInquiryEmail(args: {
   if (!inbox) {
     // Sin buzón destino no hay a quién avisar. Logueamos para que el
     // operador detecte la mala configuración rápido.
-    console.error(
-      "[contact] EMAIL_REPLY_TO no configurado — no hay buzón destino",
-    )
+    console.error("[contact] EMAIL_REPLY_TO no configurado — no hay buzón destino")
     return { ok: false }
   }
 
@@ -45,9 +43,7 @@ export async function sendContactInquiryEmail(args: {
   const detailsBlock =
     `<strong>Nombre:</strong> ${escapeHtmlInline(args.name)}<br>` +
     `<strong>Correo:</strong> ${escapeHtmlInline(args.email)}<br>` +
-    (args.phone
-      ? `<strong>Teléfono:</strong> ${escapeHtmlInline(args.phone)}<br>`
-      : "") +
+    (args.phone ? `<strong>Teléfono:</strong> ${escapeHtmlInline(args.phone)}<br>` : "") +
     `<strong>Tipo de consulta:</strong> ${escapeHtmlInline(topicLabel)}`
 
   const html = renderEmail({

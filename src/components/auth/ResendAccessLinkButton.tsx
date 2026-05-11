@@ -17,9 +17,7 @@ type Props = {
 
 export function ResendAccessLinkButton({ userId, className }: Props) {
   const [feedback, setFeedback] = useState<
-    | { kind: "ok"; message: string }
-    | { kind: "err"; message: string }
-    | null
+    { kind: "ok"; message: string } | { kind: "err"; message: string } | null
   >(null)
   const [isPending, startTransition] = useTransition()
 
@@ -48,7 +46,7 @@ export function ResendAccessLinkButton({ userId, className }: Props) {
         onClick={onClick}
         disabled={isPending}
         className={cn(
-          "inline-flex items-center gap-1.5 rounded-md border border-border bg-surface px-3 py-1.5 text-[12.5px] text-text-2 transition-colors",
+          "border-border bg-surface text-text-2 inline-flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-[12.5px] transition-colors",
           "hover:border-teal-500 hover:text-teal-500",
           "disabled:cursor-not-allowed disabled:opacity-60",
         )}
@@ -62,13 +60,13 @@ export function ResendAccessLinkButton({ userId, className }: Props) {
       </button>
 
       {feedback?.kind === "ok" && (
-        <span className="inline-flex items-center gap-1.5 text-[12.5px] text-text-3">
+        <span className="text-text-3 inline-flex items-center gap-1.5 text-[12.5px]">
           <Check size={13} strokeWidth={1.8} className="text-teal-500" />
           {feedback.message}
         </span>
       )}
       {feedback?.kind === "err" && (
-        <span className="text-[12.5px] text-danger">{feedback.message}</span>
+        <span className="text-danger text-[12.5px]">{feedback.message}</span>
       )}
     </div>
   )

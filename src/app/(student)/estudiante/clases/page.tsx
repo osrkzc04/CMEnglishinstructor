@@ -1,25 +1,11 @@
 import type { Route } from "next"
 import type { Metadata } from "next"
-import {
-  AttendanceStatus,
-  SessionStatus,
-} from "@prisma/client"
-import {
-  Calendar,
-  CalendarCheck,
-  Clock,
-  ExternalLink,
-  History,
-  MapPin,
-  Video,
-} from "lucide-react"
+import { AttendanceStatus, SessionStatus } from "@prisma/client"
+import { Calendar, CalendarCheck, Clock, ExternalLink, History, MapPin, Video } from "lucide-react"
 import { AppShell } from "@/components/layout/AppShell"
 import { requireRole } from "@/modules/auth/guards"
 import { roleLabel } from "@/modules/auth/role-labels"
-import {
-  listStudentSessions,
-  type StudentSessionListItem,
-} from "@/modules/classes/queries"
+import { listStudentSessions, type StudentSessionListItem } from "@/modules/classes/queries"
 import { Tag } from "@/components/ui/tag"
 import { EmptyState } from "@/components/ui/empty-state"
 
@@ -58,27 +44,17 @@ export default async function StudentClasesPage() {
     listStudentSessions(user.id, {
       from: startOfDay,
       to: in14Days,
-      status: [
-        SessionStatus.SCHEDULED,
-        SessionStatus.COMPLETED,
-        SessionStatus.CANCELLED,
-      ],
+      status: [SessionStatus.SCHEDULED, SessionStatus.COMPLETED, SessionStatus.CANCELLED],
     }),
     listStudentSessions(user.id, {
       from: fourteenDaysAgo,
       to: startOfDay,
-      status: [
-        SessionStatus.COMPLETED,
-        SessionStatus.CANCELLED,
-        SessionStatus.NO_SHOW,
-      ],
+      status: [SessionStatus.COMPLETED, SessionStatus.CANCELLED, SessionStatus.NO_SHOW],
     }),
   ])
 
   const today = upcoming.filter(
-    (s) =>
-      isSameGuayaquilDay(s.scheduledStart, now) &&
-      s.status !== SessionStatus.CANCELLED,
+    (s) => isSameGuayaquilDay(s.scheduledStart, now) && s.status !== SessionStatus.CANCELLED,
   )
   const next = upcoming.filter((s) => !today.includes(s))
 
@@ -100,16 +76,15 @@ export default async function StudentClasesPage() {
       ]}
     >
       <header className="mb-7 max-w-2xl">
-        <p className="mb-2 font-mono text-[12px] uppercase tracking-[0.08em] text-text-3">
+        <p className="text-text-3 mb-2 font-mono text-[12px] tracking-[0.08em] uppercase">
           Académico
         </p>
-        <h1 className="font-serif text-[32px] font-normal leading-[1.18] tracking-[-0.02em]">
+        <h1 className="font-serif text-[32px] leading-[1.18] font-normal tracking-[-0.02em]">
           Mis clases
         </h1>
-        <p className="mt-2 text-[14px] leading-[1.55] text-text-3">
-          Lo que tienes hoy, lo que viene en los próximos días y un resumen de
-          las últimas semanas. Si la clase es virtual, vas a encontrar el
-          enlace acá.
+        <p className="text-text-3 mt-2 text-[14px] leading-[1.55]">
+          Lo que tienes hoy, lo que viene en los próximos días y un resumen de las últimas semanas.
+          Si la clase es virtual, vas a encontrar el enlace acá.
         </p>
       </header>
 
@@ -171,12 +146,8 @@ function Section({
     <section className="mb-8">
       <header className="mb-3 flex flex-wrap items-baseline gap-2">
         <Icon size={14} strokeWidth={1.6} className="text-text-3" />
-        <h2 className="font-serif text-[20px] font-normal text-foreground">
-          {title}
-        </h2>
-        {description && (
-          <span className="text-[12.5px] text-text-3">{description}</span>
-        )}
+        <h2 className="text-foreground font-serif text-[20px] font-normal">{title}</h2>
+        {description && <span className="text-text-3 text-[12.5px]">{description}</span>}
       </header>
       {children}
     </section>
@@ -209,21 +180,18 @@ function SessionRow({
   highlight: "today" | "default" | "past"
 }) {
   const dateParts = splitGuayaquilDateLabel(item.scheduledStart)
-  const timeLabel = formatGuayaquilTimeRange(
-    item.scheduledStart,
-    item.scheduledEnd,
-  )
+  const timeLabel = formatGuayaquilTimeRange(item.scheduledStart, item.scheduledEnd)
   const isCancelled = item.status === SessionStatus.CANCELLED
   const isClosed = item.status === SessionStatus.COMPLETED
   const isNoShow = item.status === SessionStatus.NO_SHOW
   const isScheduled = item.status === SessionStatus.SCHEDULED
   const isVirtual = item.modality === "VIRTUAL" || item.modality === "HIBRIDO"
-  const isPresencial =
-    item.modality === "PRESENCIAL" || item.modality === "HIBRIDO"
+  const isPresencial = item.modality === "PRESENCIAL" || item.modality === "HIBRIDO"
 
   const cardClass = [
     "relative overflow-hidden rounded-xl border bg-surface transition-colors",
-    highlight === "today" && "border-teal-500/30 shadow-[0_1px_0_rgba(39,159,137,0.06),0_6px_18px_-12px_rgba(39,159,137,0.20)]",
+    highlight === "today" &&
+      "border-teal-500/30 shadow-[0_1px_0_rgba(39,159,137,0.06),0_6px_18px_-12px_rgba(39,159,137,0.20)]",
     highlight === "default" && "border-border hover:border-border-strong",
     highlight === "past" && "border-border/70 bg-surface-alt",
     isCancelled && "opacity-60",
@@ -243,36 +211,30 @@ function SessionRow({
       <span aria-hidden className={`absolute inset-y-0 left-0 w-1 ${accentClass}`} />
       <div className="flex flex-wrap items-center gap-4 px-4 py-3.5 pl-5">
         <div className="min-w-[112px]">
-          <div className="font-mono text-[11px] uppercase tracking-[0.08em] text-text-3">
+          <div className="text-text-3 font-mono text-[11px] tracking-[0.08em] uppercase">
             {dateParts.weekday}
           </div>
           <div className="mt-0.5 flex items-baseline gap-1.5">
-            <span className="font-serif text-[22px] font-normal leading-none tracking-[-0.01em] text-foreground">
+            <span className="text-foreground font-serif text-[22px] leading-none font-normal tracking-[-0.01em]">
               {dateParts.day}
             </span>
-            <span className="text-[12px] text-text-3">{dateParts.month}</span>
+            <span className="text-text-3 text-[12px]">{dateParts.month}</span>
           </div>
-          <div className="mt-1.5 font-mono text-[12.5px] tracking-[0.02em] text-text-2">
+          <div className="text-text-2 mt-1.5 font-mono text-[12.5px] tracking-[0.02em]">
             {timeLabel}
           </div>
         </div>
 
         <div className="min-w-0 flex-1">
-          <div className="font-medium text-[14.5px] text-foreground">
-            {item.classGroupName}
-          </div>
-          <div className="mt-0.5 text-[12.5px] text-text-3">
-            {item.programLabel}
-          </div>
+          <div className="text-foreground text-[14.5px] font-medium">{item.classGroupName}</div>
+          <div className="text-text-3 mt-0.5 text-[12.5px]">{item.programLabel}</div>
           {item.teacherName && (
-            <div className="mt-0.5 text-[12.5px] text-text-3">
+            <div className="text-text-3 mt-0.5 text-[12.5px]">
               <span className="text-text-4">Docente:</span> {item.teacherName}
             </div>
           )}
           {isCancelled && item.cancelReason && (
-            <div className="mt-1.5 text-[12px] text-warning">
-              Motivo: {item.cancelReason}
-            </div>
+            <div className="text-warning mt-1.5 text-[12px]">Motivo: {item.cancelReason}</div>
           )}
         </div>
 
@@ -280,16 +242,14 @@ function SessionRow({
           <Tag>{MODALITY_LABEL[item.modality] ?? item.modality}</Tag>
 
           {isScheduled && isPresencial && item.location && (
-            <span className="inline-flex items-center gap-1.5 rounded-md border border-border bg-surface px-2.5 py-1 text-[12px] text-text-3">
+            <span className="border-border bg-surface text-text-3 inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-[12px]">
               <MapPin size={11} strokeWidth={1.6} />
               {item.location}
             </span>
           )}
 
           {(isClosed || isCancelled || isNoShow) && (
-            <span className="font-mono text-[11.5px] text-text-3">
-              {STATUS_LABEL[item.status]}
-            </span>
+            <span className="text-text-3 font-mono text-[11.5px]">{STATUS_LABEL[item.status]}</span>
           )}
 
           {item.attendance && (isClosed || isNoShow) && (
@@ -317,7 +277,7 @@ function SessionRow({
               className={[
                 "inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-[12.5px] font-medium transition-colors",
                 highlight === "today"
-                  ? "bg-teal-500 text-white hover:bg-teal-deep"
+                  ? "hover:bg-teal-deep bg-teal-500 text-white"
                   : "border border-teal-500/40 text-teal-700 hover:border-teal-500 hover:bg-teal-500/10",
               ].join(" ")}
             >
@@ -338,9 +298,7 @@ function SessionRow({
 
 function startOfTodayUTC(): Date {
   const now = new Date()
-  return new Date(
-    Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()),
-  )
+  return new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()))
 }
 
 function isSameGuayaquilDay(a: Date, b: Date): boolean {
@@ -363,8 +321,7 @@ function splitGuayaquilDateLabel(d: Date): {
     day: "2-digit",
     month: "short",
   }).formatToParts(d)
-  const lookup = (type: string) =>
-    parts.find((p) => p.type === type)?.value ?? ""
+  const lookup = (type: string) => parts.find((p) => p.type === type)?.value ?? ""
   return {
     weekday: lookup("weekday").replace(/\.$/, ""),
     day: lookup("day"),

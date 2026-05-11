@@ -12,7 +12,8 @@ export async function deleteFile(input: DeleteFileInput): Promise<Result> {
   await requireRole(["DIRECTOR", "COORDINATOR"])
 
   const parsed = DeleteFileSchema.safeParse(input)
-  if (!parsed.success) return { success: false, error: parsed.error.issues[0]?.message ?? "Datos inválidos" }
+  if (!parsed.success)
+    return { success: false, error: parsed.error.issues[0]?.message ?? "Datos inválidos" }
 
   const file = await prisma.materialFile.findUnique({
     where: { id: parsed.data.fileId },
@@ -21,7 +22,9 @@ export async function deleteFile(input: DeleteFileInput): Promise<Result> {
   if (!file || file.deletedAt) return { success: false, error: "Archivo no encontrado" }
 
   await prisma.materialFile.delete({ where: { id: file.id } })
-  await storage().delete(file.storageKey).catch(() => {})
+  await storage()
+    .delete(file.storageKey)
+    .catch(() => {})
 
   revalidatePath(`/admin/materiales/${file.folderId}`)
   return { success: true }

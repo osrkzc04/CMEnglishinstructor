@@ -43,43 +43,35 @@ const FAQ_ITEMS: Array<{ q: string; a: string }> = [
 
 export function MarketingFaq() {
   return (
-    <section
-      id="preguntas"
-      className="border-t border-border bg-surface-alt/40 py-20 md:py-28"
-    >
+    <section id="preguntas" className="border-border bg-surface-alt/40 border-t py-20 md:py-28">
       <div className="mx-auto w-full max-w-[920px] px-6">
         <Reveal as="header" className="mb-12 max-w-[680px]">
-          <p className="mb-3 font-mono text-[11px] uppercase tracking-[0.1em] text-text-3">
+          <p className="text-text-3 mb-3 font-mono text-[11px] tracking-[0.1em] uppercase">
             Preguntas frecuentes
           </p>
-          <h2 className="font-serif text-[36px] leading-[1.12] tracking-[-0.02em] text-foreground sm:text-[44px]">
+          <h2 className="text-foreground font-serif text-[36px] leading-[1.12] tracking-[-0.02em] sm:text-[44px]">
             Lo que solemos resolver
-            <em className="font-light italic text-text-2"> antes de empezar</em>.
+            <em className="text-text-2 font-light italic"> antes de empezar</em>.
           </h2>
         </Reveal>
 
         <Reveal>
-          <ul className="border-y border-border">
+          <ul className="border-border border-y">
             {FAQ_ITEMS.map((item, i) => (
-              <li
-                key={item.q}
-                className={i > 0 ? "border-t border-border" : undefined}
-              >
+              <li key={item.q} className={i > 0 ? "border-border border-t" : undefined}>
                 <details className="group">
                   <summary className="flex cursor-pointer list-none items-center justify-between gap-6 py-5 [&::-webkit-details-marker]:hidden">
-                    <span className="font-serif text-[18px] leading-[1.35] tracking-[-0.01em] text-foreground transition-colors duration-200 group-hover:text-teal-500 sm:text-[20px]">
+                    <span className="text-foreground font-serif text-[18px] leading-[1.35] tracking-[-0.01em] transition-colors duration-200 group-hover:text-teal-500 sm:text-[20px]">
                       {item.q}
                     </span>
                     <span
                       aria-hidden
-                      className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-border bg-surface text-text-3 transition-all duration-300 group-hover:border-teal-500/50 group-hover:text-teal-500 group-open:rotate-45 motion-reduce:transition-none"
+                      className="border-border bg-surface text-text-3 flex h-7 w-7 shrink-0 items-center justify-center rounded-full border transition-all duration-300 group-open:rotate-45 group-hover:border-teal-500/50 group-hover:text-teal-500 motion-reduce:transition-none"
                     >
                       <Plus size={14} strokeWidth={1.6} />
                     </span>
                   </summary>
-                  <p className="pb-6 pr-12 text-[14.5px] leading-[1.65] text-text-2">
-                    {item.a}
-                  </p>
+                  <p className="text-text-2 pr-12 pb-6 text-[14.5px] leading-[1.65]">{item.a}</p>
                 </details>
               </li>
             ))}
@@ -88,18 +80,18 @@ export function MarketingFaq() {
 
         <Reveal
           delay={120}
-          className="mt-10 flex flex-wrap items-center justify-between gap-3 text-[14.5px] text-text-2"
+          className="text-text-2 mt-10 flex flex-wrap items-center justify-between gap-3 text-[14.5px]"
         >
           <p>¿Tienes una pregunta que no está aquí?</p>
           <a
             href="#contacto"
-            className="group inline-flex items-center gap-1.5 font-medium text-foreground transition-colors hover:text-teal-500"
+            className="group text-foreground inline-flex items-center gap-1.5 font-medium transition-colors hover:text-teal-500"
           >
             Escríbenos
             <ArrowUpRight
               size={14}
               strokeWidth={1.6}
-              className="transition-transform duration-200 ease-out group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
+              className="transition-transform duration-200 ease-out group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
             />
           </a>
         </Reveal>

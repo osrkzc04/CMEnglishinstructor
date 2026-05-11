@@ -58,7 +58,7 @@ export function AulasToolbar({ initialQuery, initialStatus }: Props) {
 
   return (
     <div className="mb-5 flex flex-wrap items-center gap-3">
-      <div className="relative max-w-[360px] flex-1 min-w-[220px]">
+      <div className="relative max-w-[360px] min-w-[220px] flex-1">
         <Input
           icon={Search}
           placeholder="Buscar por nombre, programa o nivel…"
@@ -73,7 +73,7 @@ export function AulasToolbar({ initialQuery, initialStatus }: Props) {
                   setQuery("")
                   pushFilters("", status)
                 }}
-                className="rounded-md p-1 text-text-3 transition-colors hover:text-foreground"
+                className="text-text-3 hover:text-foreground rounded-md p-1 transition-colors"
               >
                 <X size={13} strokeWidth={1.6} />
               </button>
@@ -82,11 +82,7 @@ export function AulasToolbar({ initialQuery, initialStatus }: Props) {
         />
       </div>
 
-      <Segmented
-        value={status}
-        onValueChange={handleStatusChange}
-        ariaLabel="Filtrar por estado"
-      >
+      <Segmented value={status} onValueChange={handleStatusChange} ariaLabel="Filtrar por estado">
         <SegmentedItem value="ALL">Todas</SegmentedItem>
         <SegmentedItem value="ACTIVE">Activas</SegmentedItem>
         <SegmentedItem value="COMPLETED">Cerradas</SegmentedItem>

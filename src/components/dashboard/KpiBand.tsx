@@ -29,10 +29,10 @@ export function KpiBand({ items }: { items: Kpi[] }) {
   return (
     <section
       className={cn(
-        "mb-7 grid overflow-hidden rounded-2xl border border-border bg-surface",
+        "border-border bg-surface mb-7 grid overflow-hidden rounded-2xl border",
         "grid-cols-2 lg:grid-cols-4",
         // Las celdas en mobile se separan con border-bottom + border-right
-        "[&>*]:border-r [&>*]:border-border",
+        "[&>*]:border-border [&>*]:border-r",
         "lg:[&>*:last-child]:border-r-0",
         "[&>*:nth-child(2)]:border-r-0 lg:[&>*:nth-child(2)]:border-r",
         "[&>*:nth-child(-n+2)]:border-b lg:[&>*:nth-child(-n+2)]:border-b-0",
@@ -49,16 +49,14 @@ function KpiCell({ kpi }: { kpi: Kpi }) {
   const Icon = kpi.icon
   return (
     <div className="relative flex flex-col gap-1.5 px-6 py-5">
-      <div className="flex items-center gap-2 font-mono text-[12px] uppercase tracking-[0.08em] text-text-3">
+      <div className="text-text-3 flex items-center gap-2 font-mono text-[12px] tracking-[0.08em] uppercase">
         <Icon size={13} strokeWidth={1.6} className="text-text-4" />
         {kpi.label}
       </div>
-      <div className="mt-0.5 flex items-baseline gap-2 font-serif text-[38px] font-normal leading-[1.05] tracking-[-0.025em] text-foreground tabular-nums">
+      <div className="text-foreground mt-0.5 flex items-baseline gap-2 font-serif text-[38px] leading-[1.05] font-normal tracking-[-0.025em] tabular-nums">
         {kpi.value}
         {kpi.unit && (
-          <span className="font-mono text-[16px] tracking-normal text-text-3">
-            {kpi.unit}
-          </span>
+          <span className="text-text-3 font-mono text-[16px] tracking-normal">{kpi.unit}</span>
         )}
       </div>
       {kpi.delta && <DeltaLine delta={kpi.delta} />}

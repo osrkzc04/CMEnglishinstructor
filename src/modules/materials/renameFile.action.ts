@@ -6,9 +6,7 @@ import { requireRole } from "@/modules/auth/guards"
 import { RenameFileSchema, type RenameFileInput } from "./schemas"
 import { findFileByNameInFolder } from "./queries"
 
-type Result =
-  | { success: true }
-  | { success: false; error: string; field?: keyof RenameFileInput }
+type Result = { success: true } | { success: false; error: string; field?: keyof RenameFileInput }
 
 export async function renameFile(input: RenameFileInput): Promise<Result> {
   await requireRole(["DIRECTOR", "COORDINATOR"])
@@ -25,10 +23,12 @@ export async function renameFile(input: RenameFileInput): Promise<Result> {
     where: { id: data.fileId },
     select: { id: true, folderId: true, deletedAt: true },
   })
-  if (!file || file.deletedAt) return { success: false, error: "Archivo no encontrado", field: "fileId" }
+  if (!file || file.deletedAt)
+    return { success: false, error: "Archivo no encontrado", field: "fileId" }
 
   const conflict = await findFileByNameInFolder(file.folderId, data.name, file.id)
-  if (conflict) return { success: false, error: "Ya existe un archivo con ese nombre", field: "name" }
+  if (conflict)
+    return { success: false, error: "Ya existe un archivo con ese nombre", field: "name" }
 
   await prisma.materialFile.update({ where: { id: file.id }, data: { name: data.name } })
 

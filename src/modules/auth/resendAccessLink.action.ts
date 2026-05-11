@@ -3,10 +3,7 @@
 import { z } from "zod"
 import { prisma } from "@/lib/prisma"
 import { requireRole } from "@/modules/auth/guards"
-import {
-  issueAndSendActivation,
-  issueAndSendPasswordReset,
-} from "./emails"
+import { issueAndSendActivation, issueAndSendPasswordReset } from "./emails"
 
 /**
  * Reenvía el enlace de acceso al usuario:
@@ -22,13 +19,9 @@ const InputSchema = z.object({
   userId: z.string().cuid(),
 })
 
-type Result =
-  | { success: true; kind: "activation" | "reset" }
-  | { success: false; error: string }
+type Result = { success: true; kind: "activation" | "reset" } | { success: false; error: string }
 
-export async function resendAccessLink(input: {
-  userId: string
-}): Promise<Result> {
+export async function resendAccessLink(input: { userId: string }): Promise<Result> {
   await requireRole(["DIRECTOR", "COORDINATOR"])
 
   const parsed = InputSchema.safeParse(input)

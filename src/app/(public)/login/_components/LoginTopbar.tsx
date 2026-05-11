@@ -22,7 +22,7 @@ export function LoginTopbar() {
       <div
         role="tablist"
         aria-label="Idioma"
-        className="inline-flex items-center rounded-lg border border-border bg-surface p-0.5"
+        className="border-border bg-surface inline-flex items-center rounded-lg border p-0.5"
       >
         {(["ES", "EN"] as const).map((opt) => (
           <button
@@ -32,7 +32,7 @@ export function LoginTopbar() {
             aria-pressed={lang === opt}
             onClick={() => setLang(opt)}
             className={cn(
-              "rounded-[5px] px-2.5 py-1 font-mono text-[11px] uppercase tracking-[0.06em] transition-colors",
+              "rounded-[5px] px-2.5 py-1 font-mono text-[11px] tracking-[0.06em] uppercase transition-colors",
               lang === opt
                 ? "bg-ink-900 text-bone dark:bg-bone dark:text-ink-900"
                 : "text-text-3 hover:text-foreground",
@@ -47,7 +47,7 @@ export function LoginTopbar() {
       <div
         role="tablist"
         aria-label="Modo"
-        className="inline-flex items-center rounded-lg border border-border bg-surface p-0.5"
+        className="border-border bg-surface inline-flex items-center rounded-lg border p-0.5"
       >
         <button
           type="button"

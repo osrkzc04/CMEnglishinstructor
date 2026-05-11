@@ -15,10 +15,7 @@ import {
 } from "@/components/ui/table"
 import { Tag } from "@/components/ui/tag"
 import { setProgramLevelActive } from "@/modules/catalog/setProgramLevelActive.action"
-import type {
-  ProgramLevelAdminRow,
-  ProgramOption,
-} from "@/modules/catalog/queries"
+import type { ProgramLevelAdminRow, ProgramOption } from "@/modules/catalog/queries"
 import { NivelDialog } from "./NivelDialog"
 
 type Props = {
@@ -26,10 +23,7 @@ type Props = {
   programs: ProgramOption[]
 }
 
-type DialogState =
-  | { kind: "create" }
-  | { kind: "edit"; level: ProgramLevelAdminRow }
-  | null
+type DialogState = { kind: "create" } | { kind: "edit"; level: ProgramLevelAdminRow } | null
 
 export function NivelesWorkspace({ levels, programs }: Props) {
   const router = useRouter()
@@ -52,9 +46,8 @@ export function NivelesWorkspace({ levels, programs }: Props) {
   return (
     <>
       <div className="mb-4 flex items-center justify-between">
-        <span className="text-[12.5px] text-text-3">
-          {levels.length} {levels.length === 1 ? "nivel" : "niveles"} en el
-          catálogo
+        <span className="text-text-3 text-[12.5px]">
+          {levels.length} {levels.length === 1 ? "nivel" : "niveles"} en el catálogo
         </span>
         <Button
           variant="primary"
@@ -77,10 +70,10 @@ export function NivelesWorkspace({ levels, programs }: Props) {
           {grouped.map((course) => (
             <section key={course.courseId}>
               <header className="mb-2 flex items-baseline gap-2">
-                <h2 className="font-serif text-[18px] font-normal text-foreground">
+                <h2 className="text-foreground font-serif text-[18px] font-normal">
                   {course.courseName}
                 </h2>
-                <span className="font-mono text-[11px] uppercase tracking-[0.08em] text-text-4">
+                <span className="text-text-4 font-mono text-[11px] tracking-[0.08em] uppercase">
                   {course.languageName}
                 </span>
               </header>
@@ -88,15 +81,14 @@ export function NivelesWorkspace({ levels, programs }: Props) {
                 {course.programs.map((program) => (
                   <div
                     key={program.programId}
-                    className="overflow-hidden rounded-xl border border-border bg-surface"
+                    className="border-border bg-surface overflow-hidden rounded-xl border"
                   >
-                    <header className="flex items-baseline justify-between gap-2 border-b border-border bg-surface-alt px-4 py-2">
-                      <h3 className="text-[13.5px] font-medium text-foreground">
+                    <header className="border-border bg-surface-alt flex items-baseline justify-between gap-2 border-b px-4 py-2">
+                      <h3 className="text-foreground text-[13.5px] font-medium">
                         {program.programName}
                       </h3>
-                      <span className="font-mono text-[11.5px] text-text-3">
-                        {program.levels.length}{" "}
-                        {program.levels.length === 1 ? "nivel" : "niveles"}
+                      <span className="text-text-3 font-mono text-[11.5px]">
+                        {program.levels.length} {program.levels.length === 1 ? "nivel" : "niveles"}
                       </span>
                     </header>
                     <Table>
@@ -114,12 +106,12 @@ export function NivelesWorkspace({ levels, programs }: Props) {
                       <TableBody>
                         {program.levels.map((row) => (
                           <TableRow key={row.id}>
-                            <TableCell className="font-mono text-[13px] text-text-2">
+                            <TableCell className="text-text-2 font-mono text-[13px]">
                               {row.code}
                             </TableCell>
                             <TableCell>
                               <span className="text-foreground">{row.name}</span>
-                              <div className="mt-0.5 text-[11.5px] text-text-3">
+                              <div className="text-text-3 mt-0.5 text-[11.5px]">
                                 Orden {row.order}
                                 {!row.hasPlatformAccess && " · sin plataforma"}
                                 {!row.hasPdfMaterial && " · sin PDF"}
@@ -132,10 +124,10 @@ export function NivelesWorkspace({ levels, programs }: Props) {
                                 <span className="text-text-3">—</span>
                               )}
                             </TableCell>
-                            <TableCell className="text-right font-mono text-[13px] text-foreground">
+                            <TableCell className="text-foreground text-right font-mono text-[13px]">
                               {row.totalHours}
                             </TableCell>
-                            <TableCell className="text-center text-[12px] text-text-3">
+                            <TableCell className="text-text-3 text-center text-[12px]">
                               {row.enrollmentsCount} m · {row.classGroupsCount} a
                             </TableCell>
                             <TableCell>
@@ -145,7 +137,7 @@ export function NivelesWorkspace({ levels, programs }: Props) {
                                   Activo
                                 </span>
                               ) : (
-                                <span className="inline-flex items-center gap-1 text-[12.5px] text-text-3">
+                                <span className="text-text-3 inline-flex items-center gap-1 text-[12.5px]">
                                   <PowerOff size={11} strokeWidth={1.8} />
                                   Inactivo
                                 </span>
@@ -155,10 +147,8 @@ export function NivelesWorkspace({ levels, programs }: Props) {
                               <div className="inline-flex items-center gap-1">
                                 <button
                                   type="button"
-                                  onClick={() =>
-                                    setDialog({ kind: "edit", level: row })
-                                  }
-                                  className="inline-flex items-center justify-center rounded-md border border-border bg-surface p-1.5 text-text-2 transition-colors hover:border-teal-500 hover:text-teal-500"
+                                  onClick={() => setDialog({ kind: "edit", level: row })}
+                                  className="border-border bg-surface text-text-2 inline-flex items-center justify-center rounded-md border p-1.5 transition-colors hover:border-teal-500 hover:text-teal-500"
                                   aria-label={`Editar ${row.name}`}
                                 >
                                   <Pencil size={12} strokeWidth={1.6} />
@@ -167,11 +157,9 @@ export function NivelesWorkspace({ levels, programs }: Props) {
                                   type="button"
                                   onClick={() => toggleActive(row)}
                                   disabled={togglingId === row.id}
-                                  className="inline-flex items-center justify-center rounded-md border border-border bg-surface p-1.5 text-text-2 transition-colors hover:border-teal-500 hover:text-teal-500 disabled:cursor-not-allowed disabled:opacity-50"
+                                  className="border-border bg-surface text-text-2 inline-flex items-center justify-center rounded-md border p-1.5 transition-colors hover:border-teal-500 hover:text-teal-500 disabled:cursor-not-allowed disabled:opacity-50"
                                   aria-label={
-                                    row.isActive
-                                      ? `Desactivar ${row.name}`
-                                      : `Activar ${row.name}`
+                                    row.isActive ? `Desactivar ${row.name}` : `Activar ${row.name}`
                                   }
                                 >
                                   {row.isActive ? (

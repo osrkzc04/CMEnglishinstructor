@@ -43,7 +43,7 @@ export function Segmented({
         role="tablist"
         aria-label={ariaLabel}
         className={cn(
-          "inline-flex items-center rounded-md border border-border bg-surface p-0.5",
+          "border-border bg-surface inline-flex items-center rounded-md border p-0.5",
           className,
         )}
         {...props}
@@ -58,12 +58,7 @@ export type SegmentedItemProps = React.ButtonHTMLAttributes<HTMLButtonElement> &
   value: string
 }
 
-export function SegmentedItem({
-  value,
-  className,
-  children,
-  ...props
-}: SegmentedItemProps) {
+export function SegmentedItem({ value, className, children, ...props }: SegmentedItemProps) {
   const ctx = React.useContext(SegmentedContext)
   if (!ctx) throw new Error("<SegmentedItem> debe vivir dentro de <Segmented>")
   const isActive = ctx.value === value

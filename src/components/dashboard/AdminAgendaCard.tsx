@@ -59,12 +59,12 @@ export function AdminAgendaCard({
       <CardHeader>
         <CardTitle>Agenda de hoy</CardTitle>
         <CardMeta>
-          {totalToday} {totalToday === 1 ? "clase" : "clases"} ·{" "}
-          {totalTeachers} {totalTeachers === 1 ? "docente" : "docentes"}
+          {totalToday} {totalToday === 1 ? "clase" : "clases"} · {totalTeachers}{" "}
+          {totalTeachers === 1 ? "docente" : "docentes"}
         </CardMeta>
         <Link
           href={"/admin/clases" as Route}
-          className="inline-flex items-center gap-1.5 border-b border-border-strong pb-px text-[13px] text-text-2 transition-colors hover:border-teal-500 hover:text-teal-500"
+          className="border-border-strong text-text-2 inline-flex items-center gap-1.5 border-b pb-px text-[13px] transition-colors hover:border-teal-500 hover:text-teal-500"
         >
           Ver agenda completa
           <ArrowRight size={11} strokeWidth={1.6} />
@@ -72,7 +72,7 @@ export function AdminAgendaCard({
       </CardHeader>
       <div>
         {entries.length === 0 ? (
-          <p className="px-[22px] py-6 text-[13.5px] text-text-3">
+          <p className="text-text-3 px-[22px] py-6 text-[13.5px]">
             Hoy no hay clases programadas en ninguna aula.
           </p>
         ) : (
@@ -86,9 +86,7 @@ export function AdminAgendaCard({
 function ClassRow({ entry }: { entry: AdminAgendaEntryView }) {
   const isLive = entry.status === "live"
   const isFinished =
-    entry.status === "completed" ||
-    entry.status === "cancelled" ||
-    entry.status === "no_show"
+    entry.status === "completed" || entry.status === "cancelled" || entry.status === "no_show"
   const duration = Math.round(
     (entry.scheduledEnd.getTime() - entry.scheduledStart.getTime()) / 60_000,
   )
@@ -97,25 +95,23 @@ function ClassRow({ entry }: { entry: AdminAgendaEntryView }) {
     <Link
       href={`/admin/aulas/${entry.classGroupId}` as Route}
       className={cn(
-        "grid grid-cols-[92px_1fr_auto_auto] items-center gap-[18px] border-b border-border px-[22px] py-3.5 transition-colors duration-[120ms]",
-        "last:border-b-0 hover:bg-surface-alt",
+        "border-border grid grid-cols-[92px_1fr_auto_auto] items-center gap-[18px] border-b px-[22px] py-3.5 transition-colors duration-[120ms]",
+        "hover:bg-surface-alt last:border-b-0",
         isLive && "bg-teal-500/[0.05]",
         entry.status === "cancelled" && "opacity-55",
       )}
     >
-      <div className="font-mono text-[13px] leading-[1.3] text-foreground tabular-nums">
+      <div className="text-foreground font-mono text-[13px] leading-[1.3] tabular-nums">
         {formatTime(entry.scheduledStart)}
-        <span className="mt-0.5 block text-[11px] text-text-3">
-          {duration} min
-        </span>
+        <span className="text-text-3 mt-0.5 block text-[11px]">{duration} min</span>
       </div>
 
       <div className="min-w-0">
-        <div className="flex items-center gap-2 text-[14.5px] leading-[1.3] text-foreground">
+        <div className="text-foreground flex items-center gap-2 text-[14.5px] leading-[1.3]">
           {isLive && <span aria-hidden className="live-dot" />}
           <span className="truncate">{entry.primaryLabel}</span>
         </div>
-        <div className="mt-0.5 flex items-center gap-2 font-mono text-[12px] tracking-[0.02em] text-text-3">
+        <div className="text-text-3 mt-0.5 flex items-center gap-2 font-mono text-[12px] tracking-[0.02em]">
           {entry.cefrLevelCode && <span>{entry.cefrLevelCode}</span>}
           {entry.cefrLevelCode && <RowDot />}
           <span className="truncate">{entry.programLabel}</span>
@@ -130,17 +126,17 @@ function ClassRow({ entry }: { entry: AdminAgendaEntryView }) {
         </div>
       </div>
 
-      <div className="flex items-center gap-2 text-[13px] text-text-2">
+      <div className="text-text-2 flex items-center gap-2 text-[13px]">
         <Avatar size="sm" initials={entry.teacherInitials} />
         <span className="hidden sm:inline">{entry.teacherName}</span>
       </div>
 
       <div className="flex items-center gap-2">
-        <span className="inline-flex items-center gap-1 font-mono text-[11.5px] text-text-3">
+        <span className="text-text-3 inline-flex items-center gap-1 font-mono text-[11.5px]">
           <Users size={11} strokeWidth={1.6} />
           {entry.participantCount}
         </span>
-        <span className="inline-flex items-center gap-1.5 rounded-md border border-border bg-transparent px-2.5 py-1.5 text-[12px] text-text-2 transition-colors hover:border-teal-500 hover:text-teal-500">
+        <span className="border-border text-text-2 inline-flex items-center gap-1.5 rounded-md border bg-transparent px-2.5 py-1.5 text-[12px] transition-colors hover:border-teal-500 hover:text-teal-500">
           <Calendar size={12} strokeWidth={1.6} />
           Detalles
         </span>
@@ -150,12 +146,7 @@ function ClassRow({ entry }: { entry: AdminAgendaEntryView }) {
 }
 
 function RowDot() {
-  return (
-    <span
-      aria-hidden
-      className="inline-block h-[3px] w-[3px] rounded-full bg-text-4"
-    />
-  )
+  return <span aria-hidden className="bg-text-4 inline-block h-[3px] w-[3px] rounded-full" />
 }
 
 const timeFormatter = new Intl.DateTimeFormat("es-EC", {

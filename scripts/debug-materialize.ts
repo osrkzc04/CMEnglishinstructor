@@ -78,9 +78,7 @@ async function main() {
 
       for (const slot of slotsForDay) {
         const scheduledStart = guayaquilDateToUtc(dateStr, slot.startTime)
-        const scheduledEnd = new Date(
-          scheduledStart.getTime() + slot.durationMinutes * 60_000,
-        )
+        const scheduledEnd = new Date(scheduledStart.getTime() + slot.durationMinutes * 60_000)
 
         const exists = await p.classSession.findFirst({
           where: { classGroupId: group.id, scheduledStart },

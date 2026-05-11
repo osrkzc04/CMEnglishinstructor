@@ -41,9 +41,7 @@ export function MyLevelCard({ entries }: { entries: MyLevelEntry[] }) {
       </CardHeader>
       <div>
         {entries.length === 0 ? (
-          <p className="px-[22px] py-6 text-[13.5px] text-text-3">
-            Aún sin matrícula activa.
-          </p>
+          <p className="text-text-3 px-[22px] py-6 text-[13.5px]">Aún sin matrícula activa.</p>
         ) : (
           entries.map((e) => <LevelRow key={e.enrollmentId} entry={e} />)
         )}
@@ -54,17 +52,17 @@ export function MyLevelCard({ entries }: { entries: MyLevelEntry[] }) {
 
 function LevelRow({ entry }: { entry: MyLevelEntry }) {
   return (
-    <div className="border-b border-border px-[22px] py-4 last:border-b-0">
+    <div className="border-border border-b px-[22px] py-4 last:border-b-0">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0 flex-1">
-          <div className="mb-1.5 inline-flex items-center gap-1.5 font-mono text-[11px] uppercase tracking-[0.08em] text-text-3">
+          <div className="text-text-3 mb-1.5 inline-flex items-center gap-1.5 font-mono text-[11px] tracking-[0.08em] uppercase">
             <BookOpen size={11} strokeWidth={1.6} />
             Programa
           </div>
-          <div className="font-serif text-[18px] font-normal leading-[1.2] tracking-[-0.01em] text-foreground">
+          <div className="text-foreground font-serif text-[18px] leading-[1.2] font-normal tracking-[-0.01em]">
             {entry.programName}
           </div>
-          <div className="mt-0.5 text-[13px] text-text-2">{entry.levelName}</div>
+          <div className="text-text-2 mt-0.5 text-[13px]">{entry.levelName}</div>
           <div className="mt-2">
             <Tag>{MODALITY_LABEL[entry.modality] ?? entry.modality}</Tag>
           </div>
@@ -72,16 +70,14 @@ function LevelRow({ entry }: { entry: MyLevelEntry }) {
         {entry.rootFolderId ? (
           <Link
             href={`/estudiante/materiales/${entry.rootFolderId}` as Route}
-            className="inline-flex items-center gap-1.5 rounded-md border border-border bg-surface px-3 py-1.5 text-[12.5px] text-text-2 transition-colors hover:border-teal-500 hover:text-teal-500"
+            className="border-border bg-surface text-text-2 inline-flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-[12.5px] transition-colors hover:border-teal-500 hover:text-teal-500"
           >
             <FolderOpen size={12} strokeWidth={1.6} />
             Materiales
             <ArrowUpRight size={11} strokeWidth={1.6} />
           </Link>
         ) : (
-          <span className="text-[12px] text-text-3">
-            Sin materiales todavía
-          </span>
+          <span className="text-text-3 text-[12px]">Sin materiales todavía</span>
         )}
       </div>
       <HoursProgress

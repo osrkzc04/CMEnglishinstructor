@@ -46,9 +46,7 @@ export type TeacherPersonalDataInput = z.infer<typeof TeacherPersonalDataSchema>
 // -----------------------------------------------------------------------------
 
 export const TeacherLevelsSchema = z.object({
-  levelIds: z
-    .array(z.string().cuid("ID de nivel inválido"))
-    .min(1, "Selecciona al menos un nivel"),
+  levelIds: z.array(z.string().cuid("ID de nivel inválido")).min(1, "Selecciona al menos un nivel"),
 })
 
 export type TeacherLevelsInput = z.infer<typeof TeacherLevelsSchema>

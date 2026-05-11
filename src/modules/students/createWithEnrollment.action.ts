@@ -5,10 +5,7 @@ import { EnrollmentStatus, Role } from "@prisma/client"
 import { prisma } from "@/lib/prisma"
 import { requireRole } from "@/modules/auth/guards"
 import { issueAndSendActivation } from "@/modules/auth/emails"
-import {
-  NewStudentWithEnrollmentSchema,
-  type NewStudentWithEnrollmentInput,
-} from "./schemas"
+import { NewStudentWithEnrollmentSchema, type NewStudentWithEnrollmentInput } from "./schemas"
 
 type Result =
   | {
@@ -43,9 +40,7 @@ export async function createStudentWithEnrollment(
   const parsed = NewStudentWithEnrollmentSchema.safeParse(input)
   if (!parsed.success) {
     const issue = parsed.error.issues[0]
-    const field = issue?.path[0] as
-      | keyof NewStudentWithEnrollmentInput
-      | undefined
+    const field = issue?.path[0] as keyof NewStudentWithEnrollmentInput | undefined
     return { success: false, error: issue?.message ?? "Datos inválidos", field }
   }
   const data = parsed.data
@@ -141,13 +136,10 @@ export async function createStudentWithEnrollment(
 async function findUserConflict(
   email: string,
   document: string | undefined,
-): Promise<
-  | {
-      error: string
-      field: keyof NewStudentWithEnrollmentInput
-    }
-  | null
-> {
+): Promise<{
+  error: string
+  field: keyof NewStudentWithEnrollmentInput
+} | null> {
   const [byEmail, byDoc] = await Promise.all([
     prisma.user.findUnique({ where: { email } }),
     document ? prisma.user.findUnique({ where: { document } }) : Promise.resolve(null),

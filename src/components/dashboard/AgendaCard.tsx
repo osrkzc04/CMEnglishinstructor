@@ -39,10 +39,12 @@ export function AgendaCard({
     <Card>
       <CardHeader>
         <CardTitle>Agenda de hoy</CardTitle>
-        <CardMeta>{totalToday} clases · {totalTeachers} docentes</CardMeta>
+        <CardMeta>
+          {totalToday} clases · {totalTeachers} docentes
+        </CardMeta>
         <Link
           href={"/admin/clases" as Route}
-          className="inline-flex items-center gap-1.5 border-b border-border-strong pb-px text-[13px] text-text-2 transition-colors hover:border-teal-500 hover:text-teal-500"
+          className="border-border-strong text-text-2 inline-flex items-center gap-1.5 border-b pb-px text-[13px] transition-colors hover:border-teal-500 hover:text-teal-500"
         >
           Ver agenda completa
           <ArrowRight size={11} strokeWidth={1.6} />
@@ -62,24 +64,24 @@ function ClassRow({ entry }: { entry: ClassEntry }) {
   return (
     <div
       className={cn(
-        "grid grid-cols-[92px_1fr_auto_auto] items-center gap-[18px] border-b border-border px-[22px] py-3.5 transition-colors duration-[120ms]",
-        "last:border-b-0 hover:bg-surface-alt",
+        "border-border grid grid-cols-[92px_1fr_auto_auto] items-center gap-[18px] border-b px-[22px] py-3.5 transition-colors duration-[120ms]",
+        "hover:bg-surface-alt last:border-b-0",
         isLive && "bg-teal-500/[0.05]",
       )}
     >
       {/* Time */}
-      <div className="font-mono text-[13px] leading-[1.3] text-foreground tabular-nums">
+      <div className="text-foreground font-mono text-[13px] leading-[1.3] tabular-nums">
         {entry.time}
-        <span className="mt-0.5 block text-[11px] text-text-3">{entry.duration}</span>
+        <span className="text-text-3 mt-0.5 block text-[11px]">{entry.duration}</span>
       </div>
 
       {/* Who */}
       <div className="min-w-0">
-        <div className="flex items-center gap-2 text-[14.5px] leading-[1.3] text-foreground">
+        <div className="text-foreground flex items-center gap-2 text-[14.5px] leading-[1.3]">
           {isLive && <span aria-hidden className="live-dot" />}
           {entry.student}
         </div>
-        <div className="mt-0.5 flex items-center gap-2 font-mono text-[12px] tracking-[0.02em] text-text-3">
+        <div className="text-text-3 mt-0.5 flex items-center gap-2 font-mono text-[12px] tracking-[0.02em]">
           <span>{entry.level}</span>
           <RowDot />
           <span>{entry.program}</span>
@@ -89,7 +91,7 @@ function ClassRow({ entry }: { entry: ClassEntry }) {
       </div>
 
       {/* Teacher */}
-      <div className="flex items-center gap-2 text-[13px] text-text-2">
+      <div className="text-text-2 flex items-center gap-2 text-[13px]">
         <Avatar size="sm" initials={entry.teacherInitials} />
         {entry.teacherName}
       </div>
@@ -101,7 +103,7 @@ function ClassRow({ entry }: { entry: ClassEntry }) {
 }
 
 function RowDot() {
-  return <span aria-hidden className="inline-block h-[3px] w-[3px] rounded-full bg-text-4" />
+  return <span aria-hidden className="bg-text-4 inline-block h-[3px] w-[3px] rounded-full" />
 }
 
 function ActionButton({ action }: { action: ClassEntry["action"] }) {
@@ -131,8 +133,8 @@ function ActionButton({ action }: { action: ClassEntry["action"] }) {
         "inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1.5 text-[12px]",
         "transition-colors duration-[120ms]",
         config.solid
-          ? "border-teal-500 bg-teal-500 text-bone hover:border-teal-700 hover:bg-teal-700"
-          : "border-border bg-transparent text-text-2 hover:border-teal-500 hover:text-teal-500",
+          ? "text-bone border-teal-500 bg-teal-500 hover:border-teal-700 hover:bg-teal-700"
+          : "border-border text-text-2 bg-transparent hover:border-teal-500 hover:text-teal-500",
       )}
     >
       <Icon size={12} strokeWidth={1.6} />

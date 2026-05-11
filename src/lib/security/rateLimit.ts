@@ -26,9 +26,7 @@ export type RateLimitOptions = {
   windowMs: number
 }
 
-export type RateLimitResult =
-  | { ok: true; remaining: number }
-  | { ok: false; retryAfterSec: number }
+export type RateLimitResult = { ok: true; remaining: number } | { ok: false; retryAfterSec: number }
 
 /**
  * Registra un hit y devuelve si el caller puede proceder. La operación es

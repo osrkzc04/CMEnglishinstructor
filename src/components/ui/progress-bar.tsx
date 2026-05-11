@@ -19,9 +19,9 @@ const fillVariants = cva("h-full rounded-sm transition-[width] duration-[200ms]"
   variants: {
     variant: {
       default: "bg-teal-500",
-      warn:    "bg-warning",
-      danger:  "bg-danger",
-      info:    "bg-info",
+      warn: "bg-warning",
+      danger: "bg-danger",
+      info: "bg-info",
     },
   },
   defaultVariants: { variant: "default" },
@@ -35,13 +35,7 @@ export type ProgressBarProps = React.HTMLAttributes<HTMLDivElement> &
     bordered?: boolean
   }
 
-export function ProgressBar({
-  className,
-  value,
-  variant,
-  bordered,
-  ...props
-}: ProgressBarProps) {
+export function ProgressBar({ className, value, variant, bordered, ...props }: ProgressBarProps) {
   const clamped = Math.max(0, Math.min(100, value))
   return (
     <div
@@ -50,16 +44,13 @@ export function ProgressBar({
       aria-valuemin={0}
       aria-valuemax={100}
       className={cn(
-        "h-1.5 w-full overflow-hidden rounded-sm bg-background",
-        bordered && "border border-border",
+        "bg-background h-1.5 w-full overflow-hidden rounded-sm",
+        bordered && "border-border border",
         className,
       )}
       {...props}
     >
-      <div
-        className={cn(fillVariants({ variant }))}
-        style={{ width: `${clamped}%` }}
-      />
+      <div className={cn(fillVariants({ variant }))} style={{ width: `${clamped}%` }} />
     </div>
   )
 }

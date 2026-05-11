@@ -24,6 +24,7 @@ Encontrar docentes disponibles que (a) puedan enseñar el `ProgramLevel` de la m
 **Ruta**: `/admin/inscripciones/[id]/asignar-docente` (guard: coordinador/director)
 
 Vista:
+
 - Datos de la matrícula (estudiante, programa, nivel, modalidad, horas).
 - `StudentPreferredSchedule` renderizada en grilla día × hora (read-only).
 - Lista de docentes candidatos rankeados.
@@ -35,8 +36,8 @@ En `src/modules/scheduling/match.ts` (función pura, fácil de testear):
 ```typescript
 type SlotMatch = {
   dayOfWeek: number
-  startTime: string  // "HH:mm"
-  endTime: string    // "HH:mm"
+  startTime: string // "HH:mm"
+  endTime: string // "HH:mm"
   durationMinutes: number
 }
 
@@ -44,36 +45,44 @@ type TeacherCandidate = {
   teacher: TeacherProfile & { user: User }
   matchingSlots: SlotMatch[]
   totalMatchingMinutes: number
-  recentClassesWithStudent: number  // para penalizar repetición consecutiva (rotación mensual)
+  recentClassesWithStudent: number // para penalizar repetición consecutiva (rotación mensual)
   score: number
 }
 
 export function rankCandidates(
   enrollment: Enrollment,
   preferred: StudentPreferredSchedule[],
-  teachers: Array<TeacherProfile & {
-    availability: TeacherAvailability[]
-    teachableLevels: TeacherLevel[]
-    user: User
-  }>,
+  teachers: Array<
+    TeacherProfile & {
+      availability: TeacherAvailability[]
+      teachableLevels: TeacherLevel[]
+      user: User
+    }
+  >,
   recentAssignmentMap: Map<string, number>, // teacherId -> count
   classDuration: number,
 ): TeacherCandidate[] {
   return teachers
-    .filter(t => isLevelCompatible(t.teachableLevels, enrollment))
-    .map(t => {
+    .filter((t) => isLevelCompatible(t.teachableLevels, enrollment))
+    .map((t) => {
       const matchingSlots = intersectSchedules(preferred, t.availability, classDuration)
       const totalMins = matchingSlots.reduce((sum, s) => sum + s.durationMinutes, 0)
       const recent = recentAssignmentMap.get(t.userId) ?? 0
-      
+
       const score =
-        totalMins * 1                  // peso alto: cuánto coinciden
-        - recent * 30                  // penalizar repetición reciente
-        + (t.user.role === 'DIRECTOR' ? -10 : 0)  // priorizar docentes regulares
-      
-      return { teacher: t, matchingSlots, totalMatchingMinutes: totalMins, recentClassesWithStudent: recent, score }
+        totalMins * 1 - // peso alto: cuánto coinciden
+        recent * 30 + // penalizar repetición reciente
+        (t.user.role === "DIRECTOR" ? -10 : 0) // priorizar docentes regulares
+
+      return {
+        teacher: t,
+        matchingSlots,
+        totalMatchingMinutes: totalMins,
+        recentClassesWithStudent: recent,
+        score,
+      }
     })
-    .filter(c => c.matchingSlots.length > 0)
+    .filter((c) => c.matchingSlots.length > 0)
     .sort((a, b) => b.score - a.score)
 }
 ```
@@ -85,6 +94,7 @@ export function rankCandidates(
 La UI muestra los top 5 candidatos. Al seleccionar uno, se ven sus `matchingSlots`. El coordinador elige cuáles slots se usarán como horario semanal (ej: 2 clases por semana lunes 19:00 y miércoles 19:00).
 
 También define:
+
 - Fecha de inicio (default `enrollment.startDate`).
 - Cantidad de sesiones a generar (calculada: `contractedHours * 60 / classDuration` redondeada).
 - Modalidad heredada de `enrollment.modality` (editable).
@@ -96,33 +106,33 @@ También define:
 
 ```typescript
 await prisma.$transaction(async (tx) => {
-  const sessionsToCreate: Array<{ scheduledStart: Date, scheduledEnd: Date }> = []
-  
+  const sessionsToCreate: Array<{ scheduledStart: Date; scheduledEnd: Date }> = []
+
   // Generar fechas según slots seleccionados
   let currentDate = startDate
   let sessionsLeft = totalSessions
-  
+
   while (sessionsLeft > 0) {
     for (const slot of selectedSlots) {
       const slotDate = nextOccurrence(currentDate, slot.dayOfWeek)
-      
+
       // Verificar que no haya conflicto con TeacherUnavailability
       const conflict = await hasUnavailability(tx, teacherId, slotDate)
       if (conflict) continue // saltar esta ocurrencia
-      
+
       // Verificar que no haya conflicto con feriados (informativo, no bloqueante)
       const isHoliday = await isHolidayOn(tx, slotDate)
-      
+
       sessionsToCreate.push({
-        scheduledStart: combineLocalDateTime(slotDate, slot.startTime, 'America/Guayaquil'),
-        scheduledEnd: combineLocalDateTime(slotDate, slot.endTime, 'America/Guayaquil'),
+        scheduledStart: combineLocalDateTime(slotDate, slot.startTime, "America/Guayaquil"),
+        scheduledEnd: combineLocalDateTime(slotDate, slot.endTime, "America/Guayaquil"),
       })
       sessionsLeft--
       if (sessionsLeft === 0) break
     }
     currentDate = addWeeks(currentDate, 1)
   }
-  
+
   // Crear sesiones + participants en bulk
   for (const s of sessionsToCreate) {
     await tx.classSession.create({
@@ -131,11 +141,11 @@ await prisma.$transaction(async (tx) => {
         scheduledStart: s.scheduledStart,
         scheduledEnd: s.scheduledEnd,
         modality,
-        meetingUrl: modality === 'VIRTUAL' ? meetingUrl : null,
-        location: modality !== 'VIRTUAL' ? location : null,
-        status: 'SCHEDULED',
+        meetingUrl: modality === "VIRTUAL" ? meetingUrl : null,
+        location: modality !== "VIRTUAL" ? location : null,
+        status: "SCHEDULED",
         participants: {
-          create: { enrollmentId: enrollment.id, attendance: 'PENDING' },
+          create: { enrollmentId: enrollment.id, attendance: "PENDING" },
         },
       },
     })
@@ -144,6 +154,7 @@ await prisma.$transaction(async (tx) => {
 ```
 
 Helpers:
+
 - `combineLocalDateTime(date, "19:00", "America/Guayaquil")` → `Date` UTC. Usar `date-fns-tz`.
 - `nextOccurrence(from, dayOfWeek)` → primera fecha >= from cuyo `getDay()` sea `dayOfWeek`.
 - `hasUnavailability(tx, teacherId, date)` → consulta `TeacherUnavailability` por rango.

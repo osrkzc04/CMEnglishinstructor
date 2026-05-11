@@ -38,7 +38,7 @@ export function PendingsCard({ items }: { items: Pending[] }) {
         <CardTitle>Postulaciones por revisar</CardTitle>
         <Link
           href={"/admin/postulaciones" as Route}
-          className="inline-flex items-center gap-1.5 border-b border-border-strong pb-px text-[13px] text-text-2 transition-colors hover:border-teal-500 hover:text-teal-500"
+          className="border-border-strong text-text-2 inline-flex items-center gap-1.5 border-b pb-px text-[13px] transition-colors hover:border-teal-500 hover:text-teal-500"
         >
           Ir a postulaciones
           <ArrowRight size={11} strokeWidth={1.6} />
@@ -57,12 +57,12 @@ function PendingRow({ item }: { item: Pending }) {
   return (
     <Link
       href={item.href as Route}
-      className="grid grid-cols-[32px_1fr_auto_auto] items-center gap-3.5 border-b border-border px-[22px] py-3.5 transition-colors duration-[120ms] last:border-b-0 hover:bg-surface-alt"
+      className="border-border hover:bg-surface-alt grid grid-cols-[32px_1fr_auto_auto] items-center gap-3.5 border-b px-[22px] py-3.5 transition-colors duration-[120ms] last:border-b-0"
     >
       <Avatar initials={item.initials} size="md" className="!h-8 !w-8" />
       <div>
-        <div className="text-[14px] leading-[1.3] text-foreground">{item.name}</div>
-        <div className="mt-0.5 font-mono text-[12px] tracking-[0.02em] text-text-3">
+        <div className="text-foreground text-[14px] leading-[1.3]">{item.name}</div>
+        <div className="text-text-3 mt-0.5 font-mono text-[12px] tracking-[0.02em]">
           {item.detail}
         </div>
       </div>
@@ -78,11 +78,9 @@ function StatusPill({ status }: { status: PendingStatus }) {
   return (
     <span
       className={cn(
-        "rounded-sm border px-2 py-[3px] font-mono text-[11px] uppercase tracking-[0.06em] leading-[1.4]",
-        status === "new" &&
-          "border-teal-500/35 bg-teal-500/[0.07] text-teal-500",
-        status === "review" &&
-          "border-warning/35 bg-warning/[0.07] text-warning",
+        "rounded-sm border px-2 py-[3px] font-mono text-[11px] leading-[1.4] tracking-[0.06em] uppercase",
+        status === "new" && "border-teal-500/35 bg-teal-500/[0.07] text-teal-500",
+        status === "review" && "border-warning/35 bg-warning/[0.07] text-warning",
         status === "test" && "border-info/35 bg-info/[0.07] text-info",
       )}
     >

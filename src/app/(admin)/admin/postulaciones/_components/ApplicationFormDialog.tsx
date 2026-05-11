@@ -44,21 +44,9 @@ type Props = {
   cefrOptions: CefrOption[]
 }
 
-const DAYS_ES = [
-  "Domingo",
-  "Lunes",
-  "Martes",
-  "Miércoles",
-  "Jueves",
-  "Viernes",
-  "Sábado",
-]
+const DAYS_ES = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"]
 
-export function ApplicationFormDialog({
-  applicationId,
-  initialValues,
-  cefrOptions,
-}: Props) {
+export function ApplicationFormDialog({ applicationId, initialValues, cefrOptions }: Props) {
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
@@ -106,9 +94,7 @@ export function ApplicationFormDialog({
     const current = watchedLevelIds ?? []
     setValue(
       "levelIds",
-      current.includes(levelId)
-        ? current.filter((id) => id !== levelId)
-        : [...current, levelId],
+      current.includes(levelId) ? current.filter((id) => id !== levelId) : [...current, levelId],
       { shouldValidate: true, shouldDirty: true },
     )
   }
@@ -135,9 +121,7 @@ export function ApplicationFormDialog({
       <DialogContent size="lg">
         <DialogHeader>
           <DialogTitle>Editar postulación</DialogTitle>
-          <DialogDescription>
-            Ajusta los datos antes de aprobar o rechazar.
-          </DialogDescription>
+          <DialogDescription>Ajusta los datos antes de aprobar o rechazar.</DialogDescription>
         </DialogHeader>
 
         <form
@@ -160,11 +144,7 @@ export function ApplicationFormDialog({
             {/* Datos personales */}
             <Section title="Datos del postulante">
               <div className="grid gap-4 sm:grid-cols-2">
-                <Field
-                  id="firstName"
-                  label="Nombre"
-                  error={errors.firstName?.message}
-                >
+                <Field id="firstName" label="Nombre" error={errors.firstName?.message}>
                   <Input
                     id="firstName"
                     autoComplete="given-name"
@@ -172,11 +152,7 @@ export function ApplicationFormDialog({
                     {...register("firstName")}
                   />
                 </Field>
-                <Field
-                  id="lastName"
-                  label="Apellido"
-                  error={errors.lastName?.message}
-                >
+                <Field id="lastName" label="Apellido" error={errors.lastName?.message}>
                   <Input
                     id="lastName"
                     autoComplete="family-name"
@@ -203,11 +179,7 @@ export function ApplicationFormDialog({
                     {...register("phone")}
                   />
                 </Field>
-                <Field
-                  id="document"
-                  label="Documento"
-                  error={errors.document?.message}
-                >
+                <Field id="document" label="Documento" error={errors.document?.message}>
                   <Input
                     id="document"
                     placeholder="Cédula o pasaporte"
@@ -237,9 +209,7 @@ export function ApplicationFormDialog({
             {/* Niveles CEFR */}
             <Section title="Niveles que puede dictar">
               {cefrOptions.length === 0 ? (
-                <p className="text-[13px] text-text-3">
-                  No hay niveles disponibles.
-                </p>
+                <p className="text-text-3 text-[13px]">No hay niveles disponibles.</p>
               ) : (
                 <Controller
                   control={control}
@@ -254,14 +224,11 @@ export function ApplicationFormDialog({
                             className={cn(
                               "inline-flex cursor-pointer items-center gap-2 rounded-md border px-3 py-2 text-[13px] transition-colors duration-[120ms]",
                               selected
-                                ? "border-teal-500/60 bg-teal-500/[0.08] text-foreground"
+                                ? "text-foreground border-teal-500/60 bg-teal-500/[0.08]"
                                 : "border-border bg-surface text-text-2 hover:border-border-strong hover:text-foreground",
                             )}
                           >
-                            <Checkbox
-                              checked={selected}
-                              onChange={() => toggleLevel(opt.id)}
-                            />
+                            <Checkbox checked={selected} onChange={() => toggleLevel(opt.id)} />
                             <span className="font-mono text-[12.5px] tracking-[0.04em]">
                               {opt.code}
                             </span>
@@ -275,9 +242,7 @@ export function ApplicationFormDialog({
                 />
               )}
               {errors.levelIds && (
-                <p className="mt-2 text-[12.5px] text-danger">
-                  {errors.levelIds.message}
-                </p>
+                <p className="text-danger mt-2 text-[12.5px]">{errors.levelIds.message}</p>
               )}
             </Section>
 
@@ -285,9 +250,7 @@ export function ApplicationFormDialog({
             <Section title="Disponibilidad semanal">
               <div className="space-y-2.5">
                 {fields.length === 0 && (
-                  <p className="text-[13px] text-text-3">
-                    Sin bloques agregados.
-                  </p>
+                  <p className="text-text-3 text-[13px]">Sin bloques agregados.</p>
                 )}
 
                 {fields.map((field, index) => {
@@ -295,7 +258,7 @@ export function ApplicationFormDialog({
                   return (
                     <div
                       key={field.id}
-                      className="grid grid-cols-[1fr_auto_auto_auto] items-end gap-3 rounded-md border border-border bg-surface-alt px-3 py-3"
+                      className="border-border bg-surface-alt grid grid-cols-[1fr_auto_auto_auto] items-end gap-3 rounded-md border px-3 py-3"
                     >
                       <Field
                         id={`availability.${index}.dayOfWeek`}
@@ -305,8 +268,8 @@ export function ApplicationFormDialog({
                         <select
                           id={`availability.${index}.dayOfWeek`}
                           className={cn(
-                            "block w-full rounded-md border border-border bg-surface px-3 py-2 text-[13.5px] text-foreground",
-                            "transition-colors duration-[150ms] hover:border-border-strong focus:border-teal-500 focus:outline-none",
+                            "border-border bg-surface text-foreground block w-full rounded-md border px-3 py-2 text-[13.5px]",
+                            "hover:border-border-strong transition-colors duration-[150ms] focus:border-teal-500 focus:outline-none",
                           )}
                           {...register(`availability.${index}.dayOfWeek`, {
                             valueAsNumber: true,
@@ -330,8 +293,8 @@ export function ApplicationFormDialog({
                           type="time"
                           step={300}
                           className={cn(
-                            "block rounded-md border border-border bg-surface px-3 py-2 text-[13.5px] text-foreground",
-                            "transition-colors duration-[150ms] hover:border-border-strong focus:border-teal-500 focus:outline-none",
+                            "border-border bg-surface text-foreground block rounded-md border px-3 py-2 text-[13.5px]",
+                            "hover:border-border-strong transition-colors duration-[150ms] focus:border-teal-500 focus:outline-none",
                           )}
                           {...register(`availability.${index}.startTime`)}
                         />
@@ -347,8 +310,8 @@ export function ApplicationFormDialog({
                           type="time"
                           step={300}
                           className={cn(
-                            "block rounded-md border border-border bg-surface px-3 py-2 text-[13.5px] text-foreground",
-                            "transition-colors duration-[150ms] hover:border-border-strong focus:border-teal-500 focus:outline-none",
+                            "border-border bg-surface text-foreground block rounded-md border px-3 py-2 text-[13.5px]",
+                            "hover:border-border-strong transition-colors duration-[150ms] focus:border-teal-500 focus:outline-none",
                           )}
                           {...register(`availability.${index}.endTime`)}
                         />
@@ -358,7 +321,7 @@ export function ApplicationFormDialog({
                         type="button"
                         aria-label="Eliminar bloque"
                         onClick={() => remove(index)}
-                        className="grid h-9 w-9 place-items-center rounded-md border border-border bg-surface text-text-3 transition-colors hover:border-danger/50 hover:text-danger"
+                        className="border-border bg-surface text-text-3 hover:border-danger/50 hover:text-danger grid h-9 w-9 place-items-center rounded-md border transition-colors"
                       >
                         <Trash2 size={14} strokeWidth={1.6} />
                       </button>
@@ -384,9 +347,7 @@ export function ApplicationFormDialog({
               </div>
 
               {errors.availability && typeof errors.availability.message === "string" && (
-                <p className="mt-2 text-[12.5px] text-danger">
-                  {errors.availability.message}
-                </p>
+                <p className="text-danger mt-2 text-[12.5px]">{errors.availability.message}</p>
               )}
             </Section>
           </DialogBody>
@@ -422,16 +383,10 @@ export function ApplicationFormDialog({
 //  Subcomponentes locales
 // -----------------------------------------------------------------------------
 
-function Section({
-  title,
-  children,
-}: {
-  title: string
-  children: React.ReactNode
-}) {
+function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <section>
-      <h3 className="mb-3 font-serif text-[16px] font-normal tracking-[-0.01em] text-foreground">
+      <h3 className="text-foreground mb-3 font-serif text-[16px] font-normal tracking-[-0.01em]">
         {title}
       </h3>
       {children}
@@ -459,13 +414,13 @@ function Field({
       <div className="mb-1.5 flex items-baseline justify-between gap-2">
         <Label htmlFor={id}>{label}</Label>
         {optional && (
-          <span className="font-sans text-[11px] normal-case tracking-normal text-text-4">
+          <span className="text-text-4 font-sans text-[11px] tracking-normal normal-case">
             opcional
           </span>
         )}
       </div>
       {children}
-      {error && <p className="mt-1 text-[12px] text-danger">{error}</p>}
+      {error && <p className="text-danger mt-1 text-[12px]">{error}</p>}
     </div>
   )
 }

@@ -3,10 +3,7 @@
 import { revalidatePath } from "next/cache"
 import { prisma } from "@/lib/prisma"
 import { requireRole } from "@/modules/auth/guards"
-import {
-  SetProgramLevelActiveSchema,
-  type SetProgramLevelActiveInput,
-} from "./schemas"
+import { SetProgramLevelActiveSchema, type SetProgramLevelActiveInput } from "./schemas"
 
 type Result = { success: true } | { success: false; error: string }
 

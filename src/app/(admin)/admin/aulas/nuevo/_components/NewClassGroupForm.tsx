@@ -14,16 +14,10 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Tag } from "@/components/ui/tag"
 import { Radio, CheckLabel, Checkbox } from "@/components/ui/checkbox"
-import {
-  NewClassGroupSchema,
-  type NewClassGroupInput,
-} from "@/modules/classGroups/schemas"
+import { NewClassGroupSchema, type NewClassGroupInput } from "@/modules/classGroups/schemas"
 import { createClassGroup } from "@/modules/classGroups/create.action"
 import { loadAulaCandidates } from "@/modules/classGroups/loadCandidates.action"
-import {
-  computeAvailabilityHeatmap,
-  type Heatmap,
-} from "@/modules/classGroups/heatmap"
+import { computeAvailabilityHeatmap, type Heatmap } from "@/modules/classGroups/heatmap"
 import { generateClassGroupName } from "@/modules/classGroups/nameGenerator"
 import type {
   EligibleStudentCandidate,
@@ -46,15 +40,7 @@ import { MatchHeatmap } from "./MatchHeatmap"
  *      puede igual marcar slots libremente para crear un aula "placeholder".
  */
 
-const DAYS_ES = [
-  "Domingo",
-  "Lunes",
-  "Martes",
-  "Miércoles",
-  "Jueves",
-  "Viernes",
-  "Sábado",
-]
+const DAYS_ES = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"]
 
 type Props = {
   programLevels: ProgramLevelOption[]
@@ -84,11 +70,7 @@ type CandidatesState =
       teachers: EligibleTeacherCandidate[]
     }
 
-export function NewClassGroupForm({
-  programLevels,
-  weeklyMinHours,
-  weeklyMaxHours,
-}: Props) {
+export function NewClassGroupForm({ programLevels, weeklyMinHours, weeklyMaxHours }: Props) {
   const router = useRouter()
   const [serverError, setServerError] = useState<string | null>(null)
   const [isPending, startTransition] = useTransition()
@@ -233,8 +215,8 @@ export function NewClassGroupForm({
             <select
               id="programLevelId"
               className={cn(
-                "block w-full rounded-md border border-border bg-surface px-3 py-2.5 text-[13.5px] text-foreground",
-                "transition-colors duration-[150ms] hover:border-border-strong focus:border-teal-500 focus:outline-none",
+                "border-border bg-surface text-foreground block w-full rounded-md border px-3 py-2.5 text-[13.5px]",
+                "hover:border-border-strong transition-colors duration-[150ms] focus:border-teal-500 focus:outline-none",
               )}
               {...register("programLevelId")}
             >
@@ -253,18 +235,16 @@ export function NewClassGroupForm({
               ))}
             </select>
             {selectedLevel && (
-              <p className="mt-2 text-[12.5px] text-text-3">
+              <p className="text-text-3 mt-2 text-[12.5px]">
                 Duración por clase:{" "}
-                <span className="font-mono text-foreground">
+                <span className="text-foreground font-mono">
                   {selectedLevel.classDurationMinutes} min
                 </span>
                 {selectedLevel.cefrLevelCode && (
                   <>
                     {" · "}
                     CEFR{" "}
-                    <span className="font-mono text-foreground">
-                      {selectedLevel.cefrLevelCode}
-                    </span>
+                    <span className="text-foreground font-mono">{selectedLevel.cefrLevelCode}</span>
                   </>
                 )}
               </p>
@@ -273,9 +253,7 @@ export function NewClassGroupForm({
           <Field id="modality" label="Modalidad" error={errors.modality?.message}>
             <ModalityPicker
               value={watchedModality}
-              onChange={(m) =>
-                setValue("modality", m, { shouldDirty: true, shouldValidate: true })
-              }
+              onChange={(m) => setValue("modality", m, { shouldDirty: true, shouldValidate: true })}
             />
           </Field>
         </div>
@@ -289,7 +267,7 @@ export function NewClassGroupForm({
           hint="Elegí docente y estudiantes para que el matchmaker te muestre los horarios que cuadran. Podés saltearlo y definir el horario manualmente."
         >
           {candidates.kind === "loading" && (
-            <p className="inline-flex items-center gap-2 text-[13px] text-text-3">
+            <p className="text-text-3 inline-flex items-center gap-2 text-[13px]">
               <Loader2 size={14} strokeWidth={1.6} className="animate-spin" />
               Buscando candidatos…
             </p>
@@ -305,16 +283,12 @@ export function NewClassGroupForm({
                 teachers={candidates.teachers}
                 cefrLevelCode={candidates.cefrLevelCode}
                 value={watchedTeacherId}
-                onChange={(id) =>
-                  setValue("teacherId", id, { shouldValidate: true })
-                }
+                onChange={(id) => setValue("teacherId", id, { shouldValidate: true })}
               />
               <StudentPicker
                 students={candidates.students}
                 value={watchedEnrollmentIds}
-                onChange={(ids) =>
-                  setValue("enrollmentIds", ids, { shouldValidate: true })
-                }
+                onChange={(ids) => setValue("enrollmentIds", ids, { shouldValidate: true })}
               />
             </div>
           )}
@@ -342,9 +316,7 @@ export function NewClassGroupForm({
               <MatchHeatmap
                 heatmap={heatmap}
                 selected={watchedSlots}
-                onChange={(slots) =>
-                  setValue("slots", slots, { shouldValidate: true })
-                }
+                onChange={(slots) => setValue("slots", slots, { shouldValidate: true })}
                 ignoreTeacher={ignoreTeacher}
               />
               {watchedSlots.length > 0 && (
@@ -363,13 +335,11 @@ export function NewClassGroupForm({
                 />
               )}
               {errors.slots && typeof errors.slots.message === "string" && (
-                <p className="mt-2 text-[12.5px] text-danger">{errors.slots.message}</p>
+                <p className="text-danger mt-2 text-[12.5px]">{errors.slots.message}</p>
               )}
             </>
           ) : (
-            <p className="text-[13px] text-text-3">
-              Esperando candidatos…
-            </p>
+            <p className="text-text-3 text-[13px]">Esperando candidatos…</p>
           )}
         </Section>
       )}
@@ -401,8 +371,7 @@ export function NewClassGroupForm({
               />
             </Field>
 
-            {(watchedModality === Modality.VIRTUAL ||
-              watchedModality === Modality.HIBRIDO) && (
+            {(watchedModality === Modality.VIRTUAL || watchedModality === Modality.HIBRIDO) && (
               <Field
                 id="defaultMeetingUrl"
                 label="Link de reunión"
@@ -419,13 +388,8 @@ export function NewClassGroupForm({
               </Field>
             )}
 
-            {(watchedModality === Modality.PRESENCIAL ||
-              watchedModality === Modality.HIBRIDO) && (
-              <Field
-                id="defaultLocation"
-                label="Ubicación"
-                error={errors.defaultLocation?.message}
-              >
+            {(watchedModality === Modality.PRESENCIAL || watchedModality === Modality.HIBRIDO) && (
+              <Field id="defaultLocation" label="Ubicación" error={errors.defaultLocation?.message}>
                 <Input
                   id="defaultLocation"
                   placeholder="Av. Amazonas 1234, oficina 502"
@@ -497,37 +461,31 @@ function TeacherPicker({
   return (
     <div>
       <header className="mb-2 flex items-baseline justify-between">
-        <h3 className="font-mono text-[12px] uppercase tracking-[0.08em] text-text-3">
-          Docente
-        </h3>
+        <h3 className="text-text-3 font-mono text-[12px] tracking-[0.08em] uppercase">Docente</h3>
         {value && (
           <button
             type="button"
             onClick={() => onChange(undefined)}
-            className="text-[11.5px] text-text-3 transition-colors hover:text-foreground"
+            className="text-text-3 hover:text-foreground text-[11.5px] transition-colors"
           >
             Limpiar
           </button>
         )}
       </header>
       {teachers.length === 0 ? (
-        <p className="rounded-md border border-dashed border-border-strong bg-surface px-3 py-3 text-[12.5px] text-text-3">
+        <p className="border-border-strong bg-surface text-text-3 rounded-md border border-dashed px-3 py-3 text-[12.5px]">
           No hay docentes activos cargados.
         </p>
       ) : (
-        <ul className="max-h-[260px] space-y-1.5 overflow-y-auto rounded-md border border-border bg-surface p-2">
+        <ul className="border-border bg-surface max-h-[260px] space-y-1.5 overflow-y-auto rounded-md border p-2">
           {matching.map((t) => (
             <li key={t.id}>
-              <TeacherOption
-                teacher={t}
-                checked={value === t.id}
-                onSelect={() => onChange(t.id)}
-              />
+              <TeacherOption teacher={t} checked={value === t.id} onSelect={() => onChange(t.id)} />
             </li>
           ))}
           {nonMatching.length > 0 && cefrLevelCode && (
             <>
-              <li className="px-1 pt-2 font-mono text-[10.5px] uppercase tracking-[0.08em] text-text-4">
+              <li className="text-text-4 px-1 pt-2 font-mono text-[10.5px] tracking-[0.08em] uppercase">
                 No cubren CEFR {cefrLevelCode}
               </li>
               {nonMatching.map((t) => (
@@ -569,21 +527,14 @@ function TeacherOption({
         dimmed && "opacity-60",
       )}
     >
-      <Radio
-        name="teacherId"
-        value={teacher.id}
-        checked={checked}
-        onChange={onSelect}
-      />
+      <Radio name="teacherId" value={teacher.id} checked={checked} onChange={onSelect} />
       <span className="min-w-0 flex-1">
-        <span className="block truncate text-[13.5px] font-medium text-foreground">
+        <span className="text-foreground block truncate text-[13.5px] font-medium">
           {teacher.fullName}
         </span>
-        <span className="mt-0.5 block truncate text-[12px] text-text-3">
-          {teacher.email}
-        </span>
+        <span className="text-text-3 mt-0.5 block truncate text-[12px]">{teacher.email}</span>
         {teacher.conflicts.length > 0 && (
-          <span className="mt-1 inline-flex items-center gap-1 text-[11.5px] text-text-3">
+          <span className="text-text-3 mt-1 inline-flex items-center gap-1 text-[11.5px]">
             <Info size={11} strokeWidth={1.6} />
             Ya dicta {teacher.conflicts.length}{" "}
             {teacher.conflicts.length === 1 ? "bloque" : "bloques"} en otras aulas
@@ -614,25 +565,26 @@ function StudentPicker({
   return (
     <div>
       <header className="mb-2 flex items-baseline justify-between">
-        <h3 className="font-mono text-[12px] uppercase tracking-[0.08em] text-text-3">
-          Estudiantes ({value.length}{value.length > 0 ? ` de ${students.length}` : ""})
+        <h3 className="text-text-3 font-mono text-[12px] tracking-[0.08em] uppercase">
+          Estudiantes ({value.length}
+          {value.length > 0 ? ` de ${students.length}` : ""})
         </h3>
         {value.length > 0 && (
           <button
             type="button"
             onClick={() => onChange([])}
-            className="text-[11.5px] text-text-3 transition-colors hover:text-foreground"
+            className="text-text-3 hover:text-foreground text-[11.5px] transition-colors"
           >
             Limpiar
           </button>
         )}
       </header>
       {students.length === 0 ? (
-        <p className="rounded-md border border-dashed border-border-strong bg-surface px-3 py-3 text-[12.5px] text-text-3">
+        <p className="border-border-strong bg-surface text-text-3 rounded-md border border-dashed px-3 py-3 text-[12.5px]">
           No hay estudiantes con matrícula activa para este nivel sin aula.
         </p>
       ) : (
-        <ul className="max-h-[260px] space-y-1.5 overflow-y-auto rounded-md border border-border bg-surface p-2">
+        <ul className="border-border bg-surface max-h-[260px] space-y-1.5 overflow-y-auto rounded-md border p-2">
           {students.map((s) => {
             const noSchedule = s.preferredSchedule.length === 0
             return (
@@ -650,14 +602,12 @@ function StudentPicker({
                     onChange={() => toggle(s.enrollmentId)}
                   />
                   <span className="min-w-0 flex-1">
-                    <span className="block truncate text-[13.5px] font-medium text-foreground">
+                    <span className="text-foreground block truncate text-[13.5px] font-medium">
                       {s.fullName}
                     </span>
-                    <span className="mt-0.5 block truncate text-[12px] text-text-3">
-                      {s.email}
-                    </span>
+                    <span className="text-text-3 mt-0.5 block truncate text-[12px]">{s.email}</span>
                     {noSchedule && (
-                      <span className="mt-1 inline-flex items-center gap-1 text-[11.5px] text-warning">
+                      <span className="text-warning mt-1 inline-flex items-center gap-1 text-[11.5px]">
                         <Info size={11} strokeWidth={1.6} />
                         Sin horario preferido cargado
                       </span>
@@ -684,7 +634,7 @@ function SelectedSlotsList({
 }) {
   return (
     <div className="mt-3 flex flex-wrap items-center gap-1.5">
-      <span className="font-mono text-[12px] uppercase tracking-[0.08em] text-text-3">
+      <span className="text-text-3 font-mono text-[12px] tracking-[0.08em] uppercase">
         Horario seleccionado:
       </span>
       {slots.map((s) => {
@@ -695,7 +645,7 @@ function SelectedSlotsList({
             key={`${s.dayOfWeek}|${s.startTime}`}
             type="button"
             onClick={() => onRemove(s)}
-            className="inline-flex items-center gap-1.5 rounded-md border border-teal-500/40 bg-teal-500/10 px-2 py-1 text-[12.5px] text-foreground transition-colors hover:border-danger/50 hover:bg-danger/10"
+            className="text-foreground hover:border-danger/50 hover:bg-danger/10 inline-flex items-center gap-1.5 rounded-md border border-teal-500/40 bg-teal-500/10 px-2 py-1 text-[12.5px] transition-colors"
             aria-label={`Quitar ${dayLabel} ${s.startTime} a ${endTime}`}
           >
             <span>{dayLabel}</span>
@@ -726,18 +676,16 @@ function Section({
   children: React.ReactNode
 }) {
   return (
-    <section className="rounded-xl border border-border bg-surface px-6 py-5">
+    <section className="border-border bg-surface rounded-xl border px-6 py-5">
       <div className="mb-3 flex items-baseline justify-between gap-2">
-        <h2 className="font-serif text-[20px] font-normal tracking-[-0.01em] text-foreground">
+        <h2 className="text-foreground font-serif text-[20px] font-normal tracking-[-0.01em]">
           {title}
         </h2>
         {optional && (
-          <span className="text-[11px] uppercase tracking-[0.08em] text-text-4">
-            opcional
-          </span>
+          <span className="text-text-4 text-[11px] tracking-[0.08em] uppercase">opcional</span>
         )}
       </div>
-      {hint && <p className="mb-4 max-w-[68ch] text-[13px] text-text-3">{hint}</p>}
+      {hint && <p className="text-text-3 mb-4 max-w-[68ch] text-[13px]">{hint}</p>}
       {children}
     </section>
   )
@@ -762,11 +710,11 @@ function Field({
     <div>
       <div className="mb-1.5 flex items-baseline justify-between gap-2">
         <Label htmlFor={id}>{label}</Label>
-        {optional && <span className="text-[11px] text-text-4">opcional</span>}
+        {optional && <span className="text-text-4 text-[11px]">opcional</span>}
       </div>
       {children}
-      {error && <p className="mt-1 text-[12px] text-danger">{error}</p>}
-      {!error && hint && <p className="mt-1.5 text-[12px] text-text-3">{hint}</p>}
+      {error && <p className="text-danger mt-1 text-[12px]">{error}</p>}
+      {!error && hint && <p className="text-text-3 mt-1.5 text-[12px]">{hint}</p>}
     </div>
   )
 }
@@ -798,27 +746,19 @@ function WeeklyLoadIndicator({
       )}
     >
       <span>
-        Carga semanal:{" "}
-        <span className="font-mono font-medium">{hours.toFixed(2)}h</span>
-        <span className="ml-1 text-text-3">
-          ({slotsCount} {slotsCount === 1 ? "clase" : "clases"} ×{" "}
-          {durationMinutes} min)
+        Carga semanal: <span className="font-mono font-medium">{hours.toFixed(2)}h</span>
+        <span className="text-text-3 ml-1">
+          ({slotsCount} {slotsCount === 1 ? "clase" : "clases"} × {durationMinutes} min)
         </span>
       </span>
-      <span className="font-mono text-text-3">
+      <span className="text-text-3 font-mono">
         Rango permitido: {minHours}h – {maxHours}h
       </span>
     </div>
   )
 }
 
-function ModalityPicker({
-  value,
-  onChange,
-}: {
-  value: Modality
-  onChange: (m: Modality) => void
-}) {
+function ModalityPicker({ value, onChange }: { value: Modality; onChange: (m: Modality) => void }) {
   const options: { value: Modality; label: string }[] = [
     { value: Modality.VIRTUAL, label: "Virtual" },
     { value: Modality.PRESENCIAL, label: "Presencial" },
@@ -842,7 +782,7 @@ function ModalityPicker({
             checked={value === opt.value}
             onChange={() => onChange(opt.value)}
           />
-          <span className="text-[13.5px] text-foreground">{opt.label}</span>
+          <span className="text-foreground text-[13.5px]">{opt.label}</span>
         </CheckLabel>
       ))}
     </div>

@@ -23,15 +23,7 @@ import { StatusActions } from "./_components/StatusActions"
 
 export const metadata: Metadata = { title: "Aula" }
 
-const DAYS_ES = [
-  "Domingo",
-  "Lunes",
-  "Martes",
-  "Miércoles",
-  "Jueves",
-  "Viernes",
-  "Sábado",
-]
+const DAYS_ES = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"]
 
 const MODALITY_LABEL: Record<string, string> = {
   VIRTUAL: "Virtual",
@@ -41,11 +33,7 @@ const MODALITY_LABEL: Record<string, string> = {
 
 type RouteParams = { id: string }
 
-export default async function AulaDetallePage({
-  params,
-}: {
-  params: Promise<RouteParams>
-}) {
+export default async function AulaDetallePage({ params }: { params: Promise<RouteParams> }) {
   const user = await requireRole(["DIRECTOR", "COORDINATOR"])
   const { id } = await params
 
@@ -78,26 +66,20 @@ export default async function AulaDetallePage({
       ]}
     >
       <header className="mb-7">
-        <p className="mb-2 font-mono text-[12px] uppercase tracking-[0.08em] text-text-3">
-          Aula
-        </p>
+        <p className="text-text-3 mb-2 font-mono text-[12px] tracking-[0.08em] uppercase">Aula</p>
         <div className="flex flex-wrap items-center gap-3">
-          <h1 className="font-serif text-[32px] font-normal leading-[1.18] tracking-[-0.02em]">
+          <h1 className="font-serif text-[32px] leading-[1.18] font-normal tracking-[-0.02em]">
             {detail.name}
           </h1>
           <StatusBadge status={detail.status} />
         </div>
-        <div className="mt-2 flex flex-wrap items-baseline gap-2.5 text-[13.5px] text-text-3">
+        <div className="text-text-3 mt-2 flex flex-wrap items-baseline gap-2.5 text-[13.5px]">
           <span>{detail.programLevel.programLabel}</span>
           <span aria-hidden>·</span>
           <span>{MODALITY_LABEL[detail.modality]}</span>
           <span aria-hidden>·</span>
-          <span>
-            {detail.programLevel.classDurationMinutes} min/clase
-          </span>
-          {detail.programLevel.cefrLevelCode && (
-            <Tag>CEFR {detail.programLevel.cefrLevelCode}</Tag>
-          )}
+          <span>{detail.programLevel.classDurationMinutes} min/clase</span>
+          {detail.programLevel.cefrLevelCode && <Tag>CEFR {detail.programLevel.cefrLevelCode}</Tag>}
         </div>
       </header>
 
@@ -121,9 +103,9 @@ export default async function AulaDetallePage({
           {/* Horario */}
           <Card title="Horario semanal">
             {detail.slots.length === 0 ? (
-              <p className="text-[13px] text-text-3">Sin bloques cargados.</p>
+              <p className="text-text-3 text-[13px]">Sin bloques cargados.</p>
             ) : (
-              <ul className="divide-y divide-border">
+              <ul className="divide-border divide-y">
                 {[1, 2, 3, 4, 5, 6, 0].map((d) => {
                   const slots = detail.slots.filter((s) => s.dayOfWeek === d)
                   if (slots.length === 0) return null
@@ -132,10 +114,10 @@ export default async function AulaDetallePage({
                       key={d}
                       className="grid grid-cols-[120px_1fr] items-baseline gap-4 py-2.5 first:pt-0 last:pb-0"
                     >
-                      <span className="text-[13.5px] font-medium text-foreground">
+                      <span className="text-foreground text-[13.5px] font-medium">
                         {DAYS_ES[d]}
                       </span>
-                      <span className="font-mono text-[13px] tracking-[0.02em] text-text-2">
+                      <span className="text-text-2 font-mono text-[13px] tracking-[0.02em]">
                         {slots
                           .sort((a, b) => a.startTime.localeCompare(b.startTime))
                           .map((s) => formatSlotRange(s.startTime, s.durationMinutes))
@@ -184,13 +166,11 @@ export default async function AulaDetallePage({
           <Card title="Información">
             <dl className="space-y-2.5">
               <DLItem label="Creada">{formatDate(detail.createdAt)}</DLItem>
-              {detail.closedAt && (
-                <DLItem label="Cerrada">{formatDate(detail.closedAt)}</DLItem>
-              )}
+              {detail.closedAt && <DLItem label="Cerrada">{formatDate(detail.closedAt)}</DLItem>}
               <DLItem label="Slots">{detail.slots.length}</DLItem>
               <DLItem label="Alumnos">{detail.enrollments.length}</DLItem>
             </dl>
-            <div className="mt-4 border-t border-border pt-3">
+            <div className="border-border mt-4 border-t pt-3">
               <Link
                 href={`/admin/aulas?programLevelId=${detail.programLevel.id}` as Route}
                 className="inline-flex items-center gap-1 text-[12.5px] text-teal-500 hover:underline"
@@ -212,16 +192,10 @@ export default async function AulaDetallePage({
 //  Sub-componentes locales
 // -----------------------------------------------------------------------------
 
-function Card({
-  title,
-  children,
-}: {
-  title: string
-  children: React.ReactNode
-}) {
+function Card({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <section className="rounded-xl border border-border bg-surface p-5 lg:p-6">
-      <h2 className="mb-4 font-serif text-[18px] font-normal tracking-[-0.01em] text-foreground">
+    <section className="border-border bg-surface rounded-xl border p-5 lg:p-6">
+      <h2 className="text-foreground mb-4 font-serif text-[18px] font-normal tracking-[-0.01em]">
         {title}
       </h2>
       {children}
@@ -229,19 +203,11 @@ function Card({
   )
 }
 
-function DLItem({
-  label,
-  children,
-}: {
-  label: string
-  children: React.ReactNode
-}) {
+function DLItem({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="grid grid-cols-[110px_1fr] items-baseline gap-3">
-      <dt className="text-[12px] font-medium uppercase tracking-[0.06em] text-text-3">
-        {label}
-      </dt>
-      <dd className="text-[13.5px] text-foreground">{children}</dd>
+      <dt className="text-text-3 text-[12px] font-medium tracking-[0.06em] uppercase">{label}</dt>
+      <dd className="text-foreground text-[13.5px]">{children}</dd>
     </div>
   )
 }

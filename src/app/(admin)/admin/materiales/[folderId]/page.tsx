@@ -13,11 +13,7 @@ export const metadata: Metadata = { title: "Materiales" }
 
 type RouteParams = { folderId: string }
 
-export default async function MaterialesFolderPage({
-  params,
-}: {
-  params: Promise<RouteParams>
-}) {
+export default async function MaterialesFolderPage({ params }: { params: Promise<RouteParams> }) {
   const user = await requireRole(["DIRECTOR", "COORDINATOR"])
   const { folderId } = await params
 
@@ -39,16 +35,13 @@ export default async function MaterialesFolderPage({
       ]}
     >
       <header className="mb-6">
-        <p className="mb-2 font-mono text-[12px] uppercase tracking-[0.08em] text-text-3">
+        <p className="text-text-3 mb-2 font-mono text-[12px] tracking-[0.08em] uppercase">
           {detail.programName} · {detail.levelName}
         </p>
-        <h1 className="font-serif text-[28px] font-normal leading-[1.2] tracking-[-0.02em]">
+        <h1 className="font-serif text-[28px] leading-[1.2] font-normal tracking-[-0.02em]">
           {detail.name}
         </h1>
-        <FolderTrail
-          breadcrumb={detail.breadcrumb}
-          levelName={detail.levelName}
-        />
+        <FolderTrail breadcrumb={detail.breadcrumb} levelName={detail.levelName} />
       </header>
 
       <FolderBrowser folder={detail} />
@@ -68,11 +61,11 @@ function FolderTrail({
   return (
     <nav
       aria-label="Ruta de la carpeta"
-      className="mt-3 flex flex-wrap items-center gap-1 text-[12.5px] text-text-3"
+      className="text-text-3 mt-3 flex flex-wrap items-center gap-1 text-[12.5px]"
     >
       <Link
         href={"/admin/materiales" as Route}
-        className="inline-flex items-center gap-1 transition-colors hover:text-foreground"
+        className="hover:text-foreground inline-flex items-center gap-1 transition-colors"
       >
         <Home size={11} strokeWidth={1.6} />
         Materiales
@@ -88,7 +81,7 @@ function FolderTrail({
             ) : (
               <Link
                 href={`/admin/materiales/${node.id}` as Route}
-                className="transition-colors hover:text-foreground"
+                className="hover:text-foreground transition-colors"
               >
                 {label}
               </Link>

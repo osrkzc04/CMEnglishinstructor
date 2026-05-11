@@ -10,10 +10,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
-import {
-  SystemSettingsSchema,
-  type SystemSettingsInput,
-} from "@/modules/settings/schemas"
+import { SystemSettingsSchema, type SystemSettingsInput } from "@/modules/settings/schemas"
 import { updateSystemSettings } from "@/modules/settings/update.action"
 
 /**
@@ -98,10 +95,7 @@ export function SystemSettingsForm({ initialValues }: Props) {
         />
       )}
 
-      <Section
-        title="Clases"
-        description="Cómo se mide una clase y cuánto dura por defecto."
-      >
+      <Section title="Clases" description="Cómo se mide una clase y cuánto dura por defecto.">
         <NumberField
           label="Duración por defecto"
           unit="minutos"
@@ -117,10 +111,7 @@ export function SystemSettingsForm({ initialValues }: Props) {
         />
       </Section>
 
-      <Section
-        title="Aulas"
-        description="Carga semanal recomendada al armar un aula nueva."
-      >
+      <Section title="Aulas" description="Carga semanal recomendada al armar un aula nueva.">
         <div className="grid gap-5 sm:grid-cols-2">
           <NumberField
             label="Mínimo semanal"
@@ -169,13 +160,8 @@ export function SystemSettingsForm({ initialValues }: Props) {
         />
       </Section>
 
-      <div className="flex items-center justify-end gap-3 border-t border-border pt-6">
-        <Button
-          type="submit"
-          variant="primary"
-          size="lg"
-          disabled={isPending || !isDirty}
-        >
+      <div className="border-border flex items-center justify-end gap-3 border-t pt-6">
+        <Button type="submit" variant="primary" size="lg" disabled={isPending || !isDirty}>
           {isPending ? (
             <>
               <Loader2 size={14} strokeWidth={1.6} className="animate-spin" />
@@ -206,14 +192,10 @@ function Section({
   return (
     <section>
       <header className="mb-4">
-        <h2 className="font-serif text-[20px] font-normal leading-tight tracking-[-0.01em] text-foreground">
+        <h2 className="text-foreground font-serif text-[20px] leading-tight font-normal tracking-[-0.01em]">
           {title}
         </h2>
-        {description && (
-          <p className="mt-1 text-[13px] leading-[1.5] text-text-3">
-            {description}
-          </p>
-        )}
+        {description && <p className="text-text-3 mt-1 text-[13px] leading-[1.5]">{description}</p>}
       </header>
       {children}
     </section>
@@ -237,23 +219,17 @@ function NumberField({
     <div>
       <Label className="mb-1.5 block">{label}</Label>
       <div className="relative">
-        <Input
-          {...inputProps}
-          aria-invalid={!!error}
-          className={unit ? "pr-20" : undefined}
-        />
+        <Input {...inputProps} aria-invalid={!!error} className={unit ? "pr-20" : undefined} />
         {unit && (
-          <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 font-mono text-[11.5px] uppercase tracking-[0.06em] text-text-4">
+          <span className="text-text-4 pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 font-mono text-[11.5px] tracking-[0.06em] uppercase">
             {unit}
           </span>
         )}
       </div>
       {error ? (
-        <p className="mt-1.5 text-[12.5px] text-danger">{error}</p>
+        <p className="text-danger mt-1.5 text-[12.5px]">{error}</p>
       ) : hint ? (
-        <p className="mt-1.5 text-[12.5px] leading-[1.5] text-text-3">
-          {hint}
-        </p>
+        <p className="text-text-3 mt-1.5 text-[12.5px] leading-[1.5]">{hint}</p>
       ) : null}
     </div>
   )
@@ -271,14 +247,10 @@ function ToggleRow({
   onCheckedChange: (value: boolean) => void
 }) {
   return (
-    <div className="flex items-start justify-between gap-6 rounded-xl border border-border bg-surface p-4">
+    <div className="border-border bg-surface flex items-start justify-between gap-6 rounded-xl border p-4">
       <div className="min-w-0">
-        <p className="text-[14px] text-foreground">{label}</p>
-        {hint && (
-          <p className="mt-1 text-[12.5px] leading-[1.5] text-text-3">
-            {hint}
-          </p>
-        )}
+        <p className="text-foreground text-[14px]">{label}</p>
+        {hint && <p className="text-text-3 mt-1 text-[12.5px] leading-[1.5]">{hint}</p>}
       </div>
       <Switch checked={checked} onCheckedChange={onCheckedChange} />
     </div>

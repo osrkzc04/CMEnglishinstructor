@@ -46,9 +46,8 @@ export function EnrollmentsCard({
   return (
     <div>
       <div className="flex items-baseline justify-between gap-3">
-        <p className="text-[12.5px] text-text-3">
-          {enrollments.length}{" "}
-          {enrollments.length === 1 ? "matrícula" : "matrículas"} en el aula
+        <p className="text-text-3 text-[12.5px]">
+          {enrollments.length} {enrollments.length === 1 ? "matrícula" : "matrículas"} en el aula
         </p>
         {canEdit && (
           <Button
@@ -69,7 +68,7 @@ export function EnrollmentsCard({
       </div>
 
       {enrollments.length === 0 ? (
-        <p className="mt-3 rounded-md border border-border bg-surface-alt px-4 py-6 text-center text-[13px] text-text-3">
+        <p className="border-border bg-surface-alt text-text-3 mt-3 rounded-md border px-4 py-6 text-center text-[13px]">
           Aula vacía. Sumá alumnos elegibles desde el botón.
         </p>
       ) : (
@@ -77,21 +76,21 @@ export function EnrollmentsCard({
           {enrollments.map((e) => (
             <li
               key={e.enrollmentId}
-              className="flex flex-wrap items-baseline justify-between gap-3 rounded-md border border-border bg-surface-alt px-4 py-3"
+              className="border-border bg-surface-alt flex flex-wrap items-baseline justify-between gap-3 rounded-md border px-4 py-3"
             >
               <div>
                 <Link
                   href={`/admin/estudiantes/${e.studentId}` as Route}
-                  className="text-[14px] text-foreground hover:text-teal-500"
+                  className="text-foreground text-[14px] hover:text-teal-500"
                 >
                   {e.studentName}
                 </Link>
-                <p className="mt-0.5 text-[12.5px] text-text-3">{e.studentEmail}</p>
+                <p className="text-text-3 mt-0.5 text-[12.5px]">{e.studentEmail}</p>
               </div>
               <div className="flex items-center gap-2">
                 <Link
                   href={`/admin/estudiantes/${e.studentId}` as Route}
-                  className="inline-flex items-center gap-1 text-[12.5px] text-text-3 transition-colors hover:text-teal-500"
+                  className="text-text-3 inline-flex items-center gap-1 text-[12.5px] transition-colors hover:text-teal-500"
                 >
                   Ver
                   <ArrowUpRight size={11} strokeWidth={1.6} />
@@ -107,7 +106,7 @@ export function EnrollmentsCard({
                         studentName: e.studentName,
                       })
                     }
-                    className="grid h-7 w-7 place-items-center rounded-md text-text-3 transition-colors hover:bg-danger/10 hover:text-danger"
+                    className="text-text-3 hover:bg-danger/10 hover:text-danger grid h-7 w-7 place-items-center rounded-md transition-colors"
                   >
                     <Trash2 size={13} strokeWidth={1.6} />
                   </button>
@@ -178,8 +177,7 @@ function AddEnrollmentDialog({
         <DialogHeader>
           <DialogTitle>Agregar alumno al aula</DialogTitle>
           <DialogDescription>
-            Solo aparecen matrículas activas del mismo nivel que aún no
-            pertenecen a otra aula.
+            Solo aparecen matrículas activas del mismo nivel que aún no pertenecen a otra aula.
           </DialogDescription>
         </DialogHeader>
         <DialogBody className="space-y-3">
@@ -193,7 +191,7 @@ function AddEnrollmentDialog({
             />
           )}
           {options.length === 0 ? (
-            <p className="text-[13.5px] text-text-3">
+            <p className="text-text-3 text-[13.5px]">
               No hay matrículas elegibles para sumarse a esta aula.
             </p>
           ) : (
@@ -210,12 +208,8 @@ function AddEnrollmentDialog({
                       : "border-border bg-surface hover:border-border-strong",
                   ].join(" ")}
                 >
-                  <p className="text-[14px] font-medium text-foreground">
-                    {o.studentName}
-                  </p>
-                  <p className="mt-0.5 text-[12.5px] text-text-3">
-                    {o.studentEmail}
-                  </p>
+                  <p className="text-foreground text-[14px] font-medium">{o.studentName}</p>
+                  <p className="text-text-3 mt-0.5 text-[12.5px]">{o.studentEmail}</p>
                 </button>
               ))}
             </div>
@@ -225,11 +219,7 @@ function AddEnrollmentDialog({
           <Button variant="ghost" onClick={onClose} disabled={isPending}>
             Cancelar
           </Button>
-          <Button
-            variant="primary"
-            onClick={handleSubmit}
-            disabled={!selectedId || isPending}
-          >
+          <Button variant="primary" onClick={handleSubmit} disabled={!selectedId || isPending}>
             {isPending ? (
               <>
                 <Loader2 size={14} strokeWidth={1.6} className="animate-spin" />
@@ -286,8 +276,8 @@ function RemoveEnrollmentDialog({
         <DialogHeader>
           <DialogTitle>Quitar del aula</DialogTitle>
           <DialogDescription>
-            <strong>{studentName}</strong> queda como matrícula en espera de
-            aula. Las clases futuras todavía planificadas dejan de incluirlo.
+            <strong>{studentName}</strong> queda como matrícula en espera de aula. Las clases
+            futuras todavía planificadas dejan de incluirlo.
           </DialogDescription>
         </DialogHeader>
         <DialogBody>

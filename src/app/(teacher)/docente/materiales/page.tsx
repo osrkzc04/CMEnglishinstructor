@@ -19,9 +19,7 @@ export default async function TeacherMaterialesIndexPage() {
   // con el dashboard. Si pierde la asignación, pierde el acceso.
   const levelIds = await listAccessibleProgramLevels(user.id, user.role!)
   const roots =
-    levelIds.length > 0
-      ? await listProgramLevelRoots({ programLevelIds: levelIds })
-      : []
+    levelIds.length > 0 ? await listProgramLevelRoots({ programLevelIds: levelIds }) : []
 
   return (
     <AppShell
@@ -37,15 +35,15 @@ export default async function TeacherMaterialesIndexPage() {
       ]}
     >
       <header className="mb-7 max-w-2xl">
-        <p className="mb-2 font-mono text-[12px] uppercase tracking-[0.08em] text-text-3">
+        <p className="text-text-3 mb-2 font-mono text-[12px] tracking-[0.08em] uppercase">
           Recursos
         </p>
-        <h1 className="font-serif text-[32px] font-normal leading-[1.18] tracking-[-0.02em]">
+        <h1 className="font-serif text-[32px] leading-[1.18] font-normal tracking-[-0.02em]">
           Materiales
         </h1>
-        <p className="mt-2 text-[14px] leading-[1.55] text-text-3">
-          Vas a ver acá los materiales de los niveles que estás dictando hoy.
-          Cuando se cierra un aula, el acceso pasa al siguiente docente.
+        <p className="text-text-3 mt-2 text-[14px] leading-[1.55]">
+          Vas a ver acá los materiales de los niveles que estás dictando hoy. Cuando se cierra un
+          aula, el acceso pasa al siguiente docente.
         </p>
       </header>
 
@@ -61,37 +59,33 @@ export default async function TeacherMaterialesIndexPage() {
             <li key={root.programLevelId}>
               <Link
                 href={`/docente/materiales/${root.rootFolderId}` as Route}
-                className="group block rounded-xl border border-border bg-surface p-4 transition-colors hover:border-teal-500"
+                className="group border-border bg-surface block rounded-xl border p-4 transition-colors hover:border-teal-500"
               >
-                <div className="mb-2 inline-flex items-center gap-1.5 text-[12px] font-mono uppercase tracking-[0.08em] text-text-3">
+                <div className="text-text-3 mb-2 inline-flex items-center gap-1.5 font-mono text-[12px] tracking-[0.08em] uppercase">
                   <BookOpen size={11} strokeWidth={1.6} />
                   {root.programName}
                 </div>
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
-                    <div className="font-medium text-foreground">
-                      {root.levelName}
-                    </div>
+                    <div className="text-foreground font-medium">{root.levelName}</div>
                     <div className="mt-1">
                       <Tag>Código {root.levelCode}</Tag>
                     </div>
-                    <div className="mt-3 flex items-center gap-3 text-[12.5px] text-text-3">
+                    <div className="text-text-3 mt-3 flex items-center gap-3 text-[12.5px]">
                       <span className="inline-flex items-center gap-1">
                         <FolderOpen size={12} strokeWidth={1.6} />
-                        {root.folderCount}{" "}
-                        {root.folderCount === 1 ? "carpeta" : "carpetas"}
+                        {root.folderCount} {root.folderCount === 1 ? "carpeta" : "carpetas"}
                       </span>
                       <span className="inline-flex items-center gap-1">
                         <FileText size={12} strokeWidth={1.6} />
-                        {root.fileCount}{" "}
-                        {root.fileCount === 1 ? "archivo" : "archivos"}
+                        {root.fileCount} {root.fileCount === 1 ? "archivo" : "archivos"}
                       </span>
                     </div>
                   </div>
                   <ArrowUpRight
                     size={14}
                     strokeWidth={1.6}
-                    className="shrink-0 text-text-3 transition-colors group-hover:text-teal-500"
+                    className="text-text-3 shrink-0 transition-colors group-hover:text-teal-500"
                   />
                 </div>
               </Link>

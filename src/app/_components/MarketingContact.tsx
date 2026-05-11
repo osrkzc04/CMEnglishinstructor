@@ -26,17 +26,16 @@ export function MarketingContact() {
       <div className="mx-auto w-full max-w-[1180px] px-6">
         <div className="grid gap-12 lg:grid-cols-[0.85fr_1fr] lg:gap-20">
           <Reveal as="header">
-            <p className="mb-3 font-mono text-[11px] uppercase tracking-[0.1em] text-text-3">
+            <p className="text-text-3 mb-3 font-mono text-[11px] tracking-[0.1em] uppercase">
               Contacto
             </p>
-            <h2 className="font-serif text-[36px] leading-[1.12] tracking-[-0.02em] text-foreground sm:text-[44px]">
+            <h2 className="text-foreground font-serif text-[36px] leading-[1.12] tracking-[-0.02em] sm:text-[44px]">
               Cuéntanos qué buscas y armamos un plan
-              <em className="font-light italic text-text-2"> a tu medida</em>.
+              <em className="text-text-2 font-light italic"> a tu medida</em>.
             </h2>
-            <p className="mt-5 max-w-[460px] text-[16px] leading-[1.65] text-text-2">
-              Déjanos tu mensaje y te respondemos para coordinar una
-              conversación corta. Sin compromiso — la idea es entender qué
-              necesitas y mostrarte cómo trabajamos.
+            <p className="text-text-2 mt-5 max-w-[460px] text-[16px] leading-[1.65]">
+              Déjanos tu mensaje y te respondemos para coordinar una conversación corta. Sin
+              compromiso — la idea es entender qué necesitas y mostrarte cómo trabajamos.
             </p>
 
             <div className="mt-10 grid gap-3">
@@ -95,12 +94,12 @@ function ContactCard({
   entries: { value: string; href?: string }[]
 }) {
   return (
-    <article className="rounded-xl border border-border bg-surface p-5 transition-colors duration-200 hover:border-border-strong">
+    <article className="border-border bg-surface hover:border-border-strong rounded-xl border p-5 transition-colors duration-200">
       <div className="flex items-center gap-2.5">
-        <span className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-border text-text-2">
+        <span className="border-border text-text-2 inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full border">
           {icon}
         </span>
-        <span className="font-mono text-[10.5px] uppercase tracking-[0.1em] text-text-4">
+        <span className="text-text-4 font-mono text-[10.5px] tracking-[0.1em] uppercase">
           {label}
         </span>
       </div>
@@ -110,15 +109,12 @@ function ContactCard({
             <a
               key={entry.value}
               href={entry.href}
-              className="truncate text-[14.5px] text-foreground transition-colors hover:text-teal-500"
+              className="text-foreground truncate text-[14.5px] transition-colors hover:text-teal-500"
             >
               {entry.value}
             </a>
           ) : (
-            <span
-              key={entry.value}
-              className="truncate text-[14.5px] text-text-2"
-            >
+            <span key={entry.value} className="text-text-2 truncate text-[14.5px]">
               {entry.value}
             </span>
           ),

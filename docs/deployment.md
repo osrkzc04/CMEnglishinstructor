@@ -29,15 +29,15 @@ El usuario `DIRECTOR` se crea en la primera corrida tomando `SUPER_ADMIN_*` del 
 
 ### Obligatorias
 
-| Variable | Ejemplo | Descripción |
-|---|---|---|
-| `DATABASE_URL` | `postgresql://user:pass@host:5432/db?sslmode=require` | Postgres 15+. Si usás la DB administrada de Dokploy, copia la URL desde su panel. |
-| `AUTH_URL` | `https://app.cmenglishinstructor.com` | URL pública sin trailing slash. Usada por Auth.js para callbacks. |
-| `AUTH_SECRET` | (hex 32 bytes) | `openssl rand -base64 32`. Mantenelo secreto, rotar implica relogin de todos. |
-| `NEXT_PUBLIC_APP_URL` | `https://app.cmenglishinstructor.com` | URL pública usada en emails y links de invitación. |
-| `SUPER_ADMIN_EMAIL` | `directora@cmenglishinstructor.com` | Email del director inicial. |
-| `SUPER_ADMIN_PASSWORD` | (≥ 12 caracteres, fuerte) | Hash con bcrypt al primer arranque. Cambiable después por UI. |
-| `CRON_SECRET` | (hex 32 bytes) | `openssl rand -hex 32`. Protege `/api/cron/*`. |
+| Variable               | Ejemplo                                               | Descripción                                                                       |
+| ---------------------- | ----------------------------------------------------- | --------------------------------------------------------------------------------- |
+| `DATABASE_URL`         | `postgresql://user:pass@host:5432/db?sslmode=require` | Postgres 15+. Si usás la DB administrada de Dokploy, copia la URL desde su panel. |
+| `AUTH_URL`             | `https://app.cmenglishinstructor.com`                 | URL pública sin trailing slash. Usada por Auth.js para callbacks.                 |
+| `AUTH_SECRET`          | (hex 32 bytes)                                        | `openssl rand -base64 32`. Mantenelo secreto, rotar implica relogin de todos.     |
+| `NEXT_PUBLIC_APP_URL`  | `https://app.cmenglishinstructor.com`                 | URL pública usada en emails y links de invitación.                                |
+| `SUPER_ADMIN_EMAIL`    | `directora@cmenglishinstructor.com`                   | Email del director inicial.                                                       |
+| `SUPER_ADMIN_PASSWORD` | (≥ 12 caracteres, fuerte)                             | Hash con bcrypt al primer arranque. Cambiable después por UI.                     |
+| `CRON_SECRET`          | (hex 32 bytes)                                        | `openssl rand -hex 32`. Protege `/api/cron/*`.                                    |
 
 ### Opcionales del super admin
 
@@ -160,14 +160,14 @@ En los logs del primer arranque deberías ver:
 
 El seed de producción **solo siembra lo esencial** (no datos demo). Es idempotente:
 
-| Bloque | Idempotencia | Modificable por UI |
-|---|---|---|
-| Idiomas (`Language`) | `upsert` por `code` | No (catálogo cerrado: EN/ES) |
-| Niveles CEFR (`CefrLevel`) | `upsert` por `(languageId, code)` | No |
-| Catálogo (`Course/Program/ProgramLevel`) | `count > 0` salta todo | Sí, vía `/admin/cursos` |
-| Configuración (`AppSetting`) | `upsert` por `key`, **no** sobreescribe valores | Sí, vía `/admin/configuracion` |
-| Feriados (`Holiday`) | `upsert` por `(date, name)` | Sí, vía UI futura |
-| Super admin | `upsert` por `email`, **no** sobreescribe pass | Sí, vía UI de perfil |
+| Bloque                                   | Idempotencia                                    | Modificable por UI             |
+| ---------------------------------------- | ----------------------------------------------- | ------------------------------ |
+| Idiomas (`Language`)                     | `upsert` por `code`                             | No (catálogo cerrado: EN/ES)   |
+| Niveles CEFR (`CefrLevel`)               | `upsert` por `(languageId, code)`               | No                             |
+| Catálogo (`Course/Program/ProgramLevel`) | `count > 0` salta todo                          | Sí, vía `/admin/cursos`        |
+| Configuración (`AppSetting`)             | `upsert` por `key`, **no** sobreescribe valores | Sí, vía `/admin/configuracion` |
+| Feriados (`Holiday`)                     | `upsert` por `(date, name)`                     | Sí, vía UI futura              |
+| Super admin                              | `upsert` por `email`, **no** sobreescribe pass  | Sí, vía UI de perfil           |
 
 **Implicaciones operativas:**
 

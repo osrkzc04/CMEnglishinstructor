@@ -32,28 +32,26 @@ export function MarketingModalities() {
     <section id="modalidades" className="py-20 md:py-24">
       <div className="mx-auto w-full max-w-[1180px] px-6">
         <Reveal as="header" className="mb-12 max-w-[680px]">
-          <p className="mb-3 font-mono text-[11px] uppercase tracking-[0.1em] text-text-3">
+          <p className="text-text-3 mb-3 font-mono text-[11px] tracking-[0.1em] uppercase">
             Modalidades
           </p>
-          <h2 className="font-serif text-[36px] leading-[1.12] tracking-[-0.02em] text-foreground sm:text-[44px]">
+          <h2 className="text-foreground font-serif text-[36px] leading-[1.12] tracking-[-0.02em] sm:text-[44px]">
             Donde te resulte
-            <em className="font-light italic text-text-2"> más útil</em>.
+            <em className="text-text-2 font-light italic"> más útil</em>.
           </h2>
         </Reveal>
 
         <div className="grid gap-4 md:grid-cols-3">
           {MODALITIES.map((m, i) => (
             <Reveal key={m.title} delay={i * 100}>
-              <article className="group flex h-full flex-col rounded-xl border border-border bg-surface p-6 transition-[border-color,transform] duration-300 ease-out hover:-translate-y-0.5 hover:border-teal-500/40 motion-reduce:transition-none motion-reduce:transform-none">
-                <div className="mb-5 inline-flex h-10 w-10 items-center justify-center rounded-full border border-border bg-background text-foreground transition-colors duration-200 group-hover:border-teal-500/40 group-hover:text-teal-500 motion-reduce:transition-none">
+              <article className="group border-border bg-surface flex h-full flex-col rounded-xl border p-6 transition-[border-color,transform] duration-300 ease-out hover:-translate-y-0.5 hover:border-teal-500/40 motion-reduce:transform-none motion-reduce:transition-none">
+                <div className="border-border bg-background text-foreground mb-5 inline-flex h-10 w-10 items-center justify-center rounded-full border transition-colors duration-200 group-hover:border-teal-500/40 group-hover:text-teal-500 motion-reduce:transition-none">
                   <m.icon size={18} strokeWidth={1.6} />
                 </div>
-                <h3 className="font-serif text-[22px] leading-[1.2] tracking-[-0.015em] text-foreground">
+                <h3 className="text-foreground font-serif text-[22px] leading-[1.2] tracking-[-0.015em]">
                   {m.title}
                 </h3>
-                <p className="mt-2.5 text-[14.5px] leading-[1.6] text-text-2">
-                  {m.description}
-                </p>
+                <p className="text-text-2 mt-2.5 text-[14.5px] leading-[1.6]">{m.description}</p>
               </article>
             </Reveal>
           ))}

@@ -70,9 +70,7 @@ export function SessionWorkspace({ detail }: Props) {
   const isReadOnly = isClosed || isCancelled
 
   const [participants, setParticipants] = useState(detail.participants)
-  const [participantSavingId, setParticipantSavingId] = useState<string | null>(
-    null,
-  )
+  const [participantSavingId, setParticipantSavingId] = useState<string | null>(null)
   const [participantError, setParticipantError] = useState<string | null>(null)
 
   const [topic, setTopic] = useState(detail.log?.topic ?? "")
@@ -80,9 +78,7 @@ export function SessionWorkspace({ detail }: Props) {
   const [homework, setHomework] = useState(detail.log?.homework ?? "")
   const [materialsUsed, setMaterialsUsed] = useState(detail.log?.materialsUsed ?? "")
   const [logSaving, startLogSaving] = useTransition()
-  const [logSavedAt, setLogSavedAt] = useState<Date | null>(
-    detail.log ? new Date() : null,
-  )
+  const [logSavedAt, setLogSavedAt] = useState<Date | null>(detail.log ? new Date() : null)
   const [logError, setLogError] = useState<string | null>(null)
 
   const [closeError, setCloseError] = useState<string | null>(null)
@@ -91,7 +87,10 @@ export function SessionWorkspace({ detail }: Props) {
   const [cancelOpen, setCancelOpen] = useState(false)
   const [meetingOpen, setMeetingOpen] = useState(false)
 
-  function pushAttendance(participantId: string, partial: Partial<{ status: AttendanceStatus; notes: string }>) {
+  function pushAttendance(
+    participantId: string,
+    partial: Partial<{ status: AttendanceStatus; notes: string }>,
+  ) {
     const target = participants.find((p) => p.id === participantId)
     if (!target) return
     const merged = {
@@ -171,26 +170,26 @@ export function SessionWorkspace({ detail }: Props) {
       {isClosed && (
         <Alert variant="teal" className="mb-5">
           <span>
-            <strong>Clase cerrada.</strong> La asistencia y la bitácora están
-            congeladas.
+            <strong>Clase cerrada.</strong> La asistencia y la bitácora están congeladas.
           </span>
         </Alert>
       )}
 
       <div className="grid gap-5 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
-        <Card title="Asistencia" subtitle={`${participants.length} ${participants.length === 1 ? "alumno" : "alumnos"}`}>
+        <Card
+          title="Asistencia"
+          subtitle={`${participants.length} ${participants.length === 1 ? "alumno" : "alumnos"}`}
+        >
           {participantError && (
             <Alert variant="danger" className="mb-3">
               {participantError}
             </Alert>
           )}
-          <ul className="divide-y divide-border">
+          <ul className="divide-border divide-y">
             {participants.map((p) => (
               <li key={p.id} className="grid gap-2 py-3 sm:grid-cols-[1fr_180px]">
                 <div>
-                  <p className="text-[14px] font-medium text-foreground">
-                    {p.studentName}
-                  </p>
+                  <p className="text-foreground text-[14px] font-medium">{p.studentName}</p>
                   {p.noticedAbsenceAt && (
                     <AbsenceNotice
                       noticedAt={p.noticedAbsenceAt}
@@ -208,16 +207,16 @@ export function SessionWorkspace({ detail }: Props) {
                         if ((p.notes ?? "") === value) return
                         pushAttendance(p.id, { notes: value })
                       }}
-                      className="mt-1.5 block w-full rounded-md border border-border bg-surface px-3 py-1.5 text-[12.5px] text-foreground transition-colors hover:border-border-strong focus:border-teal-500 focus:outline-none"
+                      className="border-border bg-surface text-foreground hover:border-border-strong mt-1.5 block w-full rounded-md border px-3 py-1.5 text-[12.5px] transition-colors focus:border-teal-500 focus:outline-none"
                     />
                   )}
                   {isReadOnly && p.notes && (
-                    <p className="mt-1 text-[12px] text-text-3">{p.notes}</p>
+                    <p className="text-text-3 mt-1 text-[12px]">{p.notes}</p>
                   )}
                 </div>
                 <div className="sm:justify-self-end">
                   {isReadOnly ? (
-                    <span className="font-mono text-[12.5px] text-text-2">
+                    <span className="text-text-2 font-mono text-[12.5px]">
                       {ATTENDANCE_OPTIONS.find((o) => o.value === p.attendance)?.label ?? "—"}
                     </span>
                   ) : (
@@ -230,8 +229,8 @@ export function SessionWorkspace({ detail }: Props) {
                       }
                       disabled={participantSavingId === p.id}
                       className={cn(
-                        "block w-full rounded-md border bg-surface px-3 py-2 text-[13.5px] text-foreground",
-                        "transition-colors hover:border-border-strong focus:border-teal-500 focus:outline-none",
+                        "bg-surface text-foreground block w-full rounded-md border px-3 py-2 text-[13.5px]",
+                        "hover:border-border-strong transition-colors focus:border-teal-500 focus:outline-none",
                         attendanceBorderClass(p.attendance),
                       )}
                     >
@@ -301,7 +300,7 @@ export function SessionWorkspace({ detail }: Props) {
 
               <div className="mt-3 flex items-center justify-end gap-2">
                 {logSavedAt && !logError && (
-                  <span className="inline-flex items-center gap-1 text-[12px] text-text-3">
+                  <span className="text-text-3 inline-flex items-center gap-1 text-[12px]">
                     <Check size={12} strokeWidth={1.6} className="text-teal-500" />
                     Guardado
                   </span>
@@ -313,9 +312,7 @@ export function SessionWorkspace({ detail }: Props) {
                   onClick={saveLog}
                   disabled={logSaving}
                 >
-                  {logSaving && (
-                    <Loader2 size={13} strokeWidth={1.6} className="animate-spin" />
-                  )}
+                  {logSaving && <Loader2 size={13} strokeWidth={1.6} className="animate-spin" />}
                   Guardar bitácora
                 </Button>
               </div>
@@ -325,7 +322,7 @@ export function SessionWorkspace({ detail }: Props) {
       </div>
 
       {!isReadOnly && (
-        <div className="mt-6 flex flex-wrap items-center justify-end gap-3 border-t border-border pt-5">
+        <div className="border-border mt-6 flex flex-wrap items-center justify-end gap-3 border-t pt-5">
           {closeError && (
             <Alert variant="danger" className="w-full">
               {closeError}
@@ -391,22 +388,18 @@ function Header({
   onEditMeeting: () => void
 }) {
   const dateLabel = formatGuayaquilDateLabel(detail.scheduledStart)
-  const timeLabel = formatGuayaquilTimeRange(
-    detail.scheduledStart,
-    detail.scheduledEnd,
-  )
-  const isVirtualOrHybrid =
-    detail.modality === "VIRTUAL" || detail.modality === "HIBRIDO"
+  const timeLabel = formatGuayaquilTimeRange(detail.scheduledStart, detail.scheduledEnd)
+  const isVirtualOrHybrid = detail.modality === "VIRTUAL" || detail.modality === "HIBRIDO"
   return (
     <header className="mb-6 flex flex-wrap items-end justify-between gap-3">
       <div>
-        <p className="mb-2 font-mono text-[12px] uppercase tracking-[0.08em] text-text-3">
+        <p className="text-text-3 mb-2 font-mono text-[12px] tracking-[0.08em] uppercase">
           {detail.programLabel}
         </p>
-        <h1 className="font-serif text-[28px] font-normal leading-[1.18] tracking-[-0.02em]">
+        <h1 className="font-serif text-[28px] leading-[1.18] font-normal tracking-[-0.02em]">
           {detail.classGroupName}
         </h1>
-        <div className="mt-2 flex flex-wrap items-baseline gap-3 text-[13.5px] text-text-3">
+        <div className="text-text-3 mt-2 flex flex-wrap items-baseline gap-3 text-[13.5px]">
           <span>{dateLabel}</span>
           <span aria-hidden>·</span>
           <span className="font-mono">{timeLabel}</span>
@@ -427,7 +420,7 @@ function Header({
                 <button
                   type="button"
                   onClick={onEditMeeting}
-                  className="inline-flex items-center gap-1 text-text-3 transition-colors hover:text-foreground"
+                  className="text-text-3 hover:text-foreground inline-flex items-center gap-1 transition-colors"
                   aria-label="Editar link de la clase"
                 >
                   <Pencil size={11} strokeWidth={1.6} />
@@ -441,7 +434,7 @@ function Header({
               <button
                 type="button"
                 onClick={onEditMeeting}
-                className="inline-flex items-center gap-1 rounded-md border border-warning/40 bg-warning/10 px-2 py-0.5 text-warning transition-colors hover:bg-warning/20"
+                className="border-warning/40 bg-warning/10 text-warning hover:bg-warning/20 inline-flex items-center gap-1 rounded-md border px-2 py-0.5 transition-colors"
               >
                 <Plus size={11} strokeWidth={1.6} />
                 Cargar link de la clase
@@ -456,7 +449,7 @@ function Header({
           )}
         </div>
       </div>
-      <span className="font-mono text-[12px] uppercase tracking-[0.08em] text-text-3">
+      <span className="text-text-3 font-mono text-[12px] tracking-[0.08em] uppercase">
         {STATUS_LABEL[detail.status]}
       </span>
     </header>
@@ -473,25 +466,17 @@ function Card({
   children: React.ReactNode
 }) {
   return (
-    <section className="rounded-xl border border-border bg-surface px-5 py-5">
+    <section className="border-border bg-surface rounded-xl border px-5 py-5">
       <header className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
-        <h2 className="font-serif text-[18px] font-normal text-foreground">
-          {title}
-        </h2>
-        {subtitle && (
-          <span className="text-[12.5px] text-text-3">{subtitle}</span>
-        )}
+        <h2 className="text-foreground font-serif text-[18px] font-normal">{title}</h2>
+        {subtitle && <span className="text-text-3 text-[12.5px]">{subtitle}</span>}
       </header>
       {children}
     </section>
   )
 }
 
-function ReadOnlyLog({
-  log,
-}: {
-  log: NonNullable<ClassSessionDetail["log"]>
-}) {
+function ReadOnlyLog({ log }: { log: NonNullable<ClassSessionDetail["log"]> }) {
   return (
     <dl className="space-y-3 text-[13.5px]">
       <Field label="Tema">{log.topic}</Field>
@@ -502,19 +487,13 @@ function ReadOnlyLog({
   )
 }
 
-function Field({
-  label,
-  children,
-}: {
-  label: string
-  children: React.ReactNode
-}) {
+function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div>
-      <dt className="mb-0.5 font-mono text-[11px] uppercase tracking-[0.08em] text-text-3">
+      <dt className="text-text-3 mb-0.5 font-mono text-[11px] tracking-[0.08em] uppercase">
         {label}
       </dt>
-      <dd className="whitespace-pre-wrap text-text-2">{children}</dd>
+      <dd className="text-text-2 whitespace-pre-wrap">{children}</dd>
     </div>
   )
 }
@@ -561,8 +540,8 @@ function CancelDialog({
         <DialogHeader>
           <DialogTitle>Cancelar clase</DialogTitle>
           <DialogDescription>
-            La clase queda cancelada. No se cuentan horas. Esta acción no se
-            puede deshacer desde acá.
+            La clase queda cancelada. No se cuentan horas. Esta acción no se puede deshacer desde
+            acá.
           </DialogDescription>
         </DialogHeader>
         <DialogBody>
@@ -590,8 +569,8 @@ function CancelDialog({
                 {hoursToStart === 0
                   ? "menos de 1 hora"
                   : `${hoursToStart} ${hoursToStart === 1 ? "hora" : "horas"}`}{" "}
-                para la clase. Por política, esta cancelación queda registrada
-                como tardía y no se contabilizan horas para el pago al docente.
+                para la clase. Por política, esta cancelación queda registrada como tardía y no se
+                contabilizan horas para el pago al docente.
               </span>
             </Alert>
           ) : (
@@ -611,13 +590,7 @@ function CancelDialog({
           >
             Volver
           </Button>
-          <Button
-            type="button"
-            variant="danger"
-            size="md"
-            onClick={handleConfirm}
-            disabled={busy}
-          >
+          <Button type="button" variant="danger" size="md" onClick={handleConfirm} disabled={busy}>
             {busy && <Loader2 size={14} strokeWidth={1.6} className="animate-spin" />}
             Cancelar clase
           </Button>
@@ -649,8 +622,8 @@ function AbsenceNotice({
     >
       <AlertTriangle size={11} strokeWidth={1.6} />
       <span>
-        {isLate ? "Avisó tarde " : "Avisó "}
-        ({Math.max(0, Math.round(advanceMs / 3_600_000))}h antes)
+        {isLate ? "Avisó tarde " : "Avisó "}({Math.max(0, Math.round(advanceMs / 3_600_000))}h
+        antes)
         {note && (
           <>
             {" — "}

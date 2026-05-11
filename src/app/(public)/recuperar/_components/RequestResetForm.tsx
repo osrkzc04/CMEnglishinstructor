@@ -31,18 +31,12 @@ export function RequestResetForm() {
   if (submitted) {
     return (
       <div className="flex items-start gap-3 rounded-lg border border-teal-500/35 bg-teal-500/[0.06] px-4 py-4">
-        <Check
-          size={16}
-          strokeWidth={1.8}
-          className="mt-0.5 shrink-0 text-teal-500"
-        />
+        <Check size={16} strokeWidth={1.8} className="mt-0.5 shrink-0 text-teal-500" />
         <div>
-          <p className="text-[14px] font-medium text-foreground">
-            Revisá tu correo
-          </p>
-          <p className="mt-1 text-[13px] leading-[1.55] text-text-2">
-            Si el correo está registrado, te llegará un enlace para restablecer
-            la contraseña en los próximos minutos.
+          <p className="text-foreground text-[14px] font-medium">Revisá tu correo</p>
+          <p className="text-text-2 mt-1 text-[13px] leading-[1.55]">
+            Si el correo está registrado, te llegará un enlace para restablecer la contraseña en los
+            próximos minutos.
           </p>
         </div>
       </div>
@@ -82,11 +76,11 @@ export function RequestResetForm() {
         type="submit"
         disabled={isPending}
         className={cn(
-          "inline-flex w-full items-center justify-center gap-2.5 rounded-lg border border-ink-900 bg-ink-900 px-4 py-3.5 text-[14px] tracking-[0.005em] text-bone",
+          "border-ink-900 bg-ink-900 text-bone inline-flex w-full items-center justify-center gap-2.5 rounded-lg border px-4 py-3.5 text-[14px] tracking-[0.005em]",
           "transition-colors duration-[150ms]",
-          "hover:bg-teal-500 hover:border-teal-500",
-          "dark:bg-bone dark:text-ink-900 dark:border-bone dark:hover:bg-teal-500 dark:hover:text-bone dark:hover:border-teal-500",
-          "disabled:cursor-not-allowed disabled:opacity-70 disabled:hover:bg-ink-900 disabled:hover:border-ink-900",
+          "hover:border-teal-500 hover:bg-teal-500",
+          "dark:bg-bone dark:text-ink-900 dark:border-bone dark:hover:text-bone dark:hover:border-teal-500 dark:hover:bg-teal-500",
+          "disabled:hover:bg-ink-900 disabled:hover:border-ink-900 disabled:cursor-not-allowed disabled:opacity-70",
           "dark:disabled:hover:bg-bone dark:disabled:hover:border-bone",
         )}
       >

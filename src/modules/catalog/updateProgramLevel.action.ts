@@ -3,10 +3,7 @@
 import { revalidatePath } from "next/cache"
 import { prisma } from "@/lib/prisma"
 import { requireRole } from "@/modules/auth/guards"
-import {
-  ProgramLevelUpdateSchema,
-  type ProgramLevelUpdateInput,
-} from "./schemas"
+import { ProgramLevelUpdateSchema, type ProgramLevelUpdateInput } from "./schemas"
 
 type Result =
   | { success: true }

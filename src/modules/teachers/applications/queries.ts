@@ -2,10 +2,7 @@ import "server-only"
 import { cache } from "react"
 import { Prisma, ApplicationStatus } from "@prisma/client"
 import { prisma } from "@/lib/prisma"
-import {
-  ApplicationListFiltersSchema,
-  type ApplicationListFilters,
-} from "./schemas"
+import { ApplicationListFiltersSchema, type ApplicationListFilters } from "./schemas"
 
 /**
  * Lectura de TeacherApplication para el panel admin. Centraliza la query del
@@ -81,9 +78,7 @@ export async function listApplications(
   }
 }
 
-function buildWhere(
-  filters: ApplicationListFilters,
-): Prisma.TeacherApplicationWhereInput {
+function buildWhere(filters: ApplicationListFilters): Prisma.TeacherApplicationWhereInput {
   const where: Prisma.TeacherApplicationWhereInput = {}
   if (filters.status) where.status = filters.status
   if (filters.q) {
@@ -115,37 +110,35 @@ export type ApplicationDetail = {
   availability: { dayOfWeek: number; startTime: string; endTime: string }[]
 }
 
-export const getApplicationById = cache(
-  async (id: string): Promise<ApplicationDetail | null> => {
-    const row = await prisma.teacherApplication.findUnique({
-      where: { id },
-      include: {
-        appliedLevels: true,
-        proposedAvailability: {
-          orderBy: [{ dayOfWeek: "asc" }, { startTime: "asc" }],
-        },
+export const getApplicationById = cache(async (id: string): Promise<ApplicationDetail | null> => {
+  const row = await prisma.teacherApplication.findUnique({
+    where: { id },
+    include: {
+      appliedLevels: true,
+      proposedAvailability: {
+        orderBy: [{ dayOfWeek: "asc" }, { startTime: "asc" }],
       },
-    })
-    if (!row) return null
-    return {
-      id: row.id,
-      firstName: row.firstName,
-      lastName: row.lastName,
-      email: row.email,
-      phone: row.phone,
-      document: row.document,
-      bio: row.bio,
-      status: row.status,
-      cvStorageKey: row.cvStorageKey,
-      levelIds: row.appliedLevels.map((l) => l.levelId),
-      availability: row.proposedAvailability.map((a) => ({
-        dayOfWeek: a.dayOfWeek,
-        startTime: a.startTime,
-        endTime: a.endTime,
-      })),
-    }
-  },
-)
+    },
+  })
+  if (!row) return null
+  return {
+    id: row.id,
+    firstName: row.firstName,
+    lastName: row.lastName,
+    email: row.email,
+    phone: row.phone,
+    document: row.document,
+    bio: row.bio,
+    status: row.status,
+    cvStorageKey: row.cvStorageKey,
+    levelIds: row.appliedLevels.map((l) => l.levelId),
+    availability: row.proposedAvailability.map((a) => ({
+      dayOfWeek: a.dayOfWeek,
+      startTime: a.startTime,
+      endTime: a.endTime,
+    })),
+  }
+})
 
 // -----------------------------------------------------------------------------
 //  Detalle completo (página /admin/postulaciones/[id])
@@ -211,9 +204,7 @@ export const getApplicationFullDetail = cache(
       consentAcceptedAt: row.consentAcceptedAt,
       reviewedAt: row.reviewedAt,
       rejectionReason: row.rejectionReason,
-      reviewer: reviewer
-        ? { name: `${reviewer.firstName} ${reviewer.lastName}` }
-        : null,
+      reviewer: reviewer ? { name: `${reviewer.firstName} ${reviewer.lastName}` } : null,
       userId: row.userId,
       levels: row.appliedLevels
         .map((al) => ({

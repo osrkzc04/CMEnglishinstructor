@@ -1,9 +1,5 @@
 import "server-only"
-import {
-  AttendanceStatus,
-  Prisma,
-  SessionStatus,
-} from "@prisma/client"
+import { AttendanceStatus, Prisma, SessionStatus } from "@prisma/client"
 import { prisma } from "@/lib/prisma"
 
 /**
@@ -150,9 +146,7 @@ export type ClassSessionDetail = {
   } | null
 }
 
-export async function getClassSessionDetail(
-  id: string,
-): Promise<ClassSessionDetail | null> {
+export async function getClassSessionDetail(id: string): Promise<ClassSessionDetail | null> {
   const row = await prisma.classSession.findUnique({
     where: { id },
     include: {
@@ -349,9 +343,7 @@ export type StudentNextSession = {
   teacherName: string | null
 }
 
-export async function getStudentNextSession(
-  studentId: string,
-): Promise<StudentNextSession | null> {
+export async function getStudentNextSession(studentId: string): Promise<StudentNextSession | null> {
   const row = await prisma.classParticipant.findFirst({
     where: {
       enrollment: { studentId },

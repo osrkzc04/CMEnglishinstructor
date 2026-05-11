@@ -81,16 +81,11 @@ const KIND_BG: Record<CellKind, string> = {
 }
 
 export function MatchHeatmap({ heatmap, selected, onChange, ignoreTeacher }: Props) {
-  const [hover, setHover] = useState<{ dayIdx: number; startSlotIdx: number } | null>(
-    null,
-  )
+  const [hover, setHover] = useState<{ dayIdx: number; startSlotIdx: number } | null>(null)
 
   // Cuántas celdas de 15 min ocupa una clase. Se usa para resaltar el span
   // al pasar el mouse y para la advertencia de "este horario es el INICIO".
-  const cellsPerClass = Math.max(
-    1,
-    Math.ceil(heatmap.durationMinutes / HEATMAP_SLOT_MINUTES),
-  )
+  const cellsPerClass = Math.max(1, Math.ceil(heatmap.durationMinutes / HEATMAP_SLOT_MINUTES))
 
   // Indexar celdas para búsqueda rápida
   const cellMap = new Map<string, (typeof heatmap.cells)[number]>()
@@ -112,10 +107,7 @@ export function MatchHeatmap({ heatmap, selected, onChange, ignoreTeacher }: Pro
   function isInHoverSpan(dayIdx: number, slotIdx: number): boolean {
     if (!hover) return false
     if (hover.dayIdx !== dayIdx) return false
-    return (
-      slotIdx >= hover.startSlotIdx &&
-      slotIdx < hover.startSlotIdx + cellsPerClass
-    )
+    return slotIdx >= hover.startSlotIdx && slotIdx < hover.startSlotIdx + cellsPerClass
   }
 
   function endTimeForStart(startTime: string): string {
@@ -165,24 +157,23 @@ export function MatchHeatmap({ heatmap, selected, onChange, ignoreTeacher }: Pro
 
   return (
     <div className="select-none">
-      <div className="mb-3 flex items-start gap-2 rounded-md border border-border bg-bone-50 px-3 py-2 text-[12.5px] text-text-2">
-        <Info size={13} strokeWidth={1.6} className="mt-0.5 shrink-0 text-text-3" />
+      <div className="border-border bg-bone-50 text-text-2 mb-3 flex items-start gap-2 rounded-md border px-3 py-2 text-[12.5px]">
+        <Info size={13} strokeWidth={1.6} className="text-text-3 mt-0.5 shrink-0" />
         <p>
           Cada celda es <strong>el inicio</strong> de una clase de{" "}
-          <span className="font-mono">{heatmap.durationMinutes} min</span>. Pasá
-          el mouse para ver qué celdas ocupa la clase a partir de ahí. Las
-          celdas que aparecen sin color son inicios donde la clase no entra
-          dentro de la franja disponible de alguien.
+          <span className="font-mono">{heatmap.durationMinutes} min</span>. Pasá el mouse para ver
+          qué celdas ocupa la clase a partir de ahí. Las celdas que aparecen sin color son inicios
+          donde la clase no entra dentro de la franja disponible de alguien.
         </p>
       </div>
-      <div className="overflow-hidden rounded-lg border border-border bg-surface">
+      <div className="border-border bg-surface overflow-hidden rounded-lg border">
         {/* Header de días */}
-        <div className="grid grid-cols-[60px_repeat(7,minmax(0,1fr))] border-b border-border bg-surface-alt">
+        <div className="border-border bg-surface-alt grid grid-cols-[60px_repeat(7,minmax(0,1fr))] border-b">
           <div />
           {HEATMAP_DAYS.map((d) => (
             <div
               key={d.idx}
-              className="border-l border-border px-2 py-2 text-center font-mono text-[11px] uppercase tracking-[0.08em] text-text-3"
+              className="border-border text-text-3 border-l px-2 py-2 text-center font-mono text-[11px] tracking-[0.08em] uppercase"
             >
               {d.short}
             </div>
@@ -201,9 +192,9 @@ export function MatchHeatmap({ heatmap, selected, onChange, ignoreTeacher }: Pro
                   className={cn(
                     "flex items-start justify-end pr-2 font-mono tracking-[0.02em]",
                     isHour
-                      ? "border-t border-border text-[10.5px] text-text-3"
+                      ? "border-border text-text-3 border-t text-[10.5px]"
                       : isHalf
-                        ? "text-[10px] text-text-4"
+                        ? "text-text-4 text-[10px]"
                         : "text-text-4",
                   )}
                   style={{
@@ -220,12 +211,9 @@ export function MatchHeatmap({ heatmap, selected, onChange, ignoreTeacher }: Pro
                   const isFirstOfSlot = spanInfo?.isFirst === true
                   const clickable = cell ? cellClickable(cell.kind) : false
                   const conflictName = cell?.teacherConflicts[0]?.classGroupName
-                  const inHoverSpan =
-                    !isInSelectedSpan && isInHoverSpan(d.idx, slotIdx)
+                  const inHoverSpan = !isInSelectedSpan && isInHoverSpan(d.idx, slotIdx)
                   const endTime = endTimeForStart(startTime)
-                  const slotEndTime = isFirstOfSlot
-                    ? endTimeForStart(spanInfo!.startTime)
-                    : ""
+                  const slotEndTime = isFirstOfSlot ? endTimeForStart(spanInfo!.startTime) : ""
 
                   return (
                     <button
@@ -252,9 +240,7 @@ export function MatchHeatmap({ heatmap, selected, onChange, ignoreTeacher }: Pro
                       }}
                       onMouseLeave={() => {
                         setHover((curr) =>
-                          curr &&
-                          curr.dayIdx === d.idx &&
-                          curr.startSlotIdx === slotIdx
+                          curr && curr.dayIdx === d.idx && curr.startSlotIdx === slotIdx
                             ? null
                             : curr,
                         )
@@ -284,40 +270,34 @@ export function MatchHeatmap({ heatmap, selected, onChange, ignoreTeacher }: Pro
                           ? "border-l-teal-700/50"
                           : "border-l-border",
                         isInSelectedSpan && isFirstOfSlot && "border-t-2 border-t-teal-700",
-                        !isInSelectedSpan && isHour && "border-t border-border",
-                        !isInSelectedSpan &&
-                          !isHour &&
-                          isHalf &&
-                          "border-t border-border/30",
+                        !isInSelectedSpan && isHour && "border-border border-t",
+                        !isInSelectedSpan && !isHour && isHalf && "border-border/30 border-t",
                         // Color de fondo según estado
                         isInSelectedSpan &&
-                          "bg-teal-600 text-white hover:bg-teal-700 cursor-pointer",
+                          "cursor-pointer bg-teal-600 text-white hover:bg-teal-700",
                         !isInSelectedSpan && cell && KIND_BG[cell.kind],
                         !cell && !isInSelectedSpan && "bg-surface",
                         // Hover-span ring (solo cuando NO hay slot ya elegido)
-                        inHoverSpan &&
-                          "ring-1 ring-inset ring-teal-500/60 z-10",
+                        inHoverSpan && "z-10 ring-1 ring-teal-500/60 ring-inset",
                       )}
                       style={{ height: `${CELL_HEIGHT_PX}px` }}
                     >
                       {isFirstOfSlot && (
-                        <span className="block text-center font-mono text-[9.5px] font-semibold leading-[14px] tracking-[0.02em] text-white">
+                        <span className="block text-center font-mono text-[9.5px] leading-[14px] font-semibold tracking-[0.02em] text-white">
                           {spanInfo!.startTime}–{slotEndTime}
                         </span>
                       )}
                       {!isInSelectedSpan && cell?.kind === "blocked" && (
-                        <X size={10} strokeWidth={1.6} className="mx-auto text-danger/60" />
+                        <X size={10} strokeWidth={1.6} className="text-danger/60 mx-auto" />
                       )}
                       {/* Solo mostramos n/total cuando hay match parcial real
                          (algunos alumnos sí, algunos no). Si todos cubren o
                          nadie cubre, el color de la celda ya lo dice. */}
-                      {!isInSelectedSpan &&
-                        cell?.kind === "partial" &&
-                        cell.studentsTotal > 1 && (
-                          <span className="block text-center font-mono text-[9.5px] leading-[14px] text-warning">
-                            {cell.studentsCovered}/{cell.studentsTotal}
-                          </span>
-                        )}
+                      {!isInSelectedSpan && cell?.kind === "partial" && cell.studentsTotal > 1 && (
+                        <span className="text-warning block text-center font-mono text-[9.5px] leading-[14px]">
+                          {cell.studentsCovered}/{cell.studentsTotal}
+                        </span>
+                      )}
                     </button>
                   )
                 })}
@@ -334,7 +314,7 @@ export function MatchHeatmap({ heatmap, selected, onChange, ignoreTeacher }: Pro
 
 function Legend() {
   return (
-    <ul className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-[12px] text-text-3">
+    <ul className="text-text-3 mt-3 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-[12px]">
       <LegendItem
         swatchClass="bg-teal-500/40 border border-teal-500/50"
         label="Match — docente y todos los alumnos disponibles"
@@ -343,22 +323,13 @@ function Legend() {
         swatchClass="bg-warning/30 border border-warning/40"
         label="Match parcial — algunos alumnos no cubren (n/total)"
       />
-      <LegendItem
-        swatchClass="bg-info/15 border border-info/30"
-        label="Solo docente disponible"
-      />
-      <LegendItem
-        swatchClass="bg-bone-100 border border-border"
-        label="Sin disponibilidad"
-      />
+      <LegendItem swatchClass="bg-info/15 border border-info/30" label="Solo docente disponible" />
+      <LegendItem swatchClass="bg-bone-100 border border-border" label="Sin disponibilidad" />
       <LegendItem
         swatchClass="bg-danger/15 border border-danger/30"
         label="Choca con otra aula del docente"
       />
-      <LegendItem
-        swatchClass="bg-teal-600 border border-teal-700"
-        label="Slot elegido"
-      />
+      <LegendItem swatchClass="bg-teal-600 border border-teal-700" label="Slot elegido" />
     </ul>
   )
 }

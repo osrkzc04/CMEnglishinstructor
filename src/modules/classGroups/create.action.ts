@@ -52,10 +52,7 @@ export async function createClassGroup(input: NewClassGroupInput): Promise<Resul
   // -----------------------------------------------------------------------
   //  Validación de carga semanal — settings configurables, defaults 2-10h
   // -----------------------------------------------------------------------
-  const { weeklyMinHours, weeklyMaxHours } = await getSettings([
-    "weeklyMinHours",
-    "weeklyMaxHours",
-  ])
+  const { weeklyMinHours, weeklyMaxHours } = await getSettings(["weeklyMinHours", "weeklyMaxHours"])
   const weeklyHours = (data.slots.length * classDuration) / 60
   if (weeklyHours < weeklyMinHours) {
     return {
@@ -88,7 +85,11 @@ export async function createClassGroup(input: NewClassGroupInput): Promise<Resul
       },
     })
     if (found.length !== data.enrollmentIds.length) {
-      return { success: false, error: "Alguna de las matrículas seleccionadas no existe", field: "enrollmentIds" }
+      return {
+        success: false,
+        error: "Alguna de las matrículas seleccionadas no existe",
+        field: "enrollmentIds",
+      }
     }
     const wrongLevel = found.find((e) => e.programLevelId !== data.programLevelId)
     if (wrongLevel) {
@@ -214,7 +215,5 @@ export async function createClassGroup(input: NewClassGroupInput): Promise<Resul
 
 function startOfTodayUTC(): Date {
   const now = new Date()
-  return new Date(
-    Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()),
-  )
+  return new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()))
 }

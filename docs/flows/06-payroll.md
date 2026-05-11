@@ -23,19 +23,23 @@ async function calculateLiveEarnings(teacherId: string, from: Date, to: Date) {
       session: {
         teacherId,
         scheduledStart: { gte: from, lte: to },
-        status: 'COMPLETED',
+        status: "COMPLETED",
       },
       hoursCounted: { gt: 0 },
     },
     include: { session: true, enrollment: { include: { student: { include: { user: true } } } } },
   })
-  
-  const totalHours  = participants.reduce((sum, p) => sum.add(p.hoursCounted), new Decimal(0))
-  const totalAmount = participants.reduce((sum, p) => sum.add(p.hoursCounted.mul(p.rateSnapshot ?? 0)), new Decimal(0))
-  
+
+  const totalHours = participants.reduce((sum, p) => sum.add(p.hoursCounted), new Decimal(0))
+  const totalAmount = participants.reduce(
+    (sum, p) => sum.add(p.hoursCounted.mul(p.rateSnapshot ?? 0)),
+    new Decimal(0),
+  )
+
   return {
     teacherId,
-    from, to,
+    from,
+    to,
     totalHours,
     totalAmount,
     classCount: participants.length,
@@ -55,6 +59,7 @@ Se usa para mostrar el dashboard del docente y la vista del coordinador en tiemp
 **Ruta**: `/docente/facturacion` (guard: `requireRole(['TEACHER', 'DIRECTOR'])`)
 
 Muestra:
+
 - Selector de mes (default: mes actual).
 - Total de horas y monto del periodo.
 - Cantidad de clases dictadas.
@@ -68,6 +73,7 @@ Datos vienen de `calculateLiveEarnings` si no hay `PayrollPeriod` cerrado, o de 
 **Ruta**: `/admin/facturacion` (guard: coordinador/director)
 
 Lista de docentes activos con:
+
 - Nombre.
 - Total del mes en curso (cálculo en vivo).
 - Estado del periodo anterior (DRAFT/CLOSED/PAID).
@@ -78,13 +84,13 @@ Lista de docentes activos con:
 **Action** `close-period.action.ts`:
 
 ```typescript
-import { prisma } from '@/lib/prisma'
-import { Decimal } from '@prisma/client/runtime/library'
+import { prisma } from "@/lib/prisma"
+import { Decimal } from "@prisma/client/runtime/library"
 
 export async function closePayrollPeriod(input: {
   teacherId: string
-  startDate: Date  // ej: 2026-04-01
-  endDate: Date    // ej: 2026-04-30
+  startDate: Date // ej: 2026-04-01
+  endDate: Date // ej: 2026-04-30
   closedBy: string
 }) {
   return prisma.$transaction(async (tx) => {
@@ -96,36 +102,39 @@ export async function closePayrollPeriod(input: {
         endDate: input.endDate,
       },
     })
-    if (existing) throw new AlreadyExistsError('PayrollPeriod')
-    
+    if (existing) throw new AlreadyExistsError("PayrollPeriod")
+
     // Calcular totales (lectura dentro de la transacción para snapshot consistente)
     const participants = await tx.classParticipant.findMany({
       where: {
         session: {
           teacherId: input.teacherId,
           scheduledStart: { gte: input.startDate, lte: input.endDate },
-          status: 'COMPLETED',
+          status: "COMPLETED",
         },
         hoursCounted: { gt: 0 },
       },
     })
-    
-    const totalHours  = participants.reduce((s, p) => s.add(p.hoursCounted), new Decimal(0))
-    const totalAmount = participants.reduce((s, p) => s.add(p.hoursCounted.mul(p.rateSnapshot ?? 0)), new Decimal(0))
-    
+
+    const totalHours = participants.reduce((s, p) => s.add(p.hoursCounted), new Decimal(0))
+    const totalAmount = participants.reduce(
+      (s, p) => s.add(p.hoursCounted.mul(p.rateSnapshot ?? 0)),
+      new Decimal(0),
+    )
+
     const period = await tx.payrollPeriod.create({
       data: {
         teacherId: input.teacherId,
         startDate: input.startDate,
-        endDate:   input.endDate,
+        endDate: input.endDate,
         totalHours,
         totalAmount,
-        status: 'CLOSED',
+        status: "CLOSED",
         closedBy: input.closedBy,
         closedAt: new Date(),
       },
     })
-    
+
     return period
   })
 }
@@ -137,7 +146,7 @@ Después del commit:
 
 ```typescript
 await enqueueEmail({
-  type: 'PAYROLL_CLOSED',
+  type: "PAYROLL_CLOSED",
   to: teacherEmail,
   templateData: { period, totalHours, totalAmount, breakdown },
 })
@@ -152,14 +161,14 @@ Si la directora descubre un error en una clase ya facturada:
 ```typescript
 await prisma.payrollPeriod.update({
   where: { id: periodId },
-  data: { status: 'DRAFT', closedAt: null, closedBy: null },
+  data: { status: "DRAFT", closedAt: null, closedBy: null },
 })
 
 await prisma.auditLog.create({
   data: {
     userId: directorId,
-    action: 'payroll.reopen',
-    entityType: 'PayrollPeriod',
+    action: "payroll.reopen",
+    entityType: "PayrollPeriod",
     entityId: periodId,
     metadata: { reason },
   },
@@ -175,7 +184,7 @@ Una vez reabierto, las sesiones del rango pueden editarse. Debe re-cerrarse desp
 ```typescript
 await prisma.payrollPeriod.update({
   where: { id: periodId },
-  data: { status: 'PAID', paidAt: new Date() },
+  data: { status: "PAID", paidAt: new Date() },
 })
 ```
 
@@ -190,6 +199,7 @@ A partir de aquí no se puede ni reabrir sin una "Reversión de pago" (acción a
 **Ruta**: `/admin/facturacion/[id]/comprobante.pdf`
 
 Genera PDF con:
+
 - Datos del docente.
 - Periodo (fechas).
 - Tabla de clases (fecha, estudiante, duración, tarifa, monto).

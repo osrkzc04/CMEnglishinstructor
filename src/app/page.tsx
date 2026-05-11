@@ -31,7 +31,7 @@ export default async function HomePage() {
   if (user) redirect(dashboardPathFor(user.role))
 
   return (
-    <div className="flex min-h-screen flex-col bg-background text-foreground">
+    <div className="bg-background text-foreground flex min-h-screen flex-col">
       <MarketingNav />
       <main>
         <MarketingHero />

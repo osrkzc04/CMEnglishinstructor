@@ -29,11 +29,11 @@ export function StatusActions({ classGroupId, status }: Props) {
 
   if (status !== ClassGroupStatus.ACTIVE) {
     return (
-      <section className="rounded-xl border border-border bg-surface p-5 lg:p-6">
-        <h2 className="mb-2 font-serif text-[18px] font-normal tracking-[-0.01em] text-foreground">
+      <section className="border-border bg-surface rounded-xl border p-5 lg:p-6">
+        <h2 className="text-foreground mb-2 font-serif text-[18px] font-normal tracking-[-0.01em]">
           Estado
         </h2>
-        <p className="text-[13px] text-text-3">
+        <p className="text-text-3 text-[13px]">
           {status === ClassGroupStatus.COMPLETED
             ? "Aula cerrada — los datos quedan como histórico."
             : "Aula cancelada — las matrículas fueron liberadas."}
@@ -43,8 +43,8 @@ export function StatusActions({ classGroupId, status }: Props) {
   }
 
   return (
-    <section className="rounded-xl border border-border bg-surface p-5 lg:p-6">
-      <h2 className="mb-4 font-serif text-[18px] font-normal tracking-[-0.01em] text-foreground">
+    <section className="border-border bg-surface rounded-xl border p-5 lg:p-6">
+      <h2 className="text-foreground mb-4 font-serif text-[18px] font-normal tracking-[-0.01em]">
         Acciones del aula
       </h2>
       <div className="flex flex-col gap-2">
@@ -118,9 +118,7 @@ function ConfirmStatusDialog({
     <Dialog open onOpenChange={(open) => !open && onClose()}>
       <DialogContent size="sm">
         <DialogHeader>
-          <DialogTitle>
-            {isCancel ? "Cancelar aula" : "Cerrar aula"}
-          </DialogTitle>
+          <DialogTitle>{isCancel ? "Cancelar aula" : "Cerrar aula"}</DialogTitle>
           <DialogDescription>
             {isCancel
               ? "Las matrículas quedan en espera de aula. Los datos históricos (clases dictadas, asistencia) se preservan."

@@ -25,8 +25,7 @@ export async function requireSessionEditor(sessionId: string): Promise<{
   if (!session) throw new ForbiddenError("Sesión no encontrada")
 
   const isAdmin = user.role === "DIRECTOR" || user.role === "COORDINATOR"
-  const isAssignedTeacher =
-    user.role === "TEACHER" && user.id === session.teacherId
+  const isAssignedTeacher = user.role === "TEACHER" && user.id === session.teacherId
   if (!isAdmin && !isAssignedTeacher) throw new ForbiddenError()
 
   return { userId: user.id, teacherId: session.teacherId, isAdmin }

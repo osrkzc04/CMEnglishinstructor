@@ -72,9 +72,9 @@ export function MarketingNav() {
   // su top cruza la franja entre 35% y 45% del viewport (ese rango se logra
   // con el `rootMargin` negativo arriba y abajo).
   useEffect(() => {
-    const targets = NAV_SECTIONS
-      .map((s) => document.getElementById(s.id))
-      .filter((el): el is HTMLElement => el !== null)
+    const targets = NAV_SECTIONS.map((s) => document.getElementById(s.id)).filter(
+      (el): el is HTMLElement => el !== null,
+    )
     if (targets.length === 0) return
 
     const observer = new IntersectionObserver(
@@ -115,16 +115,15 @@ export function MarketingNav() {
     <>
       <header
         className={cn(
-          "sticky top-0 z-30 h-[60px] border-b border-ink-700/40 bg-ink-900 text-bone transition-shadow duration-300 ease-out",
-          scrolled &&
-            "shadow-[0_1px_0_rgba(35,54,65,0.5),0_12px_32px_-16px_rgba(0,0,0,0.45)]",
+          "border-ink-700/40 bg-ink-900 text-bone sticky top-0 z-30 h-[60px] border-b transition-shadow duration-300 ease-out",
+          scrolled && "shadow-[0_1px_0_rgba(35,54,65,0.5),0_12px_32px_-16px_rgba(0,0,0,0.45)]",
         )}
       >
         <div className="mx-auto flex h-full w-full max-w-[1180px] items-center px-6">
           {/* Brand */}
           <Link
             href="/"
-            className="flex items-center gap-2.5 text-bone transition-colors hover:text-bone"
+            className="text-bone hover:text-bone flex items-center gap-2.5 transition-colors"
             aria-label="CM English Instructor — inicio"
           >
             <BrandMark className="text-bone" size={22} />
@@ -135,7 +134,7 @@ export function MarketingNav() {
           <div className="ml-auto flex items-center gap-6">
             <nav
               aria-label="Secciones"
-              className="hidden items-center gap-6 text-[15px] text-bone/65 lg:flex"
+              className="text-bone/65 hidden items-center gap-6 text-[15px] lg:flex"
             >
               {NAV_SECTIONS.filter((s) => s.desktop).map((section) => (
                 <NavLink
@@ -149,21 +148,18 @@ export function MarketingNav() {
             </nav>
 
             {/* Divisor editorial entre nav y botones */}
-            <span
-              aria-hidden
-              className="hidden h-6 w-px shrink-0 bg-bone/15 lg:block"
-            />
+            <span aria-hidden className="bg-bone/15 hidden h-6 w-px shrink-0 lg:block" />
 
             <div className="flex items-center gap-2">
               <Link
                 href="/login"
-                className="hidden h-10 items-center rounded-md border border-bone/20 bg-transparent px-4 text-[14.5px] text-bone/85 transition-colors hover:border-bone/40 hover:bg-bone/5 hover:text-bone md:inline-flex"
+                className="border-bone/20 text-bone/85 hover:border-bone/40 hover:bg-bone/5 hover:text-bone hidden h-10 items-center rounded-md border bg-transparent px-4 text-[14.5px] transition-colors md:inline-flex"
               >
                 Ingresar
               </Link>
               <a
                 href="#contacto"
-                className="group hidden h-10 items-center gap-1.5 rounded-md bg-teal-500 px-4 text-[14.5px] font-medium text-bone transition-colors hover:bg-teal-700 md:inline-flex"
+                className="group text-bone hidden h-10 items-center gap-1.5 rounded-md bg-teal-500 px-4 text-[14.5px] font-medium transition-colors hover:bg-teal-700 md:inline-flex"
               >
                 Conversemos
                 <ArrowRight
@@ -179,7 +175,7 @@ export function MarketingNav() {
                 onClick={() => setMobileOpen(true)}
                 aria-label="Abrir menú"
                 aria-expanded={mobileOpen}
-                className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-bone/20 bg-transparent text-bone transition-colors hover:border-bone/40 hover:bg-bone/5 lg:hidden"
+                className="border-bone/20 text-bone hover:border-bone/40 hover:bg-bone/5 inline-flex h-9 w-9 items-center justify-center rounded-md border bg-transparent transition-colors lg:hidden"
               >
                 <Menu size={18} strokeWidth={1.6} />
               </button>
@@ -223,7 +219,7 @@ function NavLink({
       <span
         aria-hidden
         className={cn(
-          "absolute -bottom-0.5 left-0 right-0 h-px bg-teal-500 transition-transform duration-300 ease-out",
+          "absolute right-0 -bottom-0.5 left-0 h-px bg-teal-500 transition-transform duration-300 ease-out",
           active ? "scale-x-100" : "scale-x-0",
         )}
       />
@@ -252,7 +248,7 @@ function MobileDrawer({
         tabIndex={open ? 0 : -1}
         onClick={onClose}
         className={cn(
-          "fixed inset-0 z-40 bg-ink-950/65 backdrop-blur-sm transition-opacity duration-300 lg:hidden",
+          "bg-ink-950/65 fixed inset-0 z-40 backdrop-blur-sm transition-opacity duration-300 lg:hidden",
           open ? "opacity-100" : "pointer-events-none opacity-0",
         )}
       />
@@ -260,28 +256,25 @@ function MobileDrawer({
       <aside
         aria-hidden={!open}
         className={cn(
-          "fixed right-0 top-0 z-50 flex h-full w-full max-w-[360px] flex-col bg-ink-900 text-bone shadow-[-12px_0_32px_-12px_rgba(0,0,0,0.5)] transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] lg:hidden",
+          "bg-ink-900 text-bone fixed top-0 right-0 z-50 flex h-full w-full max-w-[360px] flex-col shadow-[-12px_0_32px_-12px_rgba(0,0,0,0.5)] transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] lg:hidden",
           open ? "translate-x-0" : "translate-x-full",
         )}
       >
-        <div className="flex h-[60px] shrink-0 items-center justify-between border-b border-bone/10 px-6">
-          <span className="font-mono text-[11px] uppercase tracking-[0.12em] text-bone/55">
+        <div className="border-bone/10 flex h-[60px] shrink-0 items-center justify-between border-b px-6">
+          <span className="text-bone/55 font-mono text-[11px] tracking-[0.12em] uppercase">
             Menú
           </span>
           <button
             type="button"
             onClick={onClose}
             aria-label="Cerrar menú"
-            className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-bone/20 bg-transparent text-bone transition-colors hover:border-bone/40 hover:bg-bone/5"
+            className="border-bone/20 text-bone hover:border-bone/40 hover:bg-bone/5 inline-flex h-9 w-9 items-center justify-center rounded-md border bg-transparent transition-colors"
           >
             <X size={18} strokeWidth={1.6} />
           </button>
         </div>
 
-        <nav
-          aria-label="Secciones"
-          className="flex flex-1 flex-col overflow-y-auto px-6 pt-2"
-        >
+        <nav aria-label="Secciones" className="flex flex-1 flex-col overflow-y-auto px-6 pt-2">
           {NAV_SECTIONS.map((section) => (
             <a
               key={section.id}
@@ -289,10 +282,8 @@ function MobileDrawer({
               onClick={onClose}
               aria-current={activeSection === section.id ? "true" : undefined}
               className={cn(
-                "border-b border-bone/10 py-4 font-serif text-[20px] tracking-[-0.01em] transition-colors",
-                activeSection === section.id
-                  ? "text-teal-500"
-                  : "text-bone hover:text-teal-500",
+                "border-bone/10 border-b py-4 font-serif text-[20px] tracking-[-0.01em] transition-colors",
+                activeSection === section.id ? "text-teal-500" : "text-bone hover:text-teal-500",
               )}
             >
               {section.label}
@@ -300,11 +291,11 @@ function MobileDrawer({
           ))}
         </nav>
 
-        <div className="flex flex-col gap-2 border-t border-bone/10 p-6">
+        <div className="border-bone/10 flex flex-col gap-2 border-t p-6">
           <a
             href="#contacto"
             onClick={onClose}
-            className="group inline-flex items-center justify-center gap-2 rounded-md bg-teal-500 px-5 py-3 text-[14px] font-medium text-bone transition-colors hover:bg-teal-700"
+            className="group text-bone inline-flex items-center justify-center gap-2 rounded-md bg-teal-500 px-5 py-3 text-[14px] font-medium transition-colors hover:bg-teal-700"
           >
             Conversemos
             <ArrowRight
@@ -316,14 +307,14 @@ function MobileDrawer({
           <Link
             href="/postular-docente"
             onClick={onClose}
-            className="inline-flex items-center justify-center rounded-md border border-bone/20 bg-transparent px-5 py-3 text-[14px] text-bone/85 transition-colors hover:border-bone/40 hover:bg-bone/5 hover:text-bone"
+            className="border-bone/20 text-bone/85 hover:border-bone/40 hover:bg-bone/5 hover:text-bone inline-flex items-center justify-center rounded-md border bg-transparent px-5 py-3 text-[14px] transition-colors"
           >
             Postular como docente
           </Link>
           <Link
             href="/login"
             onClick={onClose}
-            className="inline-flex items-center justify-center rounded-md border border-bone/20 bg-transparent px-5 py-3 text-[14px] text-bone/85 transition-colors hover:border-bone/40 hover:bg-bone/5 hover:text-bone"
+            className="border-bone/20 text-bone/85 hover:border-bone/40 hover:bg-bone/5 hover:text-bone inline-flex items-center justify-center rounded-md border bg-transparent px-5 py-3 text-[14px] transition-colors"
           >
             Ingresar
           </Link>

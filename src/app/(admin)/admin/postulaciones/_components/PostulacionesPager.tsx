@@ -43,9 +43,12 @@ export function PostulacionesPager({
 
   return (
     <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
-      <p className="font-mono text-[12px] tracking-[0.02em] text-text-3">
-        Mostrando <span className="text-foreground">{start}–{end}</span> de{" "}
-        <span className="text-foreground">{total}</span>
+      <p className="text-text-3 font-mono text-[12px] tracking-[0.02em]">
+        Mostrando{" "}
+        <span className="text-foreground">
+          {start}–{end}
+        </span>{" "}
+        de <span className="text-foreground">{total}</span>
       </p>
       <Pagination>
         <PaginationPrev disabled={page <= 1} onClick={() => goTo(page - 1)} />
@@ -54,34 +57,24 @@ export function PostulacionesPager({
             <span
               key={`ellipsis-${i}`}
               aria-hidden
-              className="inline-flex min-w-8 items-center justify-center font-mono text-[12.5px] text-text-3"
+              className="text-text-3 inline-flex min-w-8 items-center justify-center font-mono text-[12.5px]"
             >
               …
             </span>
           ) : (
-            <PaginationItem
-              key={p}
-              isCurrent={p === page}
-              onClick={() => goTo(p)}
-            >
+            <PaginationItem key={p} isCurrent={p === page} onClick={() => goTo(p)}>
               {p}
             </PaginationItem>
           ),
         )}
-        <PaginationNext
-          disabled={page >= totalPages}
-          onClick={() => goTo(page + 1)}
-        />
+        <PaginationNext disabled={page >= totalPages} onClick={() => goTo(page + 1)} />
       </Pagination>
     </div>
   )
 }
 
 /** Devuelve la ventana de páginas con elipsis: ej. [1, "…", 4, 5, 6, "…", 12]. */
-function computePageWindow(
-  current: number,
-  total: number,
-): (number | "…")[] {
+function computePageWindow(current: number, total: number): (number | "…")[] {
   if (total <= 7) {
     return Array.from({ length: total }, (_, i) => i + 1)
   }

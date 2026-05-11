@@ -25,6 +25,7 @@ Este flujo se compone de tres sub-flujos que pueden estar separados en el tiempo
 **Ruta**: `/admin/pruebas/invitaciones/nueva` (guard: coordinador/director)
 
 **Formulario**:
+
 - Datos del candidato: nombre, email, documento, teléfono.
 - `TestTemplate` a usar (select filtrado por `purpose=PLACEMENT`).
 - Notas internas (opcional).
@@ -32,15 +33,18 @@ Este flujo se compone de tres sub-flujos que pueden estar separados en el tiempo
 **Server Action** `create.action.ts`:
 
 ```typescript
-const token = crypto.randomBytes(32).toString('hex')
-const expHours = await getSetting<number>('invite_token_expiration_hours')
+const token = crypto.randomBytes(32).toString("hex")
+const expHours = await getSetting<number>("invite_token_expiration_hours")
 
 await prisma.$transaction(async (tx) => {
   const invite = await tx.inviteToken.create({
     data: {
       token,
       templateId,
-      candidateName, candidateEmail, candidateDocument, candidatePhone,
+      candidateName,
+      candidateEmail,
+      candidateDocument,
+      candidatePhone,
       notes,
       expiresAt: new Date(Date.now() + expHours * 3600_000),
       createdBy: session.user.id,
@@ -50,7 +54,7 @@ await prisma.$transaction(async (tx) => {
 
 // Fuera de la transacción:
 await enqueueEmail({
-  type: 'TEST_INVITATION',
+  type: "TEST_INVITATION",
   to: candidateEmail,
   templateData: {
     candidateName,
@@ -78,6 +82,7 @@ Detallado en `03-test-session.md`. Resumen:
 **Ruta**: `/admin/pruebas/resultados/[id]` (guard: director)
 
 Vista:
+
 - Datos del candidato.
 - Auto-score ya calculado para multiple choice.
 - Lista de preguntas fill-in con respuesta del candidato + input para asignar puntos.
@@ -101,11 +106,11 @@ await prisma.$transaction(async (tx) => {
       },
     })
   }
-  
+
   // Calcular finalScore
   const all = await tx.testSessionQuestion.findMany({ where: { sessionId } })
   const finalScore = all.reduce((sum, q) => sum + (q.pointsAwarded ?? 0), 0)
-  
+
   await tx.testSession.update({
     where: { id: sessionId },
     data: {
@@ -133,6 +138,7 @@ if (canView) {
 Busca al candidato por email o documento → muestra pruebas revisadas.
 
 Al seleccionar la prueba, abre formulario de matrícula **con campos pre-llenados**:
+
 - Datos personales del candidato (desde `TestSession` y `InviteToken`).
 - Idioma del curso (derivado del `TestTemplate.languageId`).
 - **Curso** (`Course`): select filtrado por idioma.
@@ -148,27 +154,30 @@ Al seleccionar la prueba, abre formulario de matrícula **con campos pre-llenado
 ```typescript
 await prisma.$transaction(async (tx) => {
   const tempPassword = generateTempPassword()
-  
+
   // 1. Crear User (rol STUDENT)
   const user = await tx.user.create({
     data: {
       email: candidateEmail,
       passwordHash: await hash(tempPassword, 10),
-      firstName, lastName, document, phone,
-      role: 'STUDENT',
+      firstName,
+      lastName,
+      document,
+      phone,
+      role: "STUDENT",
     },
   })
-  
+
   // 2. Crear StudentProfile
   await tx.studentProfile.create({
     data: { userId: user.id, company, position },
   })
-  
+
   // 3. Horario preferido
   await tx.studentPreferredSchedule.createMany({
-    data: preferredSlots.map(s => ({ studentId: user.id, ...s })),
+    data: preferredSlots.map((s) => ({ studentId: user.id, ...s })),
   })
-  
+
   // 4. Enrollment (con link a placementTest)
   const enrollment = await tx.enrollment.create({
     data: {
@@ -177,17 +186,17 @@ await prisma.$transaction(async (tx) => {
       modality,
       contractedHours,
       startDate: new Date(),
-      status: 'ACTIVE',
+      status: "ACTIVE",
       placementTestId: testSessionId,
     },
   })
-  
+
   return { user, enrollment, tempPassword }
 })
 
 // Fuera:
 await enqueueEmail({
-  type: 'ENROLLMENT_CONFIRMATION',
+  type: "ENROLLMENT_CONFIRMATION",
   to: candidateEmail,
   templateData: { firstName, courseName, programLevelName, loginUrl, tempPassword },
 })

@@ -3,15 +3,10 @@
 import { revalidatePath } from "next/cache"
 import { SessionCancelledBy, SessionStatus } from "@prisma/client"
 import { prisma } from "@/lib/prisma"
-import {
-  CancelClassSessionSchema,
-  type CancelClassSessionInput,
-} from "./schemas"
+import { CancelClassSessionSchema, type CancelClassSessionInput } from "./schemas"
 import { requireSessionEditor } from "./authorize"
 
-type Result =
-  | { success: true; timeliness: "TIMELY" | "LATE" }
-  | { success: false; error: string }
+type Result = { success: true; timeliness: "TIMELY" | "LATE" } | { success: false; error: string }
 
 const TWENTY_FOUR_HOURS_MS = 24 * 60 * 60 * 1000
 
@@ -26,9 +21,7 @@ const TWENTY_FOUR_HOURS_MS = 24 * 60 * 60 * 1000
  * Cancelar después del cierre no se permite — revertir un cierre necesita
  * una operación inversa que ajuste `consumedHours` (en backlog).
  */
-export async function cancelClassSession(
-  input: CancelClassSessionInput,
-): Promise<Result> {
+export async function cancelClassSession(input: CancelClassSessionInput): Promise<Result> {
   const parsed = CancelClassSessionSchema.safeParse(input)
   if (!parsed.success) {
     return { success: false, error: parsed.error.issues[0]?.message ?? "Datos inválidos" }
@@ -48,12 +41,9 @@ export async function cancelClassSession(
 
   const now = new Date()
   const advanceMs = session.scheduledStart.getTime() - now.getTime()
-  const timeliness: "TIMELY" | "LATE" =
-    advanceMs >= TWENTY_FOUR_HOURS_MS ? "TIMELY" : "LATE"
+  const timeliness: "TIMELY" | "LATE" = advanceMs >= TWENTY_FOUR_HOURS_MS ? "TIMELY" : "LATE"
 
-  const cancelledBy = editor.isAdmin
-    ? SessionCancelledBy.ADMIN
-    : SessionCancelledBy.TEACHER
+  const cancelledBy = editor.isAdmin ? SessionCancelledBy.ADMIN : SessionCancelledBy.TEACHER
 
   await prisma.classSession.update({
     where: { id: data.sessionId },

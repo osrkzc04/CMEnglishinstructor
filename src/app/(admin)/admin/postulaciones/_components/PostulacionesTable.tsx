@@ -22,7 +22,7 @@ import type { ApplicationListItem } from "@/modules/teachers/applications/querie
 export function PostulacionesTable({ items }: { items: ApplicationListItem[] }) {
   if (items.length === 0) {
     return (
-      <div className="rounded-xl border border-border bg-surface">
+      <div className="border-border bg-surface rounded-xl border">
         <EmptyState
           title="Sin resultados"
           description="No hay postulaciones que coincidan con los filtros."
@@ -32,7 +32,7 @@ export function PostulacionesTable({ items }: { items: ApplicationListItem[] }) 
   }
 
   return (
-    <div className="overflow-hidden rounded-xl border border-border bg-surface">
+    <div className="border-border bg-surface overflow-hidden rounded-xl border">
       <Table>
         <TableHeader>
           <tr>
@@ -48,16 +48,16 @@ export function PostulacionesTable({ items }: { items: ApplicationListItem[] }) 
           {items.map((row) => (
             <TableRow key={row.id}>
               <TableCell>
-                <div className="font-medium text-foreground">
+                <div className="text-foreground font-medium">
                   {row.firstName} {row.lastName}
                 </div>
-                <div className="mt-0.5 font-mono text-[12px] tracking-[0.02em] text-text-3">
+                <div className="text-text-3 mt-0.5 font-mono text-[12px] tracking-[0.02em]">
                   {row.document}
                 </div>
               </TableCell>
               <TableCell>
                 <div className="text-foreground">{row.email}</div>
-                <div className="mt-0.5 font-mono text-[12px] tracking-[0.02em] text-text-3">
+                <div className="text-text-3 mt-0.5 font-mono text-[12px] tracking-[0.02em]">
                   {row.phone}
                 </div>
               </TableCell>
@@ -69,16 +69,14 @@ export function PostulacionesTable({ items }: { items: ApplicationListItem[] }) 
                     {row.levels.slice(0, 3).map((l) => (
                       <Tag key={l.id}>{l.code}</Tag>
                     ))}
-                    {row.levels.length > 3 && (
-                      <Tag>+{row.levels.length - 3}</Tag>
-                    )}
+                    {row.levels.length > 3 && <Tag>+{row.levels.length - 3}</Tag>}
                   </div>
                 )}
               </TableCell>
               <TableCell>
                 <StatusBadge status={row.status} />
               </TableCell>
-              <TableCell className="font-mono text-[12.5px] tracking-[0.02em] text-text-2">
+              <TableCell className="text-text-2 font-mono text-[12.5px] tracking-[0.02em]">
                 {formatDate(row.createdAt)}
               </TableCell>
               <TableCell className="text-right">
@@ -86,7 +84,7 @@ export function PostulacionesTable({ items }: { items: ApplicationListItem[] }) 
                   href={`/admin/postulaciones/${row.id}` as Route}
                   aria-label={`Ver postulación de ${row.firstName} ${row.lastName}`}
                   title="Ver detalle"
-                  className="inline-flex items-center gap-1.5 rounded-md border border-border bg-surface px-2.5 py-1.5 text-[12.5px] text-text-2 transition-colors hover:border-teal-500 hover:text-teal-500"
+                  className="border-border bg-surface text-text-2 inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1.5 text-[12.5px] transition-colors hover:border-teal-500 hover:text-teal-500"
                 >
                   Ver
                   <ArrowUpRight size={12} strokeWidth={1.6} />

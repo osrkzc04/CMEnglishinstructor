@@ -33,7 +33,7 @@ export function MyAulasCard({ items }: { items: MyAulaRow[] }) {
         </CardMeta>
         <Link
           href={"/docente/aulas" as Route}
-          className="inline-flex items-center gap-1.5 border-b border-border-strong pb-px text-[13px] text-text-2 transition-colors hover:border-teal-500 hover:text-teal-500"
+          className="border-border-strong text-text-2 inline-flex items-center gap-1.5 border-b pb-px text-[13px] transition-colors hover:border-teal-500 hover:text-teal-500"
         >
           Ver todas
           <ArrowRight size={11} strokeWidth={1.6} />
@@ -41,7 +41,7 @@ export function MyAulasCard({ items }: { items: MyAulaRow[] }) {
       </CardHeader>
       <div>
         {items.length === 0 ? (
-          <p className="px-[22px] py-6 text-[13.5px] text-text-3">
+          <p className="text-text-3 px-[22px] py-6 text-[13.5px]">
             Cuando coordinación te asigne aulas vas a verlas acá con su avance.
           </p>
         ) : (
@@ -53,31 +53,30 @@ export function MyAulasCard({ items }: { items: MyAulaRow[] }) {
 }
 
 function AulaRow({ item }: { item: MyAulaRow }) {
-  const pct = item.totalHours > 0
-    ? Math.min(100, Math.round((item.consumedHours / item.totalHours) * 100))
-    : 0
+  const pct =
+    item.totalHours > 0
+      ? Math.min(100, Math.round((item.consumedHours / item.totalHours) * 100))
+      : 0
   const variant: "info" | "default" | "warn" = pct >= 90 ? "warn" : pct < 25 ? "info" : "default"
 
   return (
     <Link
       href={`/docente/aulas/${item.id}` as Route}
-      className="group grid grid-cols-[36px_1fr_auto_auto] items-center gap-3.5 border-b border-border px-[22px] py-3.5 transition-colors duration-[120ms] last:border-b-0 hover:bg-surface-alt"
+      className="group border-border hover:bg-surface-alt grid grid-cols-[36px_1fr_auto_auto] items-center gap-3.5 border-b px-[22px] py-3.5 transition-colors duration-[120ms] last:border-b-0"
     >
       <div
         className={cn(
-          "grid h-8 w-8 place-items-center rounded-md border bg-bone-50 font-mono text-[11.5px] tracking-[0.02em] text-text-2",
+          "bg-bone-50 text-text-2 grid h-8 w-8 place-items-center rounded-md border font-mono text-[11.5px] tracking-[0.02em]",
           "border-border group-hover:border-teal-500",
         )}
       >
         {initials(item.name)}
       </div>
       <div className="min-w-0">
-        <div className="truncate text-[14px] leading-[1.3] text-foreground">
-          {item.name}
-        </div>
-        <div className="mt-0.5 flex items-center gap-2 font-mono text-[12px] tracking-[0.02em] text-text-3">
+        <div className="text-foreground truncate text-[14px] leading-[1.3]">{item.name}</div>
+        <div className="text-text-3 mt-0.5 flex items-center gap-2 font-mono text-[12px] tracking-[0.02em]">
           <span className="truncate">{item.programLabel}</span>
-          <span aria-hidden className="inline-block h-[3px] w-[3px] rounded-full bg-text-4" />
+          <span aria-hidden className="bg-text-4 inline-block h-[3px] w-[3px] rounded-full" />
           <span className="inline-flex items-center gap-1 whitespace-nowrap">
             <Users size={11} strokeWidth={1.6} />
             {item.studentCount}
@@ -87,10 +86,9 @@ function AulaRow({ item }: { item: MyAulaRow }) {
       <div className="w-20">
         <ProgressBar value={pct} variant={variant} bordered />
       </div>
-      <div className="min-w-[90px] text-right font-mono text-[12px] leading-[1.3] text-foreground tabular-nums">
-        {item.consumedHours.toFixed(1)}{" "}
-        <span className="text-text-3">/ {item.totalHours}</span>
-        <div className="mt-0.5 text-[11px] text-text-3">hrs grupo</div>
+      <div className="text-foreground min-w-[90px] text-right font-mono text-[12px] leading-[1.3] tabular-nums">
+        {item.consumedHours.toFixed(1)} <span className="text-text-3">/ {item.totalHours}</span>
+        <div className="text-text-3 mt-0.5 text-[11px]">hrs grupo</div>
       </div>
     </Link>
   )

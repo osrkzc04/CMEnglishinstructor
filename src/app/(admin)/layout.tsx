@@ -5,11 +5,7 @@ import { requireRole } from "@/modules/auth/guards"
  * shell visual (AppShell con sidebar/topbar) lo arma cada page para poder
  * controlar sus propios breadcrumbs y CTA.
  */
-export default async function AdminLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
+export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   await requireRole(["DIRECTOR", "COORDINATOR"])
   return <>{children}</>
 }

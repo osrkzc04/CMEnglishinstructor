@@ -1,10 +1,5 @@
 import "server-only"
-import {
-  ClassGroupStatus,
-  EnrollmentStatus,
-  Prisma,
-  SessionStatus,
-} from "@prisma/client"
+import { ClassGroupStatus, EnrollmentStatus, Prisma, SessionStatus } from "@prisma/client"
 
 /**
  * Materializa instancias `ClassSession` (con sus `ClassParticipant`) a partir
@@ -114,9 +109,7 @@ export async function materializeClassSessions(
     tx.teacherUnavailability.findMany({
       where: {
         teacherId,
-        OR: [
-          { startDate: { lte: rangeEndUtc }, endDate: { gte: rangeStartUtc } },
-        ],
+        OR: [{ startDate: { lte: rangeEndUtc }, endDate: { gte: rangeStartUtc } }],
       },
       select: { startDate: true, endDate: true },
     }),
@@ -129,12 +122,8 @@ export async function materializeClassSessions(
     }),
   ])
 
-  const holidayDates = new Set(
-    holidays.map((h) => formatGuayaquilCalendarDate(h.date)),
-  )
-  const existingStarts = new Set(
-    existingSessions.map((s) => s.scheduledStart.getTime()),
-  )
+  const holidayDates = new Set(holidays.map((h) => formatGuayaquilCalendarDate(h.date)))
+  const existingStarts = new Set(existingSessions.map((s) => s.scheduledStart.getTime()))
 
   const result: MaterializeResult = blankResult()
 
@@ -150,9 +139,7 @@ export async function materializeClassSessions(
 
     for (const slot of slotsForDay) {
       const scheduledStart = guayaquilDateToUtc(dateStr, slot.startTime)
-      const scheduledEnd = new Date(
-        scheduledStart.getTime() + slot.durationMinutes * 60_000,
-      )
+      const scheduledEnd = new Date(scheduledStart.getTime() + slot.durationMinutes * 60_000)
 
       if (existingStarts.has(scheduledStart.getTime())) {
         result.skippedAlreadyExists += 1
@@ -218,9 +205,7 @@ export function eachGuayaquilDateInRange(from: string, to: string): string[] {
   const end = Date.UTC(y1, m1 - 1, d1)
   for (let t = start; t <= end; t += 86_400_000) {
     const d = new Date(t)
-    result.push(
-      `${d.getUTCFullYear()}-${pad(d.getUTCMonth() + 1)}-${pad(d.getUTCDate())}`,
-    )
+    result.push(`${d.getUTCFullYear()}-${pad(d.getUTCMonth() + 1)}-${pad(d.getUTCDate())}`)
   }
   return result
 }

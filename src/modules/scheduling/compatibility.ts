@@ -40,11 +40,7 @@ export function minutesToTime(min: number): string {
  * día se tocan o solapan, se fusionan en una sola — esto evita "ruido" en
  * la UI cuando el docente o el estudiante tienen bloques contiguos.
  */
-export function intersectSchedules(
-  a: Slot[],
-  b: Slot[],
-  minDurationMinutes: number,
-): SlotWindow[] {
+export function intersectSchedules(a: Slot[], b: Slot[], minDurationMinutes: number): SlotWindow[] {
   const raw: SlotWindow[] = []
   for (const sa of a) {
     for (const sb of b) {
@@ -71,10 +67,7 @@ export function intersectSchedules(
  * ventana corta (no debería ocurrir si el input ya estaba filtrado, pero es
  * defensivo).
  */
-function mergeAdjacent(
-  windows: SlotWindow[],
-  minDurationMinutes: number,
-): SlotWindow[] {
+function mergeAdjacent(windows: SlotWindow[], minDurationMinutes: number): SlotWindow[] {
   const byDay = new Map<number, SlotWindow[]>()
   for (const w of windows) {
     const list = byDay.get(w.dayOfWeek) ?? []
@@ -103,9 +96,7 @@ function mergeAdjacent(
     if (current) pushWindow(out, day, current, minDurationMinutes)
   }
   out.sort(
-    (x, y) =>
-      x.dayOfWeek - y.dayOfWeek ||
-      timeToMinutes(x.startTime) - timeToMinutes(y.startTime),
+    (x, y) => x.dayOfWeek - y.dayOfWeek || timeToMinutes(x.startTime) - timeToMinutes(y.startTime),
   )
   return out
 }

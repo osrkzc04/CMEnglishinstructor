@@ -69,9 +69,7 @@ export function RenameItemDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent size="sm">
         <DialogHeader>
-          <DialogTitle>
-            Renombrar {itemKind === "folder" ? "carpeta" : "archivo"}
-          </DialogTitle>
+          <DialogTitle>Renombrar {itemKind === "folder" ? "carpeta" : "archivo"}</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit}>
           <DialogBody>

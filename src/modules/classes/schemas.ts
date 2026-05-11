@@ -36,11 +36,7 @@ export type UpdateAttendanceInput = z.infer<typeof UpdateAttendanceSchema>
 
 export const ClassLogSchema = z.object({
   sessionId: z.string().cuid("Sesión inválida"),
-  topic: z
-    .string()
-    .trim()
-    .min(2, "Tema requerido")
-    .max(200, "Máximo 200 caracteres"),
+  topic: z.string().trim().min(2, "Tema requerido").max(200, "Máximo 200 caracteres"),
   activities: z
     .string()
     .trim()
@@ -67,11 +63,7 @@ export type ClassLogInput = z.infer<typeof ClassLogSchema>
 
 export const CancelClassSessionSchema = z.object({
   sessionId: z.string().cuid("Sesión inválida"),
-  reason: z
-    .string()
-    .trim()
-    .min(2, "Indicá el motivo")
-    .max(500, "Máximo 500 caracteres"),
+  reason: z.string().trim().min(2, "Indicá el motivo").max(500, "Máximo 500 caracteres"),
 })
 export type CancelClassSessionInput = z.infer<typeof CancelClassSessionSchema>
 

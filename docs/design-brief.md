@@ -10,14 +10,16 @@
 
 **Premium editorial con calidez humana.**
 
-La marca no es ni juvenil (Duolingo), ni corporate frío (SAP), ni startup genérica (cualquier landing de Vercel). Es una academia dirigida por **Carolina Monsalve**, Certified English & Spanish Instructor, con énfasis en ejecutivos y empresas — pero con un slogan de calidez: *Helping Everyone Communicate*.
+La marca no es ni juvenil (Duolingo), ni corporate frío (SAP), ni startup genérica (cualquier landing de Vercel). Es una academia dirigida por **Carolina Monsalve**, Certified English & Spanish Instructor, con énfasis en ejecutivos y empresas — pero con un slogan de calidez: _Helping Everyone Communicate_.
 
 Referencias mentales a imitar:
+
 - **Linear** — densidad de información, jerarquía tipográfica impecable.
 - **Stripe** — confianza profesional, micro-interacciones precisas.
 - **Pitch** — tonos editoriales, no demasiado SaaS.
 
 Referencias a **evitar**:
+
 - Duolingo (juvenil, gamificado).
 - Cualquier dashboard genérico con purple gradient.
 - SaaS con ilustraciones de undraw / storyset.
@@ -28,12 +30,12 @@ Referencias a **evitar**:
 
 ### Core — derivada directamente del logo y tarjeta de presentación
 
-| Token | Hex | Uso |
-|---|---|---|
-| `ink.900` | `#233641` | Dominante. Sidebar, topbar, dark mode background, texto principal |
+| Token      | Hex       | Uso                                                                  |
+| ---------- | --------- | -------------------------------------------------------------------- |
+| `ink.900`  | `#233641` | Dominante. Sidebar, topbar, dark mode background, texto principal    |
 | `teal.500` | `#279F89` | **Acento único de marca.** CTAs primarios, estado activo, highlights |
-| `teal.700` | `#267A6F` | Hover / pressed del teal |
-| `bone.100` | `#FAF8F5` | Fondo de área de trabajo (no white puro) |
+| `teal.700` | `#267A6F` | Hover / pressed del teal                                             |
+| `bone.100` | `#FAF8F5` | Fondo de área de trabajo (no white puro)                             |
 
 **Regla estricta**: el teal aparece **solo en CTAs y estados activos**. Si lo usas en todas partes, pierde su función de marca. Iconografía general va en neutros.
 
@@ -75,12 +77,12 @@ teal.950  #102827
 
 Nunca rojo/verde/amarillo saturados genéricos (tipo bootstrap). Usar tonos con carga emocional apropiada y con temperatura coherente con la paleta:
 
-| Estado | Hex | Nota |
-|---|---|---|
-| Success | `#279F89` (teal.500) | Reutiliza el acento de marca |
-| Warning | `#C88A2E` | Mostaza cálida, no amarillo saturado |
-| Danger | `#B44C3A` | Terracota profundo, no rojo primario |
-| Info | `#3A6D8C` | Azul pizarra, coherente con ink |
+| Estado  | Hex                  | Nota                                 |
+| ------- | -------------------- | ------------------------------------ |
+| Success | `#279F89` (teal.500) | Reutiliza el acento de marca         |
+| Warning | `#C88A2E`            | Mostaza cálida, no amarillo saturado |
+| Danger  | `#B44C3A`            | Terracota profundo, no rojo primario |
+| Info    | `#3A6D8C`            | Azul pizarra, coherente con ink      |
 
 ---
 
@@ -96,22 +98,22 @@ Body / UI:                     Geist (sans-serif humanist moderna)
 Mono / códigos:                Geist Mono
 ```
 
-Fraunces es lo que nos ancla al mundo "editorial / académico" sin caer en serif anticuado. Su *optical sizing* ajusta automáticamente el trazo según el tamaño — en 48px se ve editorial, en 14px se ve limpio.
+Fraunces es lo que nos ancla al mundo "editorial / académico" sin caer en serif anticuado. Su _optical sizing_ ajusta automáticamente el trazo según el tamaño — en 48px se ve editorial, en 14px se ve limpio.
 
 ### Escala
 
-| Token | Tamaño | Peso | Uso |
-|---|---|---|---|
-| `display-lg` | clamp(2.5, 5vw, 4rem) | 500 | Hero de landing, pantalla de bienvenida del examen |
-| `display`    | clamp(2, 4vw, 3rem)   | 500 | Títulos de página grandes |
-| `h1`         | 1.875rem              | 500 | Título principal de una pantalla |
-| `h2`         | 1.5rem                | 500 | Secciones dentro de una pantalla |
-| `h3`         | 1.25rem               | 500 | Sub-secciones, cards destacadas |
-| `h4`         | 1.125rem              | 500 | Títulos de tarjetas pequeñas |
-| `body-lg`    | 1.0625rem             | 400 | Texto editorial |
-| `body`       | 1rem                  | 400 | Texto estándar |
-| `body-sm`    | 0.875rem              | 400 | Texto secundario, tablas |
-| `caption`    | 0.75rem               | 500 | Etiquetas, labels de inputs |
+| Token        | Tamaño                | Peso | Uso                                                |
+| ------------ | --------------------- | ---- | -------------------------------------------------- |
+| `display-lg` | clamp(2.5, 5vw, 4rem) | 500  | Hero de landing, pantalla de bienvenida del examen |
+| `display`    | clamp(2, 4vw, 3rem)   | 500  | Títulos de página grandes                          |
+| `h1`         | 1.875rem              | 500  | Título principal de una pantalla                   |
+| `h2`         | 1.5rem                | 500  | Secciones dentro de una pantalla                   |
+| `h3`         | 1.25rem               | 500  | Sub-secciones, cards destacadas                    |
+| `h4`         | 1.125rem              | 500  | Títulos de tarjetas pequeñas                       |
+| `body-lg`    | 1.0625rem             | 400  | Texto editorial                                    |
+| `body`       | 1rem                  | 400  | Texto estándar                                     |
+| `body-sm`    | 0.875rem              | 400  | Texto secundario, tablas                           |
+| `caption`    | 0.75rem               | 500  | Etiquetas, labels de inputs                        |
 
 ### Reglas tipográficas
 
@@ -212,6 +214,7 @@ Fondos 50-100 del color correspondiente + texto 700-800 del mismo ramp. Nunca te
 Este componente aparece en 3 lugares (postulación de docente, preferencias del estudiante, asignación por coordinador). Tiene que verse **único y memorable**.
 
 Principios:
+
 - Grilla como **papel milimetrado editorial**. Líneas de `0.5px` en `ink.200`.
 - Slots seleccionados se pintan con `teal.500` al 15% de opacidad + borde `teal.500` al 50%.
 - Al hacer drag, el cursor muestra la hora de inicio y fin en un tooltip pequeño con mono type.
@@ -272,6 +275,7 @@ Vista semanal tipo Google Calendar pero con estética propia:
 Lucide React. Stroke width `1.5`, tamaño por defecto `16px` en UI, `20px` en nav.
 
 Nunca:
+
 - Íconos rellenos (solid fill) — rompen el trazo lineal del logo.
 - Íconos en color — solo si señalan estado semántico (success/warning/danger/info).
 - Emoji en la UI.
@@ -351,19 +355,19 @@ Los mockups HTML aprobados son **la fuente de verdad final** del sistema visual.
 
 #### Escala tipográfica (deroga la tabla anterior)
 
-| Token | Tamaño | Peso | Uso |
-|---|---|---|---|
-| `display` / `h1` | **40px** (2.5rem) | Fraunces 400 | Greeting principal, page titles |
-| `display-sm` | **32px** (2rem) | Fraunces 400 | Login h1 |
-| `h2` | **28px** (1.75rem) | Fraunces 400 | Sección dentro de página |
-| `h3` | **20px** (1.25rem) | Fraunces 400 | Card titles |
-| `h4` | **18px** (1.125rem) | Fraunces 400 | Empty state title |
-| `body-lg` | **15px** (default) | Geist 400 | Body principal |
-| `body` | 14px | Geist 400 | Inputs, captions |
-| `body-sm` | 13px | Geist 400 | Meta info |
-| `caption` | 12px | Geist 400 | Labels |
-| `micro` | **11px** | Geist Mono 400 | Eyebrows, mono uppercase labels |
-| `kpi` | **38px** | Fraunces 400 | KPI value |
+| Token            | Tamaño              | Peso           | Uso                             |
+| ---------------- | ------------------- | -------------- | ------------------------------- |
+| `display` / `h1` | **40px** (2.5rem)   | Fraunces 400   | Greeting principal, page titles |
+| `display-sm`     | **32px** (2rem)     | Fraunces 400   | Login h1                        |
+| `h2`             | **28px** (1.75rem)  | Fraunces 400   | Sección dentro de página        |
+| `h3`             | **20px** (1.25rem)  | Fraunces 400   | Card titles                     |
+| `h4`             | **18px** (1.125rem) | Fraunces 400   | Empty state title               |
+| `body-lg`        | **15px** (default)  | Geist 400      | Body principal                  |
+| `body`           | 14px                | Geist 400      | Inputs, captions                |
+| `body-sm`        | 13px                | Geist 400      | Meta info                       |
+| `caption`        | 12px                | Geist 400      | Labels                          |
+| `micro`          | **11px**            | Geist Mono 400 | Eyebrows, mono uppercase labels |
+| `kpi`            | **38px**            | Fraunces 400   | KPI value                       |
 
 Tracking discreto: `-0.02em` para display, `-0.015em` para h3, `0.06–0.10em` para mono caps.
 
@@ -375,6 +379,7 @@ Tracking discreto: `-0.02em` para display, `-0.015em` para h3, `0.06–0.10em` p
 #### Border radius (refina la escala anterior)
 
 Escala discreta del mockup:
+
 ```
 4px   → badges, tags, micro pills
 6px   → pagination buttons
@@ -456,4 +461,3 @@ Aplicar form-grade cuando es la acción principal del flujo. Aplicar toolbar/hea
 - `.roles` selector de 4 roles del login (Login.html:250-272) — descartado. No se usa, lo borramos del proyecto.
 - `bone-200/300/400/500` y `ink-300/B2B8BC` del Tailwind original — no existen en mockups, se descartan.
 - `--teal-100` originalmente declarado pero no usado: ahora sí lo usamos para fondos de pill teal.
-

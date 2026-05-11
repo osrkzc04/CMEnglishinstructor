@@ -18,13 +18,9 @@ const InputSchema = z.object({
 
 export type RequestResetInput = z.infer<typeof InputSchema>
 
-type Result =
-  | { success: true }
-  | { success: false; error: string; field?: keyof RequestResetInput }
+type Result = { success: true } | { success: false; error: string; field?: keyof RequestResetInput }
 
-export async function requestPasswordReset(
-  input: RequestResetInput,
-): Promise<Result> {
+export async function requestPasswordReset(input: RequestResetInput): Promise<Result> {
   const parsed = InputSchema.safeParse(input)
   if (!parsed.success) {
     const issue = parsed.error.issues[0]

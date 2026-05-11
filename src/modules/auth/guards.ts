@@ -58,10 +58,7 @@ export async function requireRole(allowed: Role[]) {
   return user
 }
 
-export async function requireOwnership(opts: {
-  ownerId: string
-  bypassRoles?: Role[]
-}) {
+export async function requireOwnership(opts: { ownerId: string; bypassRoles?: Role[] }) {
   const user = await requireAuth()
   const bypass = opts.bypassRoles ?? (["DIRECTOR", "COORDINATOR"] as Role[])
   if (user.role && bypass.includes(user.role)) return user

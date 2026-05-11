@@ -20,24 +20,14 @@ export const PublicApplicationSchema = z.object({
   firstName: z.string().trim().min(2, "Mínimo 2 caracteres").max(80),
   lastName: z.string().trim().min(2, "Mínimo 2 caracteres").max(80),
   email: z.string().trim().toLowerCase().email("Correo inválido"),
-  phone: z
-    .string()
-    .trim()
-    .min(7, "Teléfono inválido")
-    .max(20, "Teléfono inválido"),
-  document: z
-    .string()
-    .trim()
-    .min(6, "Documento inválido")
-    .max(20, "Documento inválido"),
+  phone: z.string().trim().min(7, "Teléfono inválido").max(20, "Teléfono inválido"),
+  document: z.string().trim().min(6, "Documento inválido").max(20, "Documento inválido"),
   bio: z
     .string()
     .trim()
     .min(300, "Cuéntanos un poco más sobre tu experiencia (mínimo 300 caracteres)")
     .max(2000, "Máximo 2000 caracteres"),
-  levelIds: z
-    .array(z.string().cuid("ID inválido"))
-    .min(1, "Selecciona al menos un nivel"),
+  levelIds: z.array(z.string().cuid("ID inválido")).min(1, "Selecciona al menos un nivel"),
   availability: z
     .array(AvailabilitySlotSchema)
     .min(1, "Agrega al menos un bloque de disponibilidad"),

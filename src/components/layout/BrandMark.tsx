@@ -51,7 +51,7 @@ export function BrandWordmark({
   return (
     <span
       className={cn(
-        "font-serif italic tracking-[-0.005em]",
+        "font-serif tracking-[-0.005em] italic",
         size === "sm" ? "text-[15px]" : "text-base",
         className,
       )}

@@ -3,14 +3,7 @@
 import { useState, useTransition } from "react"
 import { useRouter } from "next/navigation"
 import type { Route } from "next"
-import {
-  AlertTriangle,
-  Check,
-  Loader2,
-  Pencil,
-  Trash2,
-  X,
-} from "lucide-react"
+import { AlertTriangle, Check, Loader2, Pencil, Trash2, X } from "lucide-react"
 import { ApplicationStatus } from "@prisma/client"
 import {
   Dialog,
@@ -46,11 +39,7 @@ type Props = {
 
 type ActiveDialog = "approve" | "reject" | "delete" | null
 
-export function ApplicationActions({
-  applicationId,
-  status,
-  applicantName,
-}: Props) {
+export function ApplicationActions({ applicationId, status, applicantName }: Props) {
   const router = useRouter()
   const [activeDialog, setActiveDialog] = useState<ActiveDialog>(null)
   const close = () => setActiveDialog(null)
@@ -59,14 +48,12 @@ export function ApplicationActions({
     // El dialog de edición vive en la página de listado. Reusamos esa ruta
     // para no duplicar form. Al cerrar el dialog ahí se limpia el query
     // string y queda en el listado.
-    router.push(
-      `/admin/postulaciones?action=edit&id=${applicationId}` as Route,
-    )
+    router.push(`/admin/postulaciones?action=edit&id=${applicationId}` as Route)
   }
 
   return (
-    <section className="rounded-xl border border-border bg-surface p-5 lg:p-6">
-      <h2 className="mb-4 font-serif text-[18px] font-normal tracking-[-0.01em] text-foreground">
+    <section className="border-border bg-surface rounded-xl border p-5 lg:p-6">
+      <h2 className="text-foreground mb-4 font-serif text-[18px] font-normal tracking-[-0.01em]">
         Acciones
       </h2>
 
@@ -83,12 +70,7 @@ export function ApplicationActions({
               Aprobar postulación
             </Button>
 
-            <Button
-              variant="ghost"
-              size="md"
-              onClick={handleEdit}
-              className="justify-start"
-            >
+            <Button variant="ghost" size="md" onClick={handleEdit} className="justify-start">
               <Pencil size={14} strokeWidth={1.6} />
               Editar datos
             </Button>
@@ -124,18 +106,10 @@ export function ApplicationActions({
         />
       )}
       {activeDialog === "reject" && (
-        <RejectDialog
-          applicationId={applicationId}
-          applicantName={applicantName}
-          onClose={close}
-        />
+        <RejectDialog applicationId={applicationId} applicantName={applicantName} onClose={close} />
       )}
       {activeDialog === "delete" && (
-        <DeleteDialog
-          applicationId={applicationId}
-          applicantName={applicantName}
-          onClose={close}
-        />
+        <DeleteDialog applicationId={applicationId} applicantName={applicantName} onClose={close} />
       )}
     </section>
   )
@@ -177,8 +151,8 @@ function ApproveDialog({
         <DialogHeader>
           <DialogTitle>Aprobar postulación</DialogTitle>
           <DialogDescription>
-            Se va a crear el perfil de docente para <strong>{applicantName}</strong> y
-            se enviará un correo con el enlace para que defina su contraseña.
+            Se va a crear el perfil de docente para <strong>{applicantName}</strong> y se enviará un
+            correo con el enlace para que defina su contraseña.
           </DialogDescription>
         </DialogHeader>
         <DialogBody className="space-y-3">
@@ -191,9 +165,9 @@ function ApproveDialog({
               onDismiss={() => setError(null)}
             />
           )}
-          <p className="text-[13.5px] leading-[1.6] text-text-2">
-            Los niveles y la disponibilidad propuesta se copian al perfil del
-            docente, listos para asignación.
+          <p className="text-text-2 text-[13.5px] leading-[1.6]">
+            Los niveles y la disponibilidad propuesta se copian al perfil del docente, listos para
+            asignación.
           </p>
         </DialogBody>
         <DialogFooter>
@@ -255,8 +229,8 @@ function RejectDialog({
         <DialogHeader>
           <DialogTitle>Rechazar postulación</DialogTitle>
           <DialogDescription>
-            El motivo queda registrado en el sistema. Por ahora no se envía
-            notificación a {applicantName}.
+            El motivo queda registrado en el sistema. Por ahora no se envía notificación a{" "}
+            {applicantName}.
           </DialogDescription>
         </DialogHeader>
         <DialogBody className="space-y-3">
@@ -280,9 +254,7 @@ function RejectDialog({
               onChange={(e) => setReason(e.target.value)}
               placeholder="Mínimo 10 caracteres. Esta nota es solo para uso interno."
             />
-            <p className="mt-1.5 text-[12px] text-text-4">
-              {reason.trim().length} de 10 mínimo
-            </p>
+            <p className="text-text-4 mt-1.5 text-[12px]">{reason.trim().length} de 10 mínimo</p>
           </div>
         </DialogBody>
         <DialogFooter>
@@ -346,8 +318,7 @@ function DeleteDialog({
           <DialogTitle>Eliminar postulación</DialogTitle>
           <DialogDescription>
             Esta acción no se puede deshacer. Se borra el registro de{" "}
-            <strong>{applicantName}</strong> junto con sus niveles y
-            disponibilidad.
+            <strong>{applicantName}</strong> junto con sus niveles y disponibilidad.
           </DialogDescription>
         </DialogHeader>
         <DialogBody>
@@ -360,9 +331,9 @@ function DeleteDialog({
               onDismiss={() => setError(null)}
             />
           )}
-          <p className="text-[13.5px] leading-[1.6] text-text-2">
-            Si esta postulación ya fue aprobada, el perfil del docente
-            permanece — solo se elimina el rastro de la postulación.
+          <p className="text-text-2 text-[13.5px] leading-[1.6]">
+            Si esta postulación ya fue aprobada, el perfil del docente permanece — solo se elimina
+            el rastro de la postulación.
           </p>
         </DialogBody>
         <DialogFooter>

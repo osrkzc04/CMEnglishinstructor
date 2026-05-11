@@ -3,10 +3,7 @@
 import { revalidatePath } from "next/cache"
 import { prisma } from "@/lib/prisma"
 import { ForbiddenError, requireAuth } from "@/modules/auth/guards"
-import {
-  StudentScheduleSchema,
-  type StudentScheduleInput,
-} from "./schemas"
+import { StudentScheduleSchema, type StudentScheduleInput } from "./schemas"
 
 type Result =
   | { success: true }

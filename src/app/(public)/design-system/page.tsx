@@ -51,13 +51,7 @@ import {
   X,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardMeta,
-  CardTitle,
-} from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardMeta, CardTitle } from "@/components/ui/card"
 import { Input, InputAction } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
@@ -160,27 +154,24 @@ const ICONS = [
 
 export default function DesignSystemPage() {
   return (
-    <main className="mx-auto max-w-[1100px] px-10 pb-16 pt-12">
+    <main className="mx-auto max-w-[1100px] px-10 pt-12 pb-16">
       {/* Page intro */}
-      <header className="mb-8 border-b border-border pb-6">
-        <p className="mb-2 font-mono text-[11.5px] uppercase tracking-[0.08em] text-text-3">
+      <header className="border-border mb-8 border-b pb-6">
+        <p className="text-text-3 mb-2 font-mono text-[11.5px] tracking-[0.08em] uppercase">
           Sistema visual · v 1.0
         </p>
-        <h1 className="font-serif text-[40px] font-normal leading-[1.15] tracking-[-0.02em]">
+        <h1 className="font-serif text-[40px] leading-[1.15] font-normal tracking-[-0.02em]">
           Widgets
-          <span className="font-light italic text-text-2">
-            {" — catálogo de componentes."}
-          </span>
+          <span className="text-text-2 font-light italic">{" — catálogo de componentes."}</span>
         </h1>
-        <p className="mt-2.5 max-w-[640px] text-[15px] text-text-2">
-          Cada bloque y patrón visual del sistema, con su nombre técnico y
-          variantes. Fuente única de verdad para mantener coherencia entre el
-          producto y los mockups aprobados.
+        <p className="text-text-2 mt-2.5 max-w-[640px] text-[15px]">
+          Cada bloque y patrón visual del sistema, con su nombre técnico y variantes. Fuente única
+          de verdad para mantener coherencia entre el producto y los mockups aprobados.
         </p>
       </header>
 
       {/* TOC */}
-      <nav className="mb-8 grid grid-cols-2 gap-0 overflow-hidden rounded-2xl border border-border bg-surface lg:grid-cols-4">
+      <nav className="border-border bg-surface mb-8 grid grid-cols-2 gap-0 overflow-hidden rounded-2xl border lg:grid-cols-4">
         {[
           { label: "Fundamentos", num: "01 — 04" },
           { label: "Layout", num: "05 — 09" },
@@ -195,29 +186,35 @@ export default function DesignSystemPage() {
             key={t.label}
             href={`#${t.label.toLowerCase()}`}
             className={cn(
-              "flex items-center justify-between gap-2.5 border-r border-border px-4 py-4 text-[13.5px] text-foreground transition-colors hover:bg-surface-alt",
+              "border-border text-foreground hover:bg-surface-alt flex items-center justify-between gap-2.5 border-r px-4 py-4 text-[13.5px] transition-colors",
               i % 4 === 3 && "lg:border-r-0",
               i % 2 === 1 && "border-r-0 lg:border-r",
             )}
           >
             <span>{t.label}</span>
-            <span className="font-mono text-[11px] tracking-[0.06em] text-text-3">
-              {t.num}
-            </span>
+            <span className="text-text-3 font-mono text-[11px] tracking-[0.06em]">{t.num}</span>
           </a>
         ))}
       </nav>
 
       {/* 01 FUNDAMENTOS */}
-      <Section id="fundamentos" num="01" title="Fundamentos" subtitle="— color, tipografía, iconos.">
+      <Section
+        id="fundamentos"
+        num="01"
+        title="Fundamentos"
+        subtitle="— color, tipografía, iconos."
+      >
         <Block name="01 · Paleta" desc="Ink · bone · teal · semánticos">
           <div className="grid w-full grid-cols-[repeat(auto-fit,minmax(140px,1fr))] gap-2.5">
             {COLOR_TOKENS.map((c) => (
-              <div key={c.name} className="overflow-hidden rounded-lg border border-border bg-surface">
+              <div
+                key={c.name}
+                className="border-border bg-surface overflow-hidden rounded-lg border"
+              >
                 <div className="h-[60px]" style={{ background: c.hex }} />
                 <div className="p-2.5">
-                  <div className="text-[12px] text-foreground">{c.name}</div>
-                  <div className="mt-0.5 font-mono text-[10.5px] text-text-3">{c.hex}</div>
+                  <div className="text-foreground text-[12px]">{c.name}</div>
+                  <div className="text-text-3 mt-0.5 font-mono text-[10.5px]">{c.hex}</div>
                 </div>
               </div>
             ))}
@@ -226,8 +223,8 @@ export default function DesignSystemPage() {
 
         <Block name="02 · Tipografía" desc="Fraunces · Geist · Geist Mono">
           <TypeRow meta="Display · Fraunces 40">
-            <span className="font-serif text-[40px] font-normal leading-[1.15] tracking-[-0.02em]">
-              Helping <em className="italic text-text-2">everyone</em> communicate
+            <span className="font-serif text-[40px] leading-[1.15] font-normal tracking-[-0.02em]">
+              Helping <em className="text-text-2 italic">everyone</em> communicate
             </span>
           </TypeRow>
           <TypeRow meta="H2 · Fraunces 28">
@@ -242,10 +239,10 @@ export default function DesignSystemPage() {
             </span>
           </TypeRow>
           <TypeRow meta="Caption · Geist 13">
-            <span className="text-[13px] text-text-2">Senior · B2-C1 · Business · Quito</span>
+            <span className="text-text-2 text-[13px]">Senior · B2-C1 · Business · Quito</span>
           </TypeRow>
           <TypeRow meta="Eyebrow · Mono 11">
-            <span className="font-mono text-[11px] uppercase tracking-[0.08em] text-text-3">
+            <span className="text-text-3 font-mono text-[11px] tracking-[0.08em] uppercase">
               Próxima clase
             </span>
           </TypeRow>
@@ -260,10 +257,10 @@ export default function DesignSystemPage() {
           <div className="grid w-full grid-cols-[repeat(auto-fit,minmax(80px,1fr))] gap-2">
             {ICONS.map((Icon, i) => (
               <div key={i} className="flex flex-col items-center gap-1.5">
-                <div className="grid h-9 w-9 place-items-center rounded-md border border-border bg-surface text-text-2">
+                <div className="border-border bg-surface text-text-2 grid h-9 w-9 place-items-center rounded-md border">
                   <Icon size={18} strokeWidth={1.6} />
                 </div>
-                <span className="text-center font-mono text-[10px] leading-[1.2] text-text-3">
+                <span className="text-text-3 text-center font-mono text-[10px] leading-[1.2]">
                   {Icon.displayName ?? "icon"}
                 </span>
               </div>
@@ -297,9 +294,9 @@ export default function DesignSystemPage() {
               <CardTitle>Título de la card</CardTitle>
               <CardMeta>Meta opcional</CardMeta>
             </CardHeader>
-            <CardContent className="text-[13.5px] text-text-2">
-              Contenido del bloque. El padding interno lo define el contenido —
-              listas, tablas, KPIs, etc.
+            <CardContent className="text-text-2 text-[13.5px]">
+              Contenido del bloque. El padding interno lo define el contenido — listas, tablas,
+              KPIs, etc.
             </CardContent>
           </Card>
         </Block>
@@ -360,9 +357,9 @@ export default function DesignSystemPage() {
         <Block name="09 · Divisores" desc="Solid · dashed">
           <div className="w-full">
             <Separator />
-            <div className="my-3 text-[12px] text-text-3">— solid (entre secciones)</div>
+            <div className="text-text-3 my-3 text-[12px]">— solid (entre secciones)</div>
             <Separator variant="dashed" />
-            <div className="mt-3 text-[12px] text-text-3">— dashed (subdivisión visual)</div>
+            <div className="text-text-3 mt-3 text-[12px]">— dashed (subdivisión visual)</div>
           </div>
         </Block>
       </Section>
@@ -480,10 +477,7 @@ export default function DesignSystemPage() {
             <FieldStack label="Correo">
               <Input icon={Mail} placeholder="nombre@empresa.com" />
             </FieldStack>
-            <FieldStack
-              label="Documento"
-              error="Cédula inválida — debe contener solo números."
-            >
+            <FieldStack label="Documento" error="Cédula inválida — debe contener solo números.">
               <Input defaultValue="0991234X" aria-invalid="true" />
             </FieldStack>
             <FieldStack label="Notas internas">
@@ -704,7 +698,7 @@ export default function DesignSystemPage() {
         <Block name="33 · Medidor CEFR" desc="Posición actual del estudiante" stack>
           <div className="w-full">
             <div className="mb-2 flex items-center justify-between">
-              <span className="font-mono text-[11px] uppercase tracking-[0.08em] text-text-3">
+              <span className="text-text-3 font-mono text-[11px] tracking-[0.08em] uppercase">
                 Valentina Rojas
               </span>
               <span className="font-mono text-[12.5px]">B1.2 — Intermedio</span>
@@ -715,13 +709,13 @@ export default function DesignSystemPage() {
                   key={i}
                   className={cn(
                     "h-1.5 rounded-sm",
-                    on ? "bg-teal-500" : "border border-border bg-background",
+                    on ? "bg-teal-500" : "border-border bg-background border",
                     on && i === 2 && "opacity-85",
                   )}
                 />
               ))}
             </div>
-            <div className="mt-1.5 grid grid-cols-6 gap-1 font-mono text-[10.5px] tracking-[0.04em] text-text-3">
+            <div className="text-text-3 mt-1.5 grid grid-cols-6 gap-1 font-mono text-[10.5px] tracking-[0.04em]">
               <span>A1</span>
               <span>A2</span>
               <span>B1</span>
@@ -745,7 +739,7 @@ export default function DesignSystemPage() {
                     "grid h-6 place-items-center rounded-sm font-mono text-[10px]",
                     done && "bg-teal-500 text-white",
                     active && "border border-teal-500 bg-teal-500/15 text-teal-500",
-                    !done && !active && "border border-border bg-background text-text-3",
+                    !done && !active && "border-border bg-background text-text-3 border",
                   )}
                 >
                   {n}
@@ -759,16 +753,16 @@ export default function DesignSystemPage() {
       {/* 08 NAVEGACIÓN */}
       <Section id="navegacion" num="08" title="Navegación" subtitle="& wayfinding.">
         <Block name="36 · Breadcrumbs" desc="Página actual en Fraunces italic">
-          <div className="flex items-center gap-2.5 text-[13px] text-text-3">
-            <a href="#" className="text-text-3 transition-colors hover:text-foreground">
+          <div className="text-text-3 flex items-center gap-2.5 text-[13px]">
+            <a href="#" className="text-text-3 hover:text-foreground transition-colors">
               Admin
             </a>
             <span className="text-text-4">/</span>
-            <a href="#" className="text-text-3 transition-colors hover:text-foreground">
+            <a href="#" className="text-text-3 hover:text-foreground transition-colors">
               Estudiantes
             </a>
             <span className="text-text-4">/</span>
-            <span className="font-serif italic text-foreground">Valentina Rojas</span>
+            <span className="text-foreground font-serif italic">Valentina Rojas</span>
           </div>
         </Block>
 
@@ -783,7 +777,7 @@ export default function DesignSystemPage() {
               <TabsTrigger value="documentos">Documentos</TabsTrigger>
               <TabsTrigger value="notas">Notas</TabsTrigger>
             </TabsList>
-            <TabsContent value="resumen" className="text-[13px] text-text-3">
+            <TabsContent value="resumen" className="text-text-3 text-[13px]">
               Contenido del tab activo aparece debajo.
             </TabsContent>
             <TabsContent value="clases">Clases</TabsContent>
@@ -795,7 +789,7 @@ export default function DesignSystemPage() {
 
         <Block name="38 · Paginación" desc="Para tablas largas">
           <div className="flex w-full flex-wrap items-center justify-between gap-3">
-            <span className="font-mono text-[12.5px] text-text-3">Mostrando 1 — 12 de 142</span>
+            <span className="text-text-3 font-mono text-[12.5px]">Mostrando 1 — 12 de 142</span>
             <Pagination>
               <PaginationPrev />
               <PaginationItem isCurrent>1</PaginationItem>
@@ -834,13 +828,16 @@ function Section({
   children: React.ReactNode
 }) {
   return (
-    <section id={id} className="mt-14 border-t border-border pt-7 first:mt-0 first:border-t-0 first:pt-0">
+    <section
+      id={id}
+      className="border-border mt-14 border-t pt-7 first:mt-0 first:border-t-0 first:pt-0"
+    >
       <div className="mb-6 flex flex-wrap items-baseline justify-between gap-6">
         <div>
-          <p className="font-mono text-[12px] tracking-[0.06em] text-text-3">SECCIÓN / {num}</p>
+          <p className="text-text-3 font-mono text-[12px] tracking-[0.06em]">SECCIÓN / {num}</p>
           <h2 className="m-0 font-serif text-[28px] font-normal tracking-[-0.02em]">
             {title}
-            <span className="font-light italic text-text-2"> {subtitle}</span>
+            <span className="text-text-2 font-light italic"> {subtitle}</span>
           </h2>
         </div>
       </div>
@@ -861,18 +858,14 @@ function Block({
   stack?: boolean
 }) {
   return (
-    <div className="overflow-hidden rounded-2xl border border-border bg-surface">
-      <div className="flex flex-wrap items-baseline justify-between gap-3 border-b border-border bg-surface-alt px-5 py-3.5">
-        <span className="font-mono text-[12px] tracking-[0.04em] text-foreground">
-          {name}
-        </span>
-        {desc && (
-          <span className="text-right text-[12.5px] text-text-3">{desc}</span>
-        )}
+    <div className="border-border bg-surface overflow-hidden rounded-2xl border">
+      <div className="border-border bg-surface-alt flex flex-wrap items-baseline justify-between gap-3 border-b px-5 py-3.5">
+        <span className="text-foreground font-mono text-[12px] tracking-[0.04em]">{name}</span>
+        {desc && <span className="text-text-3 text-right text-[12.5px]">{desc}</span>}
       </div>
       <div
         className={cn(
-          "flex bg-surface px-5 py-6",
+          "bg-surface flex px-5 py-6",
           stack ? "flex-col gap-3.5" : "flex-wrap items-center gap-3.5",
         )}
       >
@@ -882,16 +875,10 @@ function Block({
   )
 }
 
-function TypeRow({
-  meta,
-  children,
-}: {
-  meta: string
-  children: React.ReactNode
-}) {
+function TypeRow({ meta, children }: { meta: string; children: React.ReactNode }) {
   return (
-    <div className="grid w-full grid-cols-[120px_1fr] items-baseline gap-6 border-b border-dashed border-border py-3.5 last:border-b-0">
-      <div className="font-mono text-[11px] leading-[1.6] tracking-[0.04em] text-text-3">
+    <div className="border-border grid w-full grid-cols-[120px_1fr] items-baseline gap-6 border-b border-dashed py-3.5 last:border-b-0">
+      <div className="text-text-3 font-mono text-[11px] leading-[1.6] tracking-[0.04em]">
         {meta}
       </div>
       <div className="text-foreground">{children}</div>
@@ -912,7 +899,7 @@ function FieldStack({
     <div className="flex flex-col gap-1.5">
       <Label>{label}</Label>
       {children}
-      {error && <span className="text-[11.5px] text-danger">{error}</span>}
+      {error && <span className="text-danger text-[11.5px]">{error}</span>}
     </div>
   )
 }
@@ -931,10 +918,12 @@ function BarRow({
   return (
     <div>
       <div className="mb-1.5 flex justify-between text-[12px]">
-        <span className="font-mono uppercase tracking-[0.06em] text-text-3 text-[11px]">
+        <span className="text-text-3 font-mono text-[11px] tracking-[0.06em] uppercase">
           {label}
         </span>
-        <span className="font-mono">{value}% — {suffix}</span>
+        <span className="font-mono">
+          {value}% — {suffix}
+        </span>
       </div>
       <ProgressBar value={value} variant={variant} />
     </div>

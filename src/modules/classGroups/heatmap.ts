@@ -15,8 +15,7 @@
 const SLOT_MINUTES = 15
 const START_HOUR = 6
 const END_HOUR = 22
-export const HEATMAP_SLOTS_PER_DAY =
-  ((END_HOUR - START_HOUR) * 60) / SLOT_MINUTES // 64
+export const HEATMAP_SLOTS_PER_DAY = ((END_HOUR - START_HOUR) * 60) / SLOT_MINUTES // 64
 export const HEATMAP_START_HOUR = START_HOUR
 export const HEATMAP_SLOT_MINUTES = SLOT_MINUTES
 
@@ -120,12 +119,9 @@ export type Heatmap = {
 }
 
 export function computeAvailabilityHeatmap(input: HeatmapInput): Heatmap {
-  const { teacherAvailability, teacherConflicts, students, durationMinutes } =
-    input
+  const { teacherAvailability, teacherConflicts, students, durationMinutes } = input
 
-  const studentsWithSchedule = students.filter(
-    (s) => s.preferredSchedule.length > 0,
-  )
+  const studentsWithSchedule = students.filter((s) => s.preferredSchedule.length > 0)
 
   const cells: HeatmapCell[] = []
 
@@ -218,13 +214,7 @@ export function computeCellKind(args: {
   studentsTotal: number
   studentsCovered: number
 }): CellKind {
-  const {
-    teacherSelected,
-    teacherCovers,
-    teacherBlocked,
-    studentsTotal,
-    studentsCovered,
-  } = args
+  const { teacherSelected, teacherCovers, teacherBlocked, studentsTotal, studentsCovered } = args
 
   if (teacherSelected && teacherBlocked) return "blocked"
 
@@ -258,9 +248,7 @@ function blockCovers(
 ): boolean {
   return blocks.some(
     (b) =>
-      b.dayOfWeek === day &&
-      toMinutes(b.startTime) <= startMin &&
-      toMinutes(b.endTime) >= endMin,
+      b.dayOfWeek === day && toMinutes(b.startTime) <= startMin && toMinutes(b.endTime) >= endMin,
   )
 }
 

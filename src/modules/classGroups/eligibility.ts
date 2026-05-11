@@ -36,9 +36,7 @@ import {
 export { candidateIsEligible, slotIsCovered, slotsOverlap }
 export type { ConflictReport, SlotPattern, TeacherCandidate }
 
-export async function findCandidatesForClassGroup(args: {
-  classGroupId: string
-}): Promise<{
+export async function findCandidatesForClassGroup(args: { classGroupId: string }): Promise<{
   group: {
     id: string
     name: string
@@ -103,8 +101,7 @@ export async function findCandidatesForClassGroup(args: {
     const cefrMismatch =
       cefrCode !== null &&
       !t.teachableLevels.some(
-        (tl) =>
-          tl.level.languageId === languageId && tl.level.code === cefrCode,
+        (tl) => tl.level.languageId === languageId && tl.level.code === cefrCode,
       )
 
     const uncoveredSlots = slots
@@ -154,9 +151,7 @@ export async function findCandidatesForClassGroup(args: {
     const aOk = candidateIsEligible(a) ? 0 : 1
     const bOk = candidateIsEligible(b) ? 0 : 1
     if (aOk !== bOk) return aOk - bOk
-    return `${a.firstName} ${a.lastName}`.localeCompare(
-      `${b.firstName} ${b.lastName}`,
-    )
+    return `${a.firstName} ${a.lastName}`.localeCompare(`${b.firstName} ${b.lastName}`)
   })
 
   return {
@@ -178,9 +173,7 @@ export async function findCandidatesForClassGroup(args: {
 
 function startOfTodayUTC(): Date {
   const now = new Date()
-  return new Date(
-    Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()),
-  )
+  return new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()))
 }
 
 // -----------------------------------------------------------------------------
@@ -215,9 +208,7 @@ export async function validateTeacherForSlots(args: {
   const cefrMismatch =
     args.cefrLevelCode !== null &&
     !teacher.teachableLevels.some(
-      (tl) =>
-        tl.level.languageId === args.languageId &&
-        tl.level.code === args.cefrLevelCode,
+      (tl) => tl.level.languageId === args.languageId && tl.level.code === args.cefrLevelCode,
     )
 
   const uncoveredSlots = args.slots
@@ -230,9 +221,7 @@ export async function validateTeacherForSlots(args: {
       teacherId: args.teacherId,
       OR: [{ endDate: null }, { endDate: { gte: today } }],
       classGroup: { status: ClassGroupStatus.ACTIVE },
-      ...(args.excludeClassGroupId
-        ? { NOT: { classGroupId: args.excludeClassGroupId } }
-        : {}),
+      ...(args.excludeClassGroupId ? { NOT: { classGroupId: args.excludeClassGroupId } } : {}),
     },
     include: { classGroup: { include: { slots: true } } },
   })

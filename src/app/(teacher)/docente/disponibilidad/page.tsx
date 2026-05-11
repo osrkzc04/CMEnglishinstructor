@@ -27,20 +27,19 @@ export default async function TeacherDisponibilidadPage() {
       ]}
     >
       <header className="mb-7 max-w-2xl">
-        <p className="mb-2 font-mono text-[12px] uppercase tracking-[0.08em] text-text-3">
+        <p className="text-text-3 mb-2 font-mono text-[12px] tracking-[0.08em] uppercase">
           Mi cuenta
         </p>
-        <h1 className="font-serif text-[32px] font-normal leading-[1.18] tracking-[-0.02em]">
+        <h1 className="font-serif text-[32px] leading-[1.18] font-normal tracking-[-0.02em]">
           Mi disponibilidad
         </h1>
-        <p className="mt-2 text-[14px] leading-[1.55] text-text-3">
-          Marcá las franjas en las que podés tomar clases. Coordinación cruza
-          este horario con el de los estudiantes al armar las aulas. Click y
-          arrastrá para pintar bloques de 15 minutos.
+        <p className="text-text-3 mt-2 text-[14px] leading-[1.55]">
+          Marcá las franjas en las que podés tomar clases. Coordinación cruza este horario con el de
+          los estudiantes al armar las aulas. Click y arrastrá para pintar bloques de 15 minutos.
         </p>
       </header>
 
-      <section className="rounded-xl border border-border bg-surface px-6 py-5">
+      <section className="border-border bg-surface rounded-xl border px-6 py-5">
         <AvailabilityForm teacherId={user.id} initialBlocks={blocks} />
       </section>
     </AppShell>

@@ -25,10 +25,7 @@ export async function deleteApplication(applicationId: string): Promise<Result> 
   try {
     await prisma.teacherApplication.delete({ where: { id: applicationId } })
   } catch (err) {
-    if (
-      err instanceof Prisma.PrismaClientKnownRequestError &&
-      err.code === "P2025"
-    ) {
+    if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2025") {
       return { success: false, error: "La postulación ya no existe" }
     }
     return {

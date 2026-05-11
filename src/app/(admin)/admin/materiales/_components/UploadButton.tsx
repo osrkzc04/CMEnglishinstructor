@@ -54,17 +54,13 @@ export function UploadButton({ folderId, onComplete }: Props) {
 
     xhr.upload.addEventListener("progress", (e) => {
       if (!e.lengthComputable) return
-      setUploads((prev) =>
-        prev.map((u) => (u.id === id ? { ...u, uploaded: e.loaded } : u)),
-      )
+      setUploads((prev) => prev.map((u) => (u.id === id ? { ...u, uploaded: e.loaded } : u)))
     })
 
     xhr.addEventListener("load", () => {
       if (xhr.status >= 200 && xhr.status < 300) {
         setUploads((prev) =>
-          prev.map((u) =>
-            u.id === id ? { ...u, status: "done", uploaded: u.size } : u,
-          ),
+          prev.map((u) => (u.id === id ? { ...u, status: "done", uploaded: u.size } : u)),
         )
         onComplete()
       } else {
@@ -81,9 +77,7 @@ export function UploadButton({ folderId, onComplete }: Props) {
 
     xhr.addEventListener("error", () => {
       setUploads((prev) =>
-        prev.map((u) =>
-          u.id === id ? { ...u, status: "error", error: "Error de red" } : u,
-        ),
+        prev.map((u) => (u.id === id ? { ...u, status: "error", error: "Error de red" } : u)),
       )
     })
 
@@ -123,9 +117,9 @@ export function UploadButton({ folderId, onComplete }: Props) {
       />
 
       {uploads.length > 0 && (
-        <div className="fixed bottom-4 right-4 z-30 w-[360px] max-w-[calc(100vw-2rem)] overflow-hidden rounded-xl border border-border bg-surface shadow-md">
-          <header className="flex items-center justify-between border-b border-border px-4 py-2.5">
-            <span className="text-[13px] font-medium text-foreground">
+        <div className="border-border bg-surface fixed right-4 bottom-4 z-30 w-[360px] max-w-[calc(100vw-2rem)] overflow-hidden rounded-xl border shadow-md">
+          <header className="border-border flex items-center justify-between border-b px-4 py-2.5">
+            <span className="text-foreground text-[13px] font-medium">
               {active.length > 0
                 ? `Subiendo ${active.length} archivo${active.length === 1 ? "" : "s"}…`
                 : "Subidas completadas"}
@@ -134,22 +128,22 @@ export function UploadButton({ folderId, onComplete }: Props) {
               <button
                 type="button"
                 onClick={() => setUploads([])}
-                className="rounded-md p-1 text-text-3 transition-colors hover:text-foreground"
+                className="text-text-3 hover:text-foreground rounded-md p-1 transition-colors"
                 aria-label="Cerrar lista de subidas"
               >
                 <X size={13} strokeWidth={1.6} />
               </button>
             )}
           </header>
-          <ul className="max-h-[260px] divide-y divide-border overflow-y-auto">
+          <ul className="divide-border max-h-[260px] divide-y overflow-y-auto">
             {uploads.map((u) => (
               <li key={u.id} className="px-4 py-2.5">
                 <div className="flex items-start justify-between gap-2">
                   <div className="min-w-0 flex-1">
-                    <div className="truncate text-[13px] text-foreground" title={u.name}>
+                    <div className="text-foreground truncate text-[13px]" title={u.name}>
                       {u.name}
                     </div>
-                    <div className="mt-1 flex items-center justify-between font-mono text-[11.5px] text-text-3">
+                    <div className="text-text-3 mt-1 flex items-center justify-between font-mono text-[11.5px]">
                       <span>
                         {formatBytes(u.uploaded)} / {formatBytes(u.size)}
                       </span>
@@ -161,11 +155,11 @@ export function UploadButton({ folderId, onComplete }: Props) {
                             : `${Math.round((u.uploaded / Math.max(u.size, 1)) * 100)}%`}
                       </span>
                     </div>
-                    <div className="mt-1.5 h-1 w-full overflow-hidden rounded-full bg-bone-100">
+                    <div className="bg-bone-100 mt-1.5 h-1 w-full overflow-hidden rounded-full">
                       <div
                         className={
                           u.status === "error"
-                            ? "h-full bg-danger"
+                            ? "bg-danger h-full"
                             : u.status === "done"
                               ? "h-full bg-teal-500"
                               : "h-full bg-teal-500/70"
@@ -175,15 +169,13 @@ export function UploadButton({ folderId, onComplete }: Props) {
                         }}
                       />
                     </div>
-                    {u.error && (
-                      <div className="mt-1 text-[11.5px] text-danger">{u.error}</div>
-                    )}
+                    {u.error && <div className="text-danger mt-1 text-[11.5px]">{u.error}</div>}
                   </div>
                   {u.status === "uploading" ? (
                     <button
                       type="button"
                       onClick={() => cancel(u.id)}
-                      className="shrink-0 rounded-md p-1 text-text-3 transition-colors hover:text-danger"
+                      className="text-text-3 hover:text-danger shrink-0 rounded-md p-1 transition-colors"
                       aria-label={`Cancelar ${u.name}`}
                     >
                       <X size={13} strokeWidth={1.6} />
@@ -192,7 +184,7 @@ export function UploadButton({ folderId, onComplete }: Props) {
                     <button
                       type="button"
                       onClick={() => dismiss(u.id)}
-                      className="shrink-0 rounded-md p-1 text-text-3 transition-colors hover:text-foreground"
+                      className="text-text-3 hover:text-foreground shrink-0 rounded-md p-1 transition-colors"
                       aria-label={`Descartar ${u.name}`}
                     >
                       <X size={13} strokeWidth={1.6} />

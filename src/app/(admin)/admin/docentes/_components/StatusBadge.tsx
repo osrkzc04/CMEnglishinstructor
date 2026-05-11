@@ -6,10 +6,7 @@ import { Badge } from "@/components/ui/badge"
  * estándar enum → label/variant.
  */
 
-const STATUS: Record<
-  UserStatus,
-  { label: string; variant: "teal" | "warning" | "default" }
-> = {
+const STATUS: Record<UserStatus, { label: string; variant: "teal" | "warning" | "default" }> = {
   ACTIVE: { label: "Activo", variant: "teal" },
   PENDING_APPROVAL: { label: "Pendiente", variant: "warning" },
   INACTIVE: { label: "Inactivo", variant: "default" },

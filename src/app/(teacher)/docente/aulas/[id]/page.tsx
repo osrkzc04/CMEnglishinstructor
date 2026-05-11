@@ -2,13 +2,7 @@ import { notFound } from "next/navigation"
 import Link from "next/link"
 import type { Route } from "next"
 import type { Metadata } from "next"
-import {
-  ArrowUpRight,
-  CalendarClock,
-  ExternalLink,
-  MapPin,
-  Video,
-} from "lucide-react"
+import { ArrowUpRight, CalendarClock, ExternalLink, MapPin, Video } from "lucide-react"
 import { ClassGroupStatus, SessionStatus } from "@prisma/client"
 import { AppShell } from "@/components/layout/AppShell"
 import { requireRole } from "@/modules/auth/guards"
@@ -20,15 +14,7 @@ import { TeacherMetadataForm } from "./_components/TeacherMetadataForm"
 
 export const metadata: Metadata = { title: "Aula" }
 
-const DAYS_ES = [
-  "Domingo",
-  "Lunes",
-  "Martes",
-  "Miércoles",
-  "Jueves",
-  "Viernes",
-  "Sábado",
-]
+const DAYS_ES = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"]
 
 const MODALITY_LABEL: Record<string, string> = {
   VIRTUAL: "Virtual",
@@ -36,10 +22,7 @@ const MODALITY_LABEL: Record<string, string> = {
   HIBRIDO: "Híbrida",
 }
 
-const STATUS_TONE: Record<
-  ClassGroupStatus,
-  { label: string; className: string }
-> = {
+const STATUS_TONE: Record<ClassGroupStatus, { label: string; className: string }> = {
   ACTIVE: {
     label: "Activa",
     className: "border-teal-500/40 bg-teal-500/10 text-teal-700",
@@ -63,11 +46,7 @@ const SESSION_STATUS_LABEL: Record<SessionStatus, string> = {
 
 type RouteParams = { id: string }
 
-export default async function TeacherAulaDetallePage({
-  params,
-}: {
-  params: Promise<RouteParams>
-}) {
+export default async function TeacherAulaDetallePage({ params }: { params: Promise<RouteParams> }) {
   const user = await requireRole(["TEACHER"])
   const { id } = await params
 
@@ -76,10 +55,8 @@ export default async function TeacherAulaDetallePage({
 
   const isActive = detail.status === ClassGroupStatus.ACTIVE
   const statusTone = STATUS_TONE[detail.status]
-  const isVirtual =
-    detail.modality === "VIRTUAL" || detail.modality === "HIBRIDO"
-  const isPresencial =
-    detail.modality === "PRESENCIAL" || detail.modality === "HIBRIDO"
+  const isVirtual = detail.modality === "VIRTUAL" || detail.modality === "HIBRIDO"
+  const isPresencial = detail.modality === "PRESENCIAL" || detail.modality === "HIBRIDO"
 
   return (
     <AppShell
@@ -96,28 +73,24 @@ export default async function TeacherAulaDetallePage({
       ]}
     >
       <header className="mb-7">
-        <p className="mb-2 font-mono text-[12px] uppercase tracking-[0.08em] text-text-3">
-          Aula
-        </p>
+        <p className="text-text-3 mb-2 font-mono text-[12px] tracking-[0.08em] uppercase">Aula</p>
         <div className="flex flex-wrap items-center gap-3">
-          <h1 className="font-serif text-[32px] font-normal leading-[1.18] tracking-[-0.02em]">
+          <h1 className="font-serif text-[32px] leading-[1.18] font-normal tracking-[-0.02em]">
             {detail.name}
           </h1>
           <span
-            className={`inline-flex items-center rounded-full border px-2.5 py-0.5 font-mono text-[11px] uppercase tracking-[0.06em] ${statusTone.className}`}
+            className={`inline-flex items-center rounded-full border px-2.5 py-0.5 font-mono text-[11px] tracking-[0.06em] uppercase ${statusTone.className}`}
           >
             {statusTone.label}
           </span>
         </div>
-        <div className="mt-2 flex flex-wrap items-baseline gap-2.5 text-[13.5px] text-text-3">
+        <div className="text-text-3 mt-2 flex flex-wrap items-baseline gap-2.5 text-[13.5px]">
           <span>{detail.programLevel.programLabel}</span>
           <span aria-hidden>·</span>
           <span>{MODALITY_LABEL[detail.modality]}</span>
           <span aria-hidden>·</span>
           <span>{detail.programLevel.classDurationMinutes} min/clase</span>
-          {detail.programLevel.cefrLevelCode && (
-            <Tag>CEFR {detail.programLevel.cefrLevelCode}</Tag>
-          )}
+          {detail.programLevel.cefrLevelCode && <Tag>CEFR {detail.programLevel.cefrLevelCode}</Tag>}
         </div>
       </header>
 
@@ -134,11 +107,11 @@ export default async function TeacherAulaDetallePage({
               disabled={!isActive}
             />
             {isPresencial && detail.defaultLocation && (
-              <div className="mt-4 border-t border-border pt-3">
-                <p className="mb-1 text-[12px] font-medium uppercase tracking-[0.06em] text-text-3">
+              <div className="border-border mt-4 border-t pt-3">
+                <p className="text-text-3 mb-1 text-[12px] font-medium tracking-[0.06em] uppercase">
                   Ubicación (definida por coordinación)
                 </p>
-                <p className="inline-flex items-center gap-1.5 text-[13.5px] text-text-2">
+                <p className="text-text-2 inline-flex items-center gap-1.5 text-[13.5px]">
                   <MapPin size={13} strokeWidth={1.6} className="text-text-3" />
                   {detail.defaultLocation}
                 </p>
@@ -148,9 +121,9 @@ export default async function TeacherAulaDetallePage({
 
           <Card title="Horario semanal">
             {detail.slots.length === 0 ? (
-              <p className="text-[13px] text-text-3">Sin bloques cargados.</p>
+              <p className="text-text-3 text-[13px]">Sin bloques cargados.</p>
             ) : (
-              <ul className="divide-y divide-border">
+              <ul className="divide-border divide-y">
                 {[1, 2, 3, 4, 5, 6, 0].map((d) => {
                   const slots = detail.slots.filter((s) => s.dayOfWeek === d)
                   if (slots.length === 0) return null
@@ -159,15 +132,13 @@ export default async function TeacherAulaDetallePage({
                       key={d}
                       className="grid grid-cols-[120px_1fr] items-baseline gap-4 py-2.5 first:pt-0 last:pb-0"
                     >
-                      <span className="text-[13.5px] font-medium text-foreground">
+                      <span className="text-foreground text-[13.5px] font-medium">
                         {DAYS_ES[d]}
                       </span>
-                      <span className="font-mono text-[13px] tracking-[0.02em] text-text-2">
+                      <span className="text-text-2 font-mono text-[13px] tracking-[0.02em]">
                         {slots
                           .sort((a, b) => a.startTime.localeCompare(b.startTime))
-                          .map((s) =>
-                            formatSlotRange(s.startTime, s.durationMinutes),
-                          )
+                          .map((s) => formatSlotRange(s.startTime, s.durationMinutes))
                           .join("  ·  ")}
                       </span>
                     </li>
@@ -179,24 +150,18 @@ export default async function TeacherAulaDetallePage({
 
           <Card title={`Estudiantes (${detail.enrollments.length})`}>
             {detail.enrollments.length === 0 ? (
-              <p className="text-[13px] text-text-3">
-                Sin estudiantes inscritos todavía.
-              </p>
+              <p className="text-text-3 text-[13px]">Sin estudiantes inscritos todavía.</p>
             ) : (
-              <ul className="divide-y divide-border">
+              <ul className="divide-border divide-y">
                 {detail.enrollments.map((e) => (
                   <li
                     key={e.enrollmentId}
                     className="flex flex-wrap items-center justify-between gap-3 py-3 first:pt-0 last:pb-0"
                   >
                     <div className="min-w-0 flex-1">
-                      <div className="font-medium text-foreground">
-                        {e.studentName}
-                      </div>
-                      <div className="mt-0.5 text-[12.5px] text-text-3">
-                        {e.studentEmail}
-                      </div>
-                      <div className="mt-1 text-[12px] text-text-3">
+                      <div className="text-foreground font-medium">{e.studentName}</div>
+                      <div className="text-text-3 mt-0.5 text-[12.5px]">{e.studentEmail}</div>
+                      <div className="text-text-3 mt-1 text-[12px]">
                         Desde {formatDate(e.joinedAt)}
                       </div>
                     </div>
@@ -216,26 +181,24 @@ export default async function TeacherAulaDetallePage({
 
           <Card title="Próximas sesiones">
             {detail.upcomingSessions.length === 0 ? (
-              <p className="text-[13px] text-text-3">
-                No hay sesiones programadas adelante.
-              </p>
+              <p className="text-text-3 text-[13px]">No hay sesiones programadas adelante.</p>
             ) : (
-              <ul className="divide-y divide-border">
+              <ul className="divide-border divide-y">
                 {detail.upcomingSessions.map((s) => (
                   <li
                     key={s.id}
                     className="flex flex-wrap items-center justify-between gap-3 py-2.5 first:pt-0 last:pb-0"
                   >
                     <div>
-                      <div className="text-[13.5px] capitalize text-foreground">
+                      <div className="text-foreground text-[13.5px] capitalize">
                         {formatDateLong(s.scheduledStart)}
                       </div>
-                      <div className="mt-0.5 font-mono text-[12.5px] text-text-2">
+                      <div className="text-text-2 mt-0.5 font-mono text-[12.5px]">
                         {formatTimeRange(s.scheduledStart, s.scheduledEnd)}
                       </div>
                     </div>
                     <div className="flex items-center gap-3">
-                      <span className="font-mono text-[11.5px] text-text-3">
+                      <span className="text-text-3 font-mono text-[11.5px]">
                         {SESSION_STATUS_LABEL[s.status]}
                       </span>
                       <Link
@@ -256,15 +219,9 @@ export default async function TeacherAulaDetallePage({
         <aside className="space-y-5">
           <Card title="Información">
             <dl className="space-y-2.5">
-              <DLItem label="Programa">
-                {detail.programLevel.programLabel}
-              </DLItem>
-              <DLItem label="Modalidad">
-                {MODALITY_LABEL[detail.modality]}
-              </DLItem>
-              <DLItem label="Horas">
-                {detail.programLevel.totalHours} h
-              </DLItem>
+              <DLItem label="Programa">{detail.programLevel.programLabel}</DLItem>
+              <DLItem label="Modalidad">{MODALITY_LABEL[detail.modality]}</DLItem>
+              <DLItem label="Horas">{detail.programLevel.totalHours} h</DLItem>
               <DLItem label="Creada">{formatDate(detail.createdAt)}</DLItem>
               <DLItem label="Alumnos">{detail.enrollments.length}</DLItem>
             </dl>
@@ -277,16 +234,16 @@ export default async function TeacherAulaDetallePage({
                   href={detail.defaultMeetingUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-teal-500 px-4 py-2.5 text-[13.5px] font-medium text-white shadow-sm transition-colors hover:bg-teal-deep"
+                  className="hover:bg-teal-deep inline-flex w-full items-center justify-center gap-2 rounded-lg bg-teal-500 px-4 py-2.5 text-[13.5px] font-medium text-white shadow-sm transition-colors"
                 >
                   <Video size={14} strokeWidth={1.8} />
                   Conectar a la reunión
                   <ExternalLink size={11} strokeWidth={1.8} />
                 </a>
               ) : (
-                <p className="text-[13px] text-text-3">
-                  Aún no cargaste el link. Pegálo en &ldquo;Datos del
-                  aula&rdquo; para que estudiantes lo vean.
+                <p className="text-text-3 text-[13px]">
+                  Aún no cargaste el link. Pegálo en &ldquo;Datos del aula&rdquo; para que
+                  estudiantes lo vean.
                 </p>
               )}
             </Card>
@@ -297,7 +254,7 @@ export default async function TeacherAulaDetallePage({
               <li>
                 <Link
                   href={"/docente/clases" as Route}
-                  className="inline-flex items-center gap-1.5 text-[13px] text-text-2 hover:text-teal-500"
+                  className="text-text-2 inline-flex items-center gap-1.5 text-[13px] hover:text-teal-500"
                 >
                   <CalendarClock size={12} strokeWidth={1.6} />
                   Ver todas mis clases
@@ -315,16 +272,10 @@ export default async function TeacherAulaDetallePage({
 //  Sub-componentes locales
 // -----------------------------------------------------------------------------
 
-function Card({
-  title,
-  children,
-}: {
-  title: string
-  children: React.ReactNode
-}) {
+function Card({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <section className="rounded-xl border border-border bg-surface p-5 lg:p-6">
-      <h2 className="mb-4 font-serif text-[18px] font-normal tracking-[-0.01em] text-foreground">
+    <section className="border-border bg-surface rounded-xl border p-5 lg:p-6">
+      <h2 className="text-foreground mb-4 font-serif text-[18px] font-normal tracking-[-0.01em]">
         {title}
       </h2>
       {children}
@@ -332,19 +283,11 @@ function Card({
   )
 }
 
-function DLItem({
-  label,
-  children,
-}: {
-  label: string
-  children: React.ReactNode
-}) {
+function DLItem({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="grid grid-cols-[110px_1fr] items-baseline gap-3">
-      <dt className="text-[12px] font-medium uppercase tracking-[0.06em] text-text-3">
-        {label}
-      </dt>
-      <dd className="text-[13.5px] text-foreground">{children}</dd>
+      <dt className="text-text-3 text-[12px] font-medium tracking-[0.06em] uppercase">{label}</dt>
+      <dd className="text-foreground text-[13.5px]">{children}</dd>
     </div>
   )
 }

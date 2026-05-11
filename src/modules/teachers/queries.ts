@@ -2,10 +2,7 @@ import "server-only"
 import { cache } from "react"
 import { Prisma, UserStatus } from "@prisma/client"
 import { prisma } from "@/lib/prisma"
-import {
-  TeacherListFiltersSchema,
-  type TeacherListFilters,
-} from "./schemas"
+import { TeacherListFiltersSchema, type TeacherListFilters } from "./schemas"
 
 /**
  * Lectura del módulo docentes para el panel admin.
@@ -42,9 +39,7 @@ export type TeacherListResult = {
   totalPages: number
 }
 
-export async function listTeachers(
-  raw: Partial<TeacherListFilters>,
-): Promise<TeacherListResult> {
+export async function listTeachers(raw: Partial<TeacherListFilters>): Promise<TeacherListResult> {
   const filters = TeacherListFiltersSchema.parse(raw)
   const where = buildWhere(filters)
   const today = startOfTodayUTC()
@@ -90,10 +85,8 @@ export async function listTeachers(
     items: users.map((u) => {
       const profile = u.teacherProfile
       const availabilityHours = profile
-        ? profile.availability.reduce(
-            (acc, a) => acc + minutesBetween(a.startTime, a.endTime),
-            0,
-          ) / 60
+        ? profile.availability.reduce((acc, a) => acc + minutesBetween(a.startTime, a.endTime), 0) /
+          60
         : 0
       return {
         id: u.id,
@@ -167,75 +160,72 @@ export type TeacherFullDetail = {
   assignments: TeacherAssignmentRow[]
 }
 
-export const getTeacherFullDetail = cache(
-  async (id: string): Promise<TeacherFullDetail | null> => {
-    const today = startOfTodayUTC()
-    const row = await prisma.user.findFirst({
-      where: { id, role: "TEACHER" },
-      include: {
-        teacherProfile: {
-          include: {
-            teachableLevels: true,
-            availability: {
-              orderBy: [{ dayOfWeek: "asc" }, { startTime: "asc" }],
-            },
-            teacherAssignments: {
-              orderBy: { startDate: "desc" },
-              include: {
-                classGroup: {
-                  include: {
-                    programLevel: {
-                      include: {
-                        program: { include: { course: true } },
-                      },
+export const getTeacherFullDetail = cache(async (id: string): Promise<TeacherFullDetail | null> => {
+  const today = startOfTodayUTC()
+  const row = await prisma.user.findFirst({
+    where: { id, role: "TEACHER" },
+    include: {
+      teacherProfile: {
+        include: {
+          teachableLevels: true,
+          availability: {
+            orderBy: [{ dayOfWeek: "asc" }, { startTime: "asc" }],
+          },
+          teacherAssignments: {
+            orderBy: { startDate: "desc" },
+            include: {
+              classGroup: {
+                include: {
+                  programLevel: {
+                    include: {
+                      program: { include: { course: true } },
                     },
-                    _count: { select: { enrollments: true } },
                   },
+                  _count: { select: { enrollments: true } },
                 },
               },
             },
           },
         },
       },
-    })
-    if (!row || !row.teacherProfile) return null
+    },
+  })
+  if (!row || !row.teacherProfile) return null
 
-    const profile = row.teacherProfile
-    return {
-      id: row.id,
-      firstName: row.firstName,
-      lastName: row.lastName,
-      email: row.email,
-      phone: row.phone,
-      document: row.document,
-      status: row.status,
-      isActive: profile.isActive,
-      createdAt: row.createdAt,
-      levelIds: profile.teachableLevels.map((tl) => tl.levelId),
-      availability: profile.availability.map((a) => ({
+  const profile = row.teacherProfile
+  return {
+    id: row.id,
+    firstName: row.firstName,
+    lastName: row.lastName,
+    email: row.email,
+    phone: row.phone,
+    document: row.document,
+    status: row.status,
+    isActive: profile.isActive,
+    createdAt: row.createdAt,
+    levelIds: profile.teachableLevels.map((tl) => tl.levelId),
+    availability: profile.availability.map((a) => ({
+      id: a.id,
+      dayOfWeek: a.dayOfWeek,
+      startTime: a.startTime,
+      endTime: a.endTime,
+    })),
+    assignments: profile.teacherAssignments.map((a) => {
+      const g = a.classGroup
+      const isCurrent = a.startDate <= today && (a.endDate === null || a.endDate >= today)
+      return {
         id: a.id,
-        dayOfWeek: a.dayOfWeek,
-        startTime: a.startTime,
-        endTime: a.endTime,
-      })),
-      assignments: profile.teacherAssignments.map((a) => {
-        const g = a.classGroup
-        const isCurrent =
-          a.startDate <= today && (a.endDate === null || a.endDate >= today)
-        return {
-          id: a.id,
-          classGroupId: g.id,
-          classGroupName: g.name,
-          programLabel: `${g.programLevel.program.course.name} · ${g.programLevel.program.name} · ${g.programLevel.name}`,
-          studentCount: g._count.enrollments,
-          startDate: a.startDate,
-          endDate: a.endDate,
-          isCurrent,
-        }
-      }),
-    }
-  },
-)
+        classGroupId: g.id,
+        classGroupName: g.name,
+        programLabel: `${g.programLevel.program.course.name} · ${g.programLevel.program.name} · ${g.programLevel.name}`,
+        studentCount: g._count.enrollments,
+        startDate: a.startDate,
+        endDate: a.endDate,
+        isCurrent,
+      }
+    }),
+  }
+})
 
 // -----------------------------------------------------------------------------
 //  KPIs
@@ -292,27 +282,25 @@ export type CefrLanguageGroup = {
   levels: CefrLevelOption[]
 }
 
-export const listCefrLevelsByLanguage = cache(
-  async (): Promise<CefrLanguageGroup[]> => {
-    const languages = await prisma.language.findMany({
-      orderBy: { name: "asc" },
-      include: {
-        cefrLevels: { orderBy: { order: "asc" } },
-      },
-    })
-    return languages.map((lang) => ({
-      languageId: lang.id,
-      languageName: lang.name,
-      languageCode: lang.code,
-      levels: lang.cefrLevels.map((l) => ({
-        id: l.id,
-        code: l.code,
-        name: l.name,
-        order: l.order,
-      })),
-    }))
-  },
-)
+export const listCefrLevelsByLanguage = cache(async (): Promise<CefrLanguageGroup[]> => {
+  const languages = await prisma.language.findMany({
+    orderBy: { name: "asc" },
+    include: {
+      cefrLevels: { orderBy: { order: "asc" } },
+    },
+  })
+  return languages.map((lang) => ({
+    languageId: lang.id,
+    languageName: lang.name,
+    languageCode: lang.code,
+    levels: lang.cefrLevels.map((l) => ({
+      id: l.id,
+      code: l.code,
+      name: l.name,
+      order: l.order,
+    })),
+  }))
+})
 
 // -----------------------------------------------------------------------------
 //  Helpers
@@ -487,10 +475,7 @@ export async function getTeacherDashboard(userId: string): Promise<TeacherDashbo
 
   const classGroups: TeacherDashboardClassGroup[] = assignments.map((a) => {
     const g = a.classGroup
-    const consumedSum = g.enrollments.reduce(
-      (acc, e) => acc + Number(e.consumedHours),
-      0,
-    )
+    const consumedSum = g.enrollments.reduce((acc, e) => acc + Number(e.consumedHours), 0)
     const studentCount = g.enrollments.length
     return {
       id: g.id,
@@ -572,9 +557,7 @@ export async function getTeacherDashboard(userId: string): Promise<TeacherDashbo
 
   const now = new Date()
   const todayStartGuayaquil = startOfGuayaquilDay(now)
-  const todayEndGuayaquil = new Date(
-    todayStartGuayaquil.getTime() + 24 * 60 * 60 * 1000,
-  )
+  const todayEndGuayaquil = new Date(todayStartGuayaquil.getTime() + 24 * 60 * 60 * 1000)
   const weekEnd = new Date(todayStartGuayaquil.getTime() + 7 * 86_400_000)
 
   // Sesiones de hoy (Guayaquil) — todas, sin filtro de status: queremos ver
@@ -697,12 +680,9 @@ export async function getTeacherDashboard(userId: string): Promise<TeacherDashbo
   const pendings: TeacherPendingItem[] = pendingRows
     .map<TeacherPendingItem | null>((s) => {
       const inRange =
-        s.scheduledStart.getTime() <= now.getTime() &&
-        now.getTime() < s.scheduledEnd.getTime()
+        s.scheduledStart.getTime() <= now.getTime() && now.getTime() < s.scheduledEnd.getTime()
       const isOverdue = s.scheduledEnd.getTime() <= now.getTime()
-      const hasPendingAttendance = s.participants.some(
-        (p) => p.attendance === "PENDING",
-      )
+      const hasPendingAttendance = s.participants.some((p) => p.attendance === "PENDING")
       const hasNoLog = s.log === null
       const reason: TeacherPendingItem["reason"] | null = isOverdue
         ? "overdue"
@@ -772,11 +752,7 @@ export async function getTeacherDashboard(userId: string): Promise<TeacherDashbo
 
   const activitySessions: TeacherActivityItem[] = recentSessions.map((s) => {
     const kind =
-      s.status === "COMPLETED"
-        ? "completed"
-        : s.status === "CANCELLED"
-          ? "cancelled"
-          : "no_show"
+      s.status === "COMPLETED" ? "completed" : s.status === "CANCELLED" ? "cancelled" : "no_show"
     const detail =
       kind === "completed"
         ? `Cerraste la clase · ${s._count.participants} ${s._count.participants === 1 ? "alumno" : "alumnos"}`
@@ -793,21 +769,16 @@ export async function getTeacherDashboard(userId: string): Promise<TeacherDashbo
     }
   })
 
-  const activityEnrollments: TeacherActivityItem[] = recentEnrollments.map(
-    (e) => ({
-      id: `e_${e.id}`,
-      kind: "enrollment",
-      at: e.createdAt,
-      classGroupId: e.classGroupId,
-      classGroupName: e.classGroup?.name ?? null,
-      detail: `Nuevo alumno · ${e.student.user.firstName} ${e.student.user.lastName}`,
-    }),
-  )
+  const activityEnrollments: TeacherActivityItem[] = recentEnrollments.map((e) => ({
+    id: `e_${e.id}`,
+    kind: "enrollment",
+    at: e.createdAt,
+    classGroupId: e.classGroupId,
+    classGroupName: e.classGroup?.name ?? null,
+    detail: `Nuevo alumno · ${e.student.user.firstName} ${e.student.user.lastName}`,
+  }))
 
-  const recentActivity: TeacherActivityItem[] = [
-    ...activitySessions,
-    ...activityEnrollments,
-  ]
+  const recentActivity: TeacherActivityItem[] = [...activitySessions, ...activityEnrollments]
     .sort((a, b) => b.at.getTime() - a.at.getTime())
     .slice(0, 6)
 
@@ -918,10 +889,7 @@ export async function listTeacherStudents(
         ...(opts.classGroupId ? { id: opts.classGroupId } : {}),
       },
     },
-    orderBy: [
-      { classGroup: { name: "asc" } },
-      { student: { user: { firstName: "asc" } } },
-    ],
+    orderBy: [{ classGroup: { name: "asc" } }, { student: { user: { firstName: "asc" } } }],
     include: {
       student: {
         include: {
@@ -1002,8 +970,7 @@ export async function listTeacherStudents(
         pending: 0,
       }
       const attendedCount = tally.present + tally.late
-      const registeredCount =
-        tally.present + tally.late + tally.absent + tally.excused
+      const registeredCount = tally.present + tally.late + tally.absent + tally.excused
       const totalCount = registeredCount + tally.pending
       // El filtro de arriba garantiza que classGroup no es null; el `!` evita
       // que TS lo trate como opcional dentro del map.
@@ -1303,11 +1270,7 @@ function startOfGuayaquilDay(now: Date): Date {
   const guayaquilOffsetMs = 5 * 60 * 60 * 1000
   const localMs = now.getTime() - guayaquilOffsetMs
   const local = new Date(localMs)
-  const utcMidnight = Date.UTC(
-    local.getUTCFullYear(),
-    local.getUTCMonth(),
-    local.getUTCDate(),
-  )
+  const utcMidnight = Date.UTC(local.getUTCFullYear(), local.getUTCMonth(), local.getUTCDate())
   return new Date(utcMidnight + guayaquilOffsetMs)
 }
 
@@ -1328,9 +1291,7 @@ export async function getTeacherAvailabilityBlocks(
 
 function startOfTodayUTC(): Date {
   const now = new Date()
-  return new Date(
-    Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()),
-  )
+  return new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()))
 }
 
 function minutesBetween(start: string, end: string): number {

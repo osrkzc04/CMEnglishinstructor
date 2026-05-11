@@ -36,12 +36,9 @@ export function FolderViewer({ folder, basePath, rootLabel }: Props) {
       />
 
       <div className="my-4 flex items-center justify-between">
-        <h2 className="font-serif text-[20px] font-normal text-foreground">
-          {folder.name}
-        </h2>
-        <div className="text-[12.5px] text-text-3">
-          {folder.items.length}{" "}
-          {folder.items.length === 1 ? "elemento" : "elementos"}
+        <h2 className="text-foreground font-serif text-[20px] font-normal">{folder.name}</h2>
+        <div className="text-text-3 text-[12.5px]">
+          {folder.items.length} {folder.items.length === 1 ? "elemento" : "elementos"}
         </div>
       </div>
 
@@ -52,7 +49,7 @@ export function FolderViewer({ folder, basePath, rootLabel }: Props) {
           description="Aún no se han publicado archivos en esta carpeta."
         />
       ) : (
-        <div className="overflow-hidden rounded-xl border border-border bg-surface">
+        <div className="border-border bg-surface overflow-hidden rounded-xl border">
           <Table>
             <TableHeader>
               <tr>
@@ -69,46 +66,38 @@ export function FolderViewer({ folder, basePath, rootLabel }: Props) {
                     {item.kind === "folder" ? (
                       <Link
                         href={`${basePath}/${item.id}` as Route}
-                        className="group inline-flex items-center gap-2.5 text-foreground"
+                        className="group text-foreground inline-flex items-center gap-2.5"
                       >
                         <Folder
                           size={15}
                           strokeWidth={1.6}
                           className="text-text-3 group-hover:text-teal-500"
                         />
-                        <span className="font-medium group-hover:text-teal-500">
-                          {item.name}
-                        </span>
+                        <span className="font-medium group-hover:text-teal-500">{item.name}</span>
                       </Link>
                     ) : (
                       <span className="inline-flex items-center gap-2.5">
-                        <FileText
-                          size={15}
-                          strokeWidth={1.6}
-                          className="text-text-3"
-                        />
+                        <FileText size={15} strokeWidth={1.6} className="text-text-3" />
                         <span className="text-foreground">{item.name}</span>
                       </span>
                     )}
                     {item.kind === "folder" && (
-                      <div className="mt-0.5 ml-[26px] text-[12px] text-text-3">
+                      <div className="text-text-3 mt-0.5 ml-[26px] text-[12px]">
                         {item.childFolderCount} carpetas · {item.fileCount} archivos
                       </div>
                     )}
                   </TableCell>
-                  <TableCell className="font-mono text-[12.5px] text-text-3">
+                  <TableCell className="text-text-3 font-mono text-[12.5px]">
                     {item.kind === "file" ? formatBytes(item.size) : "—"}
                   </TableCell>
-                  <TableCell className="text-[12.5px] text-text-3">
-                    {formatDate(
-                      item.kind === "file" ? item.uploadedAt : item.updatedAt,
-                    )}
+                  <TableCell className="text-text-3 text-[12.5px]">
+                    {formatDate(item.kind === "file" ? item.uploadedAt : item.updatedAt)}
                   </TableCell>
                   <TableCell className="text-right">
                     {item.kind === "file" ? (
                       <a
                         href={`/api/materials/files/${item.id}/download`}
-                        className="inline-flex items-center gap-1.5 rounded-md border border-border bg-surface px-2.5 py-1.5 text-[12.5px] text-text-2 transition-colors hover:border-teal-500 hover:text-teal-500"
+                        className="border-border bg-surface text-text-2 inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1.5 text-[12.5px] transition-colors hover:border-teal-500 hover:text-teal-500"
                         aria-label={`Descargar ${item.name}`}
                         download
                       >
@@ -116,7 +105,7 @@ export function FolderViewer({ folder, basePath, rootLabel }: Props) {
                         Descargar
                       </a>
                     ) : (
-                      <span className="text-[12px] text-text-3">—</span>
+                      <span className="text-text-3 text-[12px]">—</span>
                     )}
                   </TableCell>
                 </TableRow>
@@ -145,11 +134,11 @@ function FolderTrail({
   return (
     <nav
       aria-label="Ruta de la carpeta"
-      className="flex flex-wrap items-center gap-1 text-[12.5px] text-text-3"
+      className="text-text-3 flex flex-wrap items-center gap-1 text-[12.5px]"
     >
       <Link
         href={basePath as Route}
-        className="inline-flex items-center gap-1 transition-colors hover:text-foreground"
+        className="hover:text-foreground inline-flex items-center gap-1 transition-colors"
       >
         <Home size={11} strokeWidth={1.6} />
         {rootLabel}
@@ -165,7 +154,7 @@ function FolderTrail({
             ) : (
               <Link
                 href={`${basePath}/${node.id}` as Route}
-                className="transition-colors hover:text-foreground"
+                className="hover:text-foreground transition-colors"
               >
                 {label}
               </Link>

@@ -4,15 +4,7 @@ import { useState, useTransition } from "react"
 import Link from "next/link"
 import type { Route } from "next"
 import { useRouter, useSearchParams } from "next/navigation"
-import {
-  AlertTriangle,
-  ArrowRight,
-  Eye,
-  EyeOff,
-  Loader2,
-  Lock,
-  Mail,
-} from "lucide-react"
+import { AlertTriangle, ArrowRight, Eye, EyeOff, Loader2, Lock, Mail } from "lucide-react"
 import { Alert } from "@/components/ui/alert"
 import { Input, InputAction } from "@/components/ui/input"
 import { Label, LabelHint } from "@/components/ui/label"
@@ -92,7 +84,9 @@ export function LoginForm() {
 
       {/* Email */}
       <div className="mb-[18px]">
-        <Label htmlFor="email" className="mb-2">Correo</Label>
+        <Label htmlFor="email" className="mb-2">
+          Correo
+        </Label>
         <Input
           id="email"
           type="email"
@@ -118,7 +112,7 @@ export function LoginForm() {
           <LabelHint>
             <Link
               href={"/recuperar" as Route}
-              className="border-b border-border-strong pb-px text-text-2 transition-colors hover:border-teal-500 hover:text-teal-500"
+              className="border-border-strong text-text-2 border-b pb-px transition-colors hover:border-teal-500 hover:text-teal-500"
             >
               ¿Olvidaste tu contraseña?
             </Link>
@@ -133,8 +127,7 @@ export function LoginForm() {
           value={password}
           onChange={(e) => {
             setPassword(e.target.value)
-            if (errors.password)
-              setErrors((prev) => ({ ...prev, password: undefined }))
+            if (errors.password) setErrors((prev) => ({ ...prev, password: undefined }))
           }}
           aria-invalid={errors.password ? "true" : undefined}
           aria-describedby={errors.password ? "password-error" : undefined}
@@ -152,18 +145,13 @@ export function LoginForm() {
             </InputAction>
           }
         />
-        {errors.password && (
-          <FieldError id="password-error">{errors.password}</FieldError>
-        )}
+        {errors.password && <FieldError id="password-error">{errors.password}</FieldError>}
       </div>
 
       {/* Keep session */}
-      <div className="mb-7 mt-1 flex items-center justify-between">
-        <CheckLabel className="text-[13px] text-text-2">
-          <Checkbox
-            checked={keepLoggedIn}
-            onChange={(e) => setKeepLoggedIn(e.target.checked)}
-          />
+      <div className="mt-1 mb-7 flex items-center justify-between">
+        <CheckLabel className="text-text-2 text-[13px]">
+          <Checkbox checked={keepLoggedIn} onChange={(e) => setKeepLoggedIn(e.target.checked)} />
           Mantener sesión iniciada
         </CheckLabel>
       </div>
@@ -173,11 +161,11 @@ export function LoginForm() {
         type="submit"
         disabled={isPending}
         className={cn(
-          "inline-flex w-full items-center justify-center gap-2.5 rounded-lg border border-ink-900 bg-ink-900 px-4 py-3.5 text-[14px] tracking-[0.005em] text-bone",
+          "border-ink-900 bg-ink-900 text-bone inline-flex w-full items-center justify-center gap-2.5 rounded-lg border px-4 py-3.5 text-[14px] tracking-[0.005em]",
           "transition-colors duration-[150ms]",
-          "hover:bg-teal-500 hover:border-teal-500",
-          "dark:bg-bone dark:text-ink-900 dark:border-bone dark:hover:bg-teal-500 dark:hover:text-bone dark:hover:border-teal-500",
-          "disabled:cursor-not-allowed disabled:opacity-70 disabled:hover:bg-ink-900 disabled:hover:border-ink-900",
+          "hover:border-teal-500 hover:bg-teal-500",
+          "dark:bg-bone dark:text-ink-900 dark:border-bone dark:hover:text-bone dark:hover:border-teal-500 dark:hover:bg-teal-500",
+          "disabled:hover:bg-ink-900 disabled:hover:border-ink-900 disabled:cursor-not-allowed disabled:opacity-70",
           "dark:disabled:hover:bg-bone dark:disabled:hover:border-bone",
         )}
       >
@@ -193,7 +181,6 @@ export function LoginForm() {
           </>
         )}
       </button>
-
     </form>
   )
 }
@@ -202,21 +189,10 @@ export function LoginForm() {
 //  FieldError — mensaje inline bajo el input
 // -----------------------------------------------------------------------------
 
-function FieldError({
-  id,
-  children,
-}: {
-  id: string
-  children: React.ReactNode
-}) {
+function FieldError({ id, children }: { id: string; children: React.ReactNode }) {
   return (
-    <p
-      id={id}
-      role="alert"
-      className="mt-1.5 text-[12.5px] leading-[1.4] text-danger"
-    >
+    <p id={id} role="alert" className="text-danger mt-1.5 text-[12.5px] leading-[1.4]">
       {children}
     </p>
   )
 }
-

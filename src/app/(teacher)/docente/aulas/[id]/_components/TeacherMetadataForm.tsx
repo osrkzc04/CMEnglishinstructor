@@ -26,12 +26,7 @@ type Props = {
   disabled?: boolean
 }
 
-export function TeacherMetadataForm({
-  classGroupId,
-  initialValues,
-  modality,
-  disabled,
-}: Props) {
+export function TeacherMetadataForm({ classGroupId, initialValues, modality, disabled }: Props) {
   const showMeeting = modality === "VIRTUAL" || modality === "HIBRIDO"
   const router = useRouter()
   const [serverError, setServerError] = useState<string | null>(null)
@@ -89,9 +84,7 @@ export function TeacherMetadataForm({
           disabled={disabled}
           {...register("name")}
         />
-        {errors.name && (
-          <p className="mt-1 text-[12px] text-danger">{errors.name.message}</p>
-        )}
+        {errors.name && <p className="text-danger mt-1 text-[12px]">{errors.name.message}</p>}
       </div>
 
       {showMeeting && (
@@ -110,27 +103,22 @@ export function TeacherMetadataForm({
               {...register("defaultMeetingUrl")}
             />
             {initialValues.defaultMeetingUrl && (
-              <CopyButton
-                value={initialValues.defaultMeetingUrl}
-                label="Copiar link"
-              />
+              <CopyButton value={initialValues.defaultMeetingUrl} label="Copiar link" />
             )}
           </div>
-          <p className="mt-1 text-[12px] text-text-3">
-            Este enlace se usa para todas las sesiones futuras del aula y se
-            muestra a los estudiantes en su dashboard.
+          <p className="text-text-3 mt-1 text-[12px]">
+            Este enlace se usa para todas las sesiones futuras del aula y se muestra a los
+            estudiantes en su dashboard.
           </p>
           {errors.defaultMeetingUrl && (
-            <p className="mt-1 text-[12px] text-danger">
-              {errors.defaultMeetingUrl.message}
-            </p>
+            <p className="text-danger mt-1 text-[12px]">{errors.defaultMeetingUrl.message}</p>
           )}
         </div>
       )}
 
       <div className="flex items-center justify-end gap-3 pt-1">
         {savedAt && !isDirty && (
-          <span className="inline-flex items-center gap-1.5 text-[12.5px] text-text-3">
+          <span className="text-text-3 inline-flex items-center gap-1.5 text-[12.5px]">
             <Check size={13} strokeWidth={1.8} className="text-teal-500" />
             Guardado
           </span>

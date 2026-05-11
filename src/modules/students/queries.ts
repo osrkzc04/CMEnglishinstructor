@@ -2,10 +2,7 @@ import "server-only"
 import { cache } from "react"
 import { Prisma, UserStatus, EnrollmentStatus, Modality } from "@prisma/client"
 import { prisma } from "@/lib/prisma"
-import {
-  StudentListFiltersSchema,
-  type StudentListFilters,
-} from "./schemas"
+import { StudentListFiltersSchema, type StudentListFilters } from "./schemas"
 
 /**
  * Lectura de estudiantes para el panel admin. Centraliza el listado paginado
@@ -38,9 +35,7 @@ export type StudentListResult = {
   totalPages: number
 }
 
-export async function listStudents(
-  raw: Partial<StudentListFilters>,
-): Promise<StudentListResult> {
+export async function listStudents(raw: Partial<StudentListFilters>): Promise<StudentListResult> {
   const filters = StudentListFiltersSchema.parse(raw)
   const where = buildWhere(filters)
 
@@ -122,27 +117,25 @@ export type StudentDetail = {
   notes: string | null
 }
 
-export const getStudentById = cache(
-  async (id: string): Promise<StudentDetail | null> => {
-    const row = await prisma.user.findFirst({
-      where: { id, role: "STUDENT" },
-      include: { studentProfile: true },
-    })
-    if (!row) return null
-    return {
-      id: row.id,
-      firstName: row.firstName,
-      lastName: row.lastName,
-      email: row.email,
-      phone: row.phone,
-      document: row.document,
-      status: row.status,
-      company: row.studentProfile?.company ?? null,
-      position: row.studentProfile?.position ?? null,
-      notes: row.studentProfile?.notes ?? null,
-    }
-  },
-)
+export const getStudentById = cache(async (id: string): Promise<StudentDetail | null> => {
+  const row = await prisma.user.findFirst({
+    where: { id, role: "STUDENT" },
+    include: { studentProfile: true },
+  })
+  if (!row) return null
+  return {
+    id: row.id,
+    firstName: row.firstName,
+    lastName: row.lastName,
+    email: row.email,
+    phone: row.phone,
+    document: row.document,
+    status: row.status,
+    company: row.studentProfile?.company ?? null,
+    position: row.studentProfile?.position ?? null,
+    notes: row.studentProfile?.notes ?? null,
+  }
+})
 
 // -----------------------------------------------------------------------------
 //  Detalle completo (página `/admin/estudiantes/[id]`): datos personales +
@@ -183,34 +176,32 @@ export type StudentFullDetail = StudentDetail & {
   preferredSchedule: { dayOfWeek: number; startTime: string; endTime: string }[]
 }
 
-export const getStudentFullDetail = cache(
-  async (id: string): Promise<StudentFullDetail | null> => {
-    const today = startOfTodayUTC()
-    const row = await prisma.user.findFirst({
-      where: { id, role: "STUDENT" },
-      include: {
-        studentProfile: {
-          include: {
-            preferredSchedule: {
-              orderBy: [{ dayOfWeek: "asc" }, { startTime: "asc" }],
-            },
-            enrollments: {
-              orderBy: [{ status: "asc" }, { createdAt: "desc" }],
-              include: {
-                programLevel: {
-                  include: {
-                    program: { include: { course: true } },
-                  },
+export const getStudentFullDetail = cache(async (id: string): Promise<StudentFullDetail | null> => {
+  const today = startOfTodayUTC()
+  const row = await prisma.user.findFirst({
+    where: { id, role: "STUDENT" },
+    include: {
+      studentProfile: {
+        include: {
+          preferredSchedule: {
+            orderBy: [{ dayOfWeek: "asc" }, { startTime: "asc" }],
+          },
+          enrollments: {
+            orderBy: [{ status: "asc" }, { createdAt: "desc" }],
+            include: {
+              programLevel: {
+                include: {
+                  program: { include: { course: true } },
                 },
-                classGroup: {
-                  include: {
-                    slots: {
-                      orderBy: [{ dayOfWeek: "asc" }, { startTime: "asc" }],
-                    },
-                    teacherAssignments: {
-                      orderBy: { startDate: "desc" },
-                      include: { teacher: { include: { user: true } } },
-                    },
+              },
+              classGroup: {
+                include: {
+                  slots: {
+                    orderBy: [{ dayOfWeek: "asc" }, { startTime: "asc" }],
+                  },
+                  teacherAssignments: {
+                    orderBy: { startDate: "desc" },
+                    include: { teacher: { include: { user: true } } },
                   },
                 },
               },
@@ -218,12 +209,12 @@ export const getStudentFullDetail = cache(
           },
         },
       },
-    })
-    if (!row) return null
+    },
+  })
+  if (!row) return null
 
-    const enrollments: StudentEnrollmentDetail[] = (
-      row.studentProfile?.enrollments ?? []
-    ).map((e) => {
+  const enrollments: StudentEnrollmentDetail[] = (row.studentProfile?.enrollments ?? []).map(
+    (e) => {
       const group = e.classGroup
       const currentAssignment = group?.teacherAssignments.find(
         (a) => a.startDate <= today && (a.endDate === null || a.endDate >= today),
@@ -259,29 +250,29 @@ export const getStudentFullDetail = cache(
             }
           : null,
       }
-    })
+    },
+  )
 
-    return {
-      id: row.id,
-      firstName: row.firstName,
-      lastName: row.lastName,
-      email: row.email,
-      phone: row.phone,
-      document: row.document,
-      status: row.status,
-      company: row.studentProfile?.company ?? null,
-      position: row.studentProfile?.position ?? null,
-      notes: row.studentProfile?.notes ?? null,
-      createdAt: row.createdAt,
-      enrollments,
-      preferredSchedule: (row.studentProfile?.preferredSchedule ?? []).map((s) => ({
-        dayOfWeek: s.dayOfWeek,
-        startTime: s.startTime,
-        endTime: s.endTime,
-      })),
-    }
-  },
-)
+  return {
+    id: row.id,
+    firstName: row.firstName,
+    lastName: row.lastName,
+    email: row.email,
+    phone: row.phone,
+    document: row.document,
+    status: row.status,
+    company: row.studentProfile?.company ?? null,
+    position: row.studentProfile?.position ?? null,
+    notes: row.studentProfile?.notes ?? null,
+    createdAt: row.createdAt,
+    enrollments,
+    preferredSchedule: (row.studentProfile?.preferredSchedule ?? []).map((s) => ({
+      dayOfWeek: s.dayOfWeek,
+      startTime: s.startTime,
+      endTime: s.endTime,
+    })),
+  }
+})
 
 /**
  * Carga el horario preferido en aislamiento — usado por la página de
@@ -300,9 +291,7 @@ export async function getStudentPreferredSchedule(
 
 function startOfTodayUTC(): Date {
   const now = new Date()
-  return new Date(
-    Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()),
-  )
+  return new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()))
 }
 
 // -----------------------------------------------------------------------------
@@ -318,16 +307,15 @@ export type StudentStats = {
 }
 
 export const getStudentStats = cache(async (): Promise<StudentStats> => {
-  const [total, active, inactive, pendingApproval, activeEnrollments] =
-    await prisma.$transaction([
-      prisma.user.count({ where: { role: "STUDENT" } }),
-      prisma.user.count({ where: { role: "STUDENT", status: "ACTIVE" } }),
-      prisma.user.count({ where: { role: "STUDENT", status: "INACTIVE" } }),
-      prisma.user.count({
-        where: { role: "STUDENT", status: "PENDING_APPROVAL" },
-      }),
-      prisma.enrollment.count({ where: { status: "ACTIVE" } }),
-    ])
+  const [total, active, inactive, pendingApproval, activeEnrollments] = await prisma.$transaction([
+    prisma.user.count({ where: { role: "STUDENT" } }),
+    prisma.user.count({ where: { role: "STUDENT", status: "ACTIVE" } }),
+    prisma.user.count({ where: { role: "STUDENT", status: "INACTIVE" } }),
+    prisma.user.count({
+      where: { role: "STUDENT", status: "PENDING_APPROVAL" },
+    }),
+    prisma.enrollment.count({ where: { status: "ACTIVE" } }),
+  ])
   return { total, active, inactive, pendingApproval, activeEnrollments }
 })
 
@@ -582,8 +570,7 @@ export async function getStudentDashboard(userId: string): Promise<StudentDashbo
   const upcomingSessions: StudentUpcomingSession[] = upcomingRows.map((p) => {
     const s = p.session
     const isLive =
-      s.scheduledStart.getTime() <= now.getTime() &&
-      now.getTime() < s.scheduledEnd.getTime()
+      s.scheduledStart.getTime() <= now.getTime() && now.getTime() < s.scheduledEnd.getTime()
     return {
       id: s.id,
       scheduledStart: s.scheduledStart,
@@ -593,16 +580,12 @@ export async function getStudentDashboard(userId: string): Promise<StudentDashbo
       location: s.location,
       classGroupId: s.classGroupId,
       classGroupName: s.classGroup.name,
-      teacherName: s.teacher
-        ? `${s.teacher.user.firstName} ${s.teacher.user.lastName}`
-        : null,
+      teacherName: s.teacher ? `${s.teacher.user.firstName} ${s.teacher.user.lastName}` : null,
       status: isLive ? "live" : "scheduled",
     }
   })
 
-  const todaySessionCount = upcomingSessions.filter(
-    (s) => s.scheduledStart < todayEnd,
-  ).length
+  const todaySessionCount = upcomingSessions.filter((s) => s.scheduledStart < todayEnd).length
 
   // Conteo semanal — total de sesiones programadas en la ventana (no cap, no
   // se acota a 8 entries).
@@ -796,9 +779,7 @@ export type StudentProgress = {
 
 const PROGRESS_HISTORY_LIMIT = 30
 
-export async function getStudentProgress(
-  userId: string,
-): Promise<StudentProgress> {
+export async function getStudentProgress(userId: string): Promise<StudentProgress> {
   const enrollments = await prisma.enrollment.findMany({
     where: { studentId: userId },
     orderBy: [{ status: "asc" }, { createdAt: "desc" }],
@@ -846,9 +827,7 @@ export async function getStudentProgress(
     },
   })
 
-  const activeIds = enrollments
-    .filter((e) => e.status === EnrollmentStatus.ACTIVE)
-    .map((e) => e.id)
+  const activeIds = enrollments.filter((e) => e.status === EnrollmentStatus.ACTIVE).map((e) => e.id)
 
   // Última participación con asistencia ≠ PENDING + counts por matrícula activa
   type Tally = { attended: number; registered: number; lastAttendedAt: Date | null }
@@ -877,10 +856,7 @@ export async function getStudentProgress(
       if (p.attendance === "PRESENT" || p.attendance === "LATE") {
         tally.attended += 1
       }
-      if (
-        tally.lastAttendedAt === null ||
-        p.session.scheduledStart > tally.lastAttendedAt
-      ) {
+      if (tally.lastAttendedAt === null || p.session.scheduledStart > tally.lastAttendedAt) {
         tally.lastAttendedAt = p.session.scheduledStart
       }
       tallyMap.set(p.enrollmentId, tally)
@@ -961,10 +937,7 @@ export async function getStudentProgress(
   attendance.registered =
     attendance.present + attendance.late + attendance.absent + attendance.excused
 
-  const totalHoursDictated = enrollments.reduce(
-    (acc, e) => acc + Number(e.consumedHours),
-    0,
-  )
+  const totalHoursDictated = enrollments.reduce((acc, e) => acc + Number(e.consumedHours), 0)
 
   // Historial — últimas N sesiones cerradas o sin registro
   const historyRows = await prisma.classParticipant.findMany({
@@ -995,8 +968,7 @@ export async function getStudentProgress(
     scheduledStart: p.session.scheduledStart,
     scheduledEnd: p.session.scheduledEnd,
     durationMinutes: Math.round(
-      (p.session.scheduledEnd.getTime() - p.session.scheduledStart.getTime()) /
-        60_000,
+      (p.session.scheduledEnd.getTime() - p.session.scheduledStart.getTime()) / 60_000,
     ),
     classGroupId: p.session.classGroupId,
     classGroupName: p.session.classGroup.name,
@@ -1019,10 +991,6 @@ function startOfGuayaquilDay(now: Date): Date {
   const guayaquilOffsetMs = 5 * 60 * 60 * 1000
   const localMs = now.getTime() - guayaquilOffsetMs
   const local = new Date(localMs)
-  const utcMidnight = Date.UTC(
-    local.getUTCFullYear(),
-    local.getUTCMonth(),
-    local.getUTCDate(),
-  )
+  const utcMidnight = Date.UTC(local.getUTCFullYear(), local.getUTCMonth(), local.getUTCDate())
   return new Date(utcMidnight + guayaquilOffsetMs)
 }

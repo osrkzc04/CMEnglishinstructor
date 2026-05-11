@@ -35,33 +35,31 @@ export function MarketingProcess() {
     <section id="proceso" className="py-20 md:py-24">
       <div className="mx-auto w-full max-w-[1180px] px-6">
         <Reveal as="header" className="mb-14 max-w-[680px]">
-          <p className="mb-3 font-mono text-[11px] uppercase tracking-[0.1em] text-text-3">
+          <p className="text-text-3 mb-3 font-mono text-[11px] tracking-[0.1em] uppercase">
             Cómo empezamos
           </p>
-          <h2 className="font-serif text-[36px] leading-[1.12] tracking-[-0.02em] text-foreground sm:text-[44px]">
+          <h2 className="text-foreground font-serif text-[36px] leading-[1.12] tracking-[-0.02em] sm:text-[44px]">
             Tres pasos
-            <em className="font-light italic text-text-2"> hasta tu primera clase</em>.
+            <em className="text-text-2 font-light italic"> hasta tu primera clase</em>.
           </h2>
         </Reveal>
 
         <ol className="grid gap-4 md:grid-cols-3">
           {STEPS.map((step, i) => (
             <Reveal key={step.number} delay={i * 100} as="div">
-              <li className="group relative flex h-full flex-col rounded-xl border border-border bg-surface p-6 transition-[border-color,transform] duration-300 ease-out hover:-translate-y-0.5 hover:border-teal-500/40 motion-reduce:transition-none motion-reduce:transform-none">
+              <li className="group border-border bg-surface relative flex h-full flex-col rounded-xl border p-6 transition-[border-color,transform] duration-300 ease-out hover:-translate-y-0.5 hover:border-teal-500/40 motion-reduce:transform-none motion-reduce:transition-none">
                 <div className="mb-5 flex items-center justify-between">
-                  <span className="font-mono text-[11px] uppercase tracking-[0.12em] text-text-3">
+                  <span className="text-text-3 font-mono text-[11px] tracking-[0.12em] uppercase">
                     Paso
                   </span>
-                  <span className="font-serif text-[36px] font-light leading-none tracking-[-0.02em] text-text-3 transition-colors duration-300 group-hover:text-teal-500">
+                  <span className="text-text-3 font-serif text-[36px] leading-none font-light tracking-[-0.02em] transition-colors duration-300 group-hover:text-teal-500">
                     {step.number}
                   </span>
                 </div>
-                <h3 className="font-serif text-[22px] leading-[1.2] tracking-[-0.015em] text-foreground">
+                <h3 className="text-foreground font-serif text-[22px] leading-[1.2] tracking-[-0.015em]">
                   {step.title}
                 </h3>
-                <p className="mt-2.5 text-[14.5px] leading-[1.6] text-text-2">
-                  {step.description}
-                </p>
+                <p className="text-text-2 mt-2.5 text-[14.5px] leading-[1.6]">{step.description}</p>
               </li>
             </Reveal>
           ))}
@@ -70,7 +68,7 @@ export function MarketingProcess() {
         <Reveal delay={320} className="mt-10 flex justify-center">
           <a
             href="#contacto"
-            className="group inline-flex items-center gap-2 rounded-md bg-ink-900 px-6 py-3.5 text-[14px] font-medium text-bone transition-colors hover:bg-teal-500 dark:bg-bone dark:text-ink-900 dark:hover:bg-teal-500 dark:hover:text-bone"
+            className="group bg-ink-900 text-bone dark:bg-bone dark:text-ink-900 dark:hover:text-bone inline-flex items-center gap-2 rounded-md px-6 py-3.5 text-[14px] font-medium transition-colors hover:bg-teal-500 dark:hover:bg-teal-500"
           >
             Reservar una conversación
             <ArrowRight

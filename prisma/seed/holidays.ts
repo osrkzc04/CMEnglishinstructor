@@ -5,10 +5,7 @@ import { PrismaClient } from "@prisma/client"
  * embebido es de referencia; coordinación debería revisarlo y agregar los
  * feriados específicos del calendario académico.
  */
-export async function seedHolidays(
-  prisma: PrismaClient,
-  createdBy: string,
-): Promise<void> {
+export async function seedHolidays(prisma: PrismaClient, createdBy: string): Promise<void> {
   // Lista para 2026 — fuente: Ministerio de Trabajo (consulta general).
   const holidays = [
     { date: "2026-01-01", name: "Año Nuevo" },

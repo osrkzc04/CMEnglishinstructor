@@ -23,15 +23,7 @@ export const metadata: Metadata = {
 
 type Props = { params: Promise<{ id: string }> }
 
-const DAYS_ES = [
-  "Domingo",
-  "Lunes",
-  "Martes",
-  "Miércoles",
-  "Jueves",
-  "Viernes",
-  "Sábado",
-]
+const DAYS_ES = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"]
 
 export default async function PostulacionDetallePage({ params }: Props) {
   const user = await requireRole(["DIRECTOR", "COORDINATOR"])
@@ -41,9 +33,7 @@ export default async function PostulacionDetallePage({ params }: Props) {
 
   const fullName = `${detail.firstName} ${detail.lastName}`
   const levelsByLanguage = groupBy(detail.levels, (l) => l.languageName)
-  const availabilityByDay = groupBy(detail.availability, (a) =>
-    String(a.dayOfWeek),
-  )
+  const availabilityByDay = groupBy(detail.availability, (a) => String(a.dayOfWeek))
 
   return (
     <AppShell
@@ -63,11 +53,11 @@ export default async function PostulacionDetallePage({ params }: Props) {
       ]}
     >
       <header className="mb-7">
-        <p className="mb-2 font-mono text-[12px] uppercase tracking-[0.08em] text-text-3">
+        <p className="text-text-3 mb-2 font-mono text-[12px] tracking-[0.08em] uppercase">
           Postulación
         </p>
         <div className="flex flex-wrap items-center gap-3">
-          <h1 className="font-serif text-[32px] font-normal leading-[1.18] tracking-[-0.02em]">
+          <h1 className="font-serif text-[32px] leading-[1.18] font-normal tracking-[-0.02em]">
             {fullName}
           </h1>
           <StatusBadge status={detail.status} />
@@ -97,21 +87,19 @@ export default async function PostulacionDetallePage({ params }: Props) {
           {/* Niveles */}
           <Card title="Niveles que puede impartir">
             {detail.levels.length === 0 ? (
-              <p className="text-[13.5px] text-text-3">
-                El postulante no marcó ningún nivel.
-              </p>
+              <p className="text-text-3 text-[13.5px]">El postulante no marcó ningún nivel.</p>
             ) : (
               <div className="space-y-4">
                 {Object.entries(levelsByLanguage).map(([lang, levels]) => (
                   <div key={lang}>
-                    <p className="mb-2 text-[12px] font-medium uppercase tracking-[0.08em] text-text-3">
+                    <p className="text-text-3 mb-2 text-[12px] font-medium tracking-[0.08em] uppercase">
                       {lang}
                     </p>
                     <div className="flex flex-wrap gap-1.5">
                       {levels.map((l) => (
                         <span
                           key={l.id}
-                          className="inline-flex items-center gap-1.5 rounded-md border border-border bg-surface-alt px-2.5 py-1 text-[12.5px] text-foreground"
+                          className="border-border bg-surface-alt text-foreground inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-[12.5px]"
                         >
                           <span className="font-mono text-[12px] tracking-[0.04em] text-teal-500">
                             {l.code}
@@ -130,11 +118,11 @@ export default async function PostulacionDetallePage({ params }: Props) {
           {/* Disponibilidad */}
           <Card title="Disponibilidad propuesta">
             {detail.availability.length === 0 ? (
-              <p className="text-[13.5px] text-text-3">
+              <p className="text-text-3 text-[13.5px]">
                 El postulante no marcó ningún bloque de disponibilidad.
               </p>
             ) : (
-              <ul className="divide-y divide-border">
+              <ul className="divide-border divide-y">
                 {[1, 2, 3, 4, 5, 6, 0].map((dayIdx) => {
                   const blocks = availabilityByDay[String(dayIdx)] ?? []
                   if (blocks.length === 0) return null
@@ -143,10 +131,10 @@ export default async function PostulacionDetallePage({ params }: Props) {
                       key={dayIdx}
                       className="grid grid-cols-[120px_1fr] items-baseline gap-4 py-2.5 first:pt-0 last:pb-0"
                     >
-                      <span className="text-[13.5px] font-medium text-foreground">
+                      <span className="text-foreground text-[13.5px] font-medium">
                         {DAYS_ES[dayIdx]}
                       </span>
-                      <span className="font-mono text-[13px] tracking-[0.02em] text-text-2">
+                      <span className="text-text-2 font-mono text-[13px] tracking-[0.02em]">
                         {blocks
                           .sort((a, b) => a.startTime.localeCompare(b.startTime))
                           .map((b) => `${b.startTime}–${b.endTime}`)
@@ -162,7 +150,7 @@ export default async function PostulacionDetallePage({ params }: Props) {
           {/* Bio */}
           {detail.bio && (
             <Card title="Experiencia">
-              <p className="whitespace-pre-wrap text-[14px] leading-[1.65] text-text-2">
+              <p className="text-text-2 text-[14px] leading-[1.65] whitespace-pre-wrap">
                 {detail.bio}
               </p>
             </Card>
@@ -171,7 +159,7 @@ export default async function PostulacionDetallePage({ params }: Props) {
           {/* Motivo de rechazo */}
           {detail.status === "REJECTED" && detail.rejectionReason && (
             <Card title="Motivo del rechazo" tone="danger">
-              <p className="whitespace-pre-wrap text-[14px] leading-[1.65] text-text-2">
+              <p className="text-text-2 text-[14px] leading-[1.65] whitespace-pre-wrap">
                 {detail.rejectionReason}
               </p>
             </Card>
@@ -181,22 +169,14 @@ export default async function PostulacionDetallePage({ params }: Props) {
         <aside className="space-y-5">
           <Card title="Información">
             <DefinitionList>
-              <DLItem label="Recibida">
-                {formatDateTime(detail.createdAt)}
-              </DLItem>
+              <DLItem label="Recibida">{formatDateTime(detail.createdAt)}</DLItem>
               {detail.consentAcceptedAt && (
-                <DLItem label="Consentimiento">
-                  {formatDateTime(detail.consentAcceptedAt)}
-                </DLItem>
+                <DLItem label="Consentimiento">{formatDateTime(detail.consentAcceptedAt)}</DLItem>
               )}
               {detail.reviewedAt && (
-                <DLItem label="Revisada">
-                  {formatDateTime(detail.reviewedAt)}
-                </DLItem>
+                <DLItem label="Revisada">{formatDateTime(detail.reviewedAt)}</DLItem>
               )}
-              {detail.reviewer && (
-                <DLItem label="Por">{detail.reviewer.name}</DLItem>
-              )}
+              {detail.reviewer && <DLItem label="Por">{detail.reviewer.name}</DLItem>}
             </DefinitionList>
           </Card>
 
@@ -230,8 +210,8 @@ function Card({
     <section
       className={
         isDanger
-          ? "rounded-xl border border-danger/30 bg-surface p-5 lg:p-6"
-          : "rounded-xl border border-border bg-surface p-5 lg:p-6"
+          ? "border-danger/30 bg-surface rounded-xl border p-5 lg:p-6"
+          : "border-border bg-surface rounded-xl border p-5 lg:p-6"
       }
     >
       <h2
@@ -251,28 +231,17 @@ function DefinitionList({ children }: { children: React.ReactNode }) {
   return <dl className="space-y-2.5">{children}</dl>
 }
 
-function DLItem({
-  label,
-  children,
-}: {
-  label: string
-  children: React.ReactNode
-}) {
+function DLItem({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="grid grid-cols-[110px_1fr] items-baseline gap-3">
-      <dt className="text-[12px] font-medium uppercase tracking-[0.06em] text-text-3">
-        {label}
-      </dt>
-      <dd className="text-[13.5px] text-foreground">{children}</dd>
+      <dt className="text-text-3 text-[12px] font-medium tracking-[0.06em] uppercase">{label}</dt>
+      <dd className="text-foreground text-[13.5px]">{children}</dd>
     </div>
   )
 }
 
 // Group helper sin lodash.
-function groupBy<T>(
-  items: T[],
-  key: (item: T) => string,
-): Record<string, T[]> {
+function groupBy<T>(items: T[], key: (item: T) => string): Record<string, T[]> {
   const out: Record<string, T[]> = {}
   for (const item of items) {
     const k = key(item)

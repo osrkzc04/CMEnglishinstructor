@@ -22,7 +22,7 @@ export function MarketingTeacherCta() {
   return (
     <section
       aria-labelledby="teacher-cta-title"
-      className="relative overflow-hidden bg-ink-900 text-bone"
+      className="bg-ink-900 text-bone relative overflow-hidden"
     >
       <TeacherCtaBackdrop />
 
@@ -30,34 +30,33 @@ export function MarketingTeacherCta() {
         <Reveal>
           <div className="flex flex-col gap-10 lg:flex-row lg:items-center lg:justify-between lg:gap-16">
             <div className="max-w-[640px]">
-              <div className="mb-5 inline-flex h-10 w-10 items-center justify-center rounded-full border border-bone/20 text-bone">
+              <div className="border-bone/20 text-bone mb-5 inline-flex h-10 w-10 items-center justify-center rounded-full border">
                 <GraduationCap size={18} strokeWidth={1.6} />
               </div>
-              <p className="font-mono text-[11px] uppercase tracking-[0.12em] text-bone/60">
+              <p className="text-bone/60 font-mono text-[11px] tracking-[0.12em] uppercase">
                 Súmate al equipo académico
               </p>
               <h2
                 id="teacher-cta-title"
-                className="mt-3 font-serif text-[34px] leading-[1.14] tracking-[-0.02em] text-bone sm:text-[42px]"
+                className="text-bone mt-3 font-serif text-[34px] leading-[1.14] tracking-[-0.02em] sm:text-[42px]"
               >
                 ¿Enseñas inglés o español?
               </h2>
-              <p className="mt-4 max-w-[520px] text-[15.5px] leading-[1.6] text-bone/75">
-                Buscamos docentes con experiencia y método. Si te interesa
-                formar parte de un equipo que cuida la calidad de cada
-                clase, postula tu perfil y revisamos tu candidatura.
+              <p className="text-bone/75 mt-4 max-w-[520px] text-[15.5px] leading-[1.6]">
+                Buscamos docentes con experiencia y método. Si te interesa formar parte de un equipo
+                que cuida la calidad de cada clase, postula tu perfil y revisamos tu candidatura.
               </p>
             </div>
 
             <Link
               href="/postular-docente"
-              className="group inline-flex shrink-0 items-center gap-2 self-start rounded-md bg-bone px-6 py-3.5 text-[14px] font-medium text-ink-900 transition-colors hover:bg-teal-500 hover:text-bone lg:self-auto"
+              className="group bg-bone text-ink-900 hover:text-bone inline-flex shrink-0 items-center gap-2 self-start rounded-md px-6 py-3.5 text-[14px] font-medium transition-colors hover:bg-teal-500 lg:self-auto"
             >
               Postular como docente
               <ArrowUpRight
                 size={15}
                 strokeWidth={1.6}
-                className="transition-transform duration-200 ease-out group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
+                className="transition-transform duration-200 ease-out group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
               />
             </Link>
           </div>

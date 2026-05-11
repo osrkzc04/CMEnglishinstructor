@@ -18,16 +18,10 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { cn } from "@/lib/utils"
-import {
-  ProgramLevelInputSchema,
-  type ProgramLevelInput,
-} from "@/modules/catalog/schemas"
+import { ProgramLevelInputSchema, type ProgramLevelInput } from "@/modules/catalog/schemas"
 import { createProgramLevel } from "@/modules/catalog/createProgramLevel.action"
 import { updateProgramLevel } from "@/modules/catalog/updateProgramLevel.action"
-import type {
-  ProgramLevelAdminRow,
-  ProgramOption,
-} from "@/modules/catalog/queries"
+import type { ProgramLevelAdminRow, ProgramOption } from "@/modules/catalog/queries"
 
 type Props = {
   open: boolean
@@ -37,13 +31,7 @@ type Props = {
   onSaved: () => void
 }
 
-export function NivelDialog({
-  open,
-  onOpenChange,
-  programs,
-  editing,
-  onSaved,
-}: Props) {
+export function NivelDialog({ open, onOpenChange, programs, editing, onSaved }: Props) {
   const [serverError, setServerError] = useState<string | null>(null)
   const [isPending, startTransition] = useTransition()
 
@@ -121,16 +109,12 @@ export function NivelDialog({
         <form onSubmit={onSubmit} noValidate>
           <DialogBody>
             <div className="space-y-4">
-              <Field
-                id="programId"
-                label="Programa"
-                error={errors.programId?.message}
-              >
+              <Field id="programId" label="Programa" error={errors.programId?.message}>
                 <select
                   id="programId"
                   className={cn(
-                    "block w-full rounded-md border border-border bg-surface px-3 py-2.5 text-[13.5px] text-foreground",
-                    "transition-colors duration-[150ms] hover:border-border-strong focus:border-teal-500 focus:outline-none",
+                    "border-border bg-surface text-foreground block w-full rounded-md border px-3 py-2.5 text-[13.5px]",
+                    "hover:border-border-strong transition-colors duration-[150ms] focus:border-teal-500 focus:outline-none",
                   )}
                   disabled={isPending}
                   {...register("programId")}
@@ -145,12 +129,7 @@ export function NivelDialog({
 
               <div className="grid gap-3 sm:grid-cols-[140px_1fr]">
                 <Field id="code" label="Código" error={errors.code?.message}>
-                  <Input
-                    id="code"
-                    placeholder="2"
-                    disabled={isPending}
-                    {...register("code")}
-                  />
+                  <Input id="code" placeholder="2" disabled={isPending} {...register("code")} />
                 </Field>
                 <Field
                   id="name"
@@ -232,7 +211,7 @@ export function NivelDialog({
                         })
                       }
                     />
-                    <span className="text-[13.5px] text-foreground">
+                    <span className="text-foreground text-[13.5px]">
                       Acceso a plataforma externa
                     </span>
                   </CheckLabel>
@@ -252,9 +231,7 @@ export function NivelDialog({
                         })
                       }
                     />
-                    <span className="text-[13.5px] text-foreground">
-                      Material en PDF
-                    </span>
+                    <span className="text-foreground text-[13.5px]">Material en PDF</span>
                   </CheckLabel>
                 </div>
               </div>
@@ -277,9 +254,7 @@ export function NivelDialog({
               Cancelar
             </Button>
             <Button type="submit" variant="primary" size="md" disabled={isPending}>
-              {isPending && (
-                <Loader2 size={14} strokeWidth={1.6} className="animate-spin" />
-              )}
+              {isPending && <Loader2 size={14} strokeWidth={1.6} className="animate-spin" />}
               {editing ? "Guardar" : "Crear nivel"}
             </Button>
           </DialogFooter>
@@ -308,11 +283,11 @@ function Field({
     <div>
       <div className="mb-1.5 flex items-baseline justify-between gap-2">
         <Label htmlFor={id}>{label}</Label>
-        {optional && <span className="text-[11px] text-text-4">opcional</span>}
+        {optional && <span className="text-text-4 text-[11px]">opcional</span>}
       </div>
       {children}
-      {error && <p className="mt-1 text-[12px] text-danger">{error}</p>}
-      {!error && hint && <p className="mt-1.5 text-[12px] text-text-3">{hint}</p>}
+      {error && <p className="text-danger mt-1 text-[12px]">{error}</p>}
+      {!error && hint && <p className="text-text-3 mt-1.5 text-[12px]">{hint}</p>}
     </div>
   )
 }

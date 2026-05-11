@@ -17,7 +17,7 @@ export const Separator = React.forwardRef<HTMLHRElement, SeparatorProps>(
     <hr
       ref={ref}
       className={cn(
-        "m-0 border-0 border-t border-border",
+        "border-border m-0 border-0 border-t",
         variant === "dashed" && "border-dashed",
         className,
       )}

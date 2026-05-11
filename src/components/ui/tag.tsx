@@ -19,7 +19,7 @@ export const Tag = React.forwardRef<HTMLSpanElement, TagProps>(
     <span
       ref={ref}
       className={cn(
-        "inline-flex items-center gap-1.5 rounded-sm border border-border bg-background px-1.5 py-[3px] font-mono text-[11px] text-text-3",
+        "border-border bg-background text-text-3 inline-flex items-center gap-1.5 rounded-sm border px-1.5 py-[3px] font-mono text-[11px]",
         className,
       )}
       {...props}
@@ -30,7 +30,7 @@ export const Tag = React.forwardRef<HTMLSpanElement, TagProps>(
           type="button"
           onClick={onRemove}
           aria-label="Quitar"
-          className="ml-0.5 -mr-0.5 text-text-4 transition-colors hover:text-danger"
+          className="text-text-4 hover:text-danger -mr-0.5 ml-0.5 transition-colors"
         >
           <X size={10} strokeWidth={1.6} />
         </button>

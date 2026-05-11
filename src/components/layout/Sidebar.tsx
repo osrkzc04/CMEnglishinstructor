@@ -53,14 +53,14 @@ export function Sidebar({ role, user }: SidebarProps) {
     <aside
       data-collapsed={isCollapsed || undefined}
       className={cn(
-        "sticky top-0 z-10 hidden h-screen flex-col overflow-hidden border-r border-ink-700 bg-ink-900 text-bone transition-[width] duration-[250ms] ease-out lg:flex",
+        "border-ink-700 bg-ink-900 text-bone sticky top-0 z-10 hidden h-screen flex-col overflow-hidden border-r transition-[width] duration-[250ms] ease-out lg:flex",
         isCollapsed ? "w-[64px]" : "w-[248px]",
       )}
     >
       {/* Brand */}
       <div
         className={cn(
-          "flex h-[60px] flex-none items-center gap-2.5 border-b border-ink-700",
+          "border-ink-700 flex h-[60px] flex-none items-center gap-2.5 border-b",
           isCollapsed ? "justify-center px-0" : "px-[18px]",
         )}
       >
@@ -71,8 +71,8 @@ export function Sidebar({ role, user }: SidebarProps) {
       {/* Nav scroll area */}
       <nav
         className={cn(
-          "min-h-0 flex-1 overflow-y-auto overflow-x-hidden",
-          isCollapsed ? "px-2 pb-4 pt-1" : "px-[10px] pb-4 pt-1",
+          "min-h-0 flex-1 overflow-x-hidden overflow-y-auto",
+          isCollapsed ? "px-2 pt-1 pb-4" : "px-[10px] pt-1 pb-4",
         )}
       >
         {groups.map((group, idx) => (
@@ -86,12 +86,7 @@ export function Sidebar({ role, user }: SidebarProps) {
       </nav>
 
       {/* User foot */}
-      <div
-        className={cn(
-          "flex-none border-t border-ink-700",
-          isCollapsed ? "p-2" : "p-3",
-        )}
-      >
+      <div className={cn("border-ink-700 flex-none border-t", isCollapsed ? "p-2" : "p-3")}>
         <UserMenu name={user.name} roleLabel={user.roleLabel} isCollapsed={isCollapsed} />
       </div>
     </aside>
@@ -117,13 +112,13 @@ function NavSection({
       {!isCollapsed && group.label ? (
         <div
           className={cn(
-            "flex items-center justify-between px-2 pb-1.5 font-mono text-[11.5px] uppercase tracking-[0.1em] text-bone/60",
+            "text-bone/60 flex items-center justify-between px-2 pb-1.5 font-mono text-[11.5px] tracking-[0.1em] uppercase",
             isFirst ? "mt-1.5" : "mt-4",
           )}
         >
           <span>{group.label}</span>
           {typeof group.count === "number" && (
-            <span className="text-[10px] text-bone/40">
+            <span className="text-bone/40 text-[10px]">
               {group.count.toString().padStart(2, "0")}
             </span>
           )}
@@ -154,8 +149,7 @@ function NavEntry({
   isCollapsed: boolean
 }) {
   const Icon = item.icon
-  const isActive =
-    pathname === item.href || pathname.startsWith(`${item.href}/`)
+  const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`)
 
   return (
     <Link
@@ -172,7 +166,7 @@ function NavEntry({
           : "text-bone/[0.78] hover:bg-bone/[0.05] hover:text-bone",
         // tooltip cuando está colapsado
         isCollapsed &&
-          "after:pointer-events-none after:absolute after:left-[calc(100%+12px)] after:top-1/2 after:z-20 after:-translate-y-1/2 after:rounded-md after:border after:border-ink-600 after:bg-ink-700 after:px-[9px] after:py-[5px] after:text-[12px] after:text-bone after:opacity-0 after:transition-opacity after:duration-[120ms] after:content-[attr(data-label)] hover:after:opacity-100",
+          "after:border-ink-600 after:bg-ink-700 after:text-bone after:pointer-events-none after:absolute after:top-1/2 after:left-[calc(100%+12px)] after:z-20 after:-translate-y-1/2 after:rounded-md after:border after:px-[9px] after:py-[5px] after:text-[12px] after:opacity-0 after:transition-opacity after:duration-[120ms] after:content-[attr(data-label)] hover:after:opacity-100",
       )}
     >
       {/* Indicador activo: barra teal 2px a la izquierda */}

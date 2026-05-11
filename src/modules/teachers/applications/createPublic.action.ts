@@ -5,10 +5,7 @@ import { prisma } from "@/lib/prisma"
 import { verifyTurnstile } from "@/lib/security/turnstile"
 import { checkLimit } from "@/lib/security/rateLimit"
 import { sendApplicationReceivedEmail } from "./emails"
-import {
-  PublicApplicationSchema,
-  type PublicApplicationInput,
-} from "./publicSchemas"
+import { PublicApplicationSchema, type PublicApplicationInput } from "./publicSchemas"
 
 /**
  * Action invocada desde el form público `/postular-docente`. NO usa
@@ -40,9 +37,7 @@ const IP_LIMIT = 1
 const EMAIL_WINDOW_MS = 24 * 60 * 60 * 1000
 const EMAIL_LIMIT = 1
 
-export async function createPublicApplication(
-  input: PublicApplicationInput,
-): Promise<Result> {
+export async function createPublicApplication(input: PublicApplicationInput): Promise<Result> {
   const parsed = PublicApplicationSchema.safeParse(input)
   if (!parsed.success) {
     const issue = parsed.error.issues[0]
@@ -73,8 +68,7 @@ export async function createPublicApplication(
   if (!captcha.ok) {
     return {
       success: false,
-      error:
-        "No pudimos validar la verificación anti-spam. Recarga la página e intenta de nuevo.",
+      error: "No pudimos validar la verificación anti-spam. Recarga la página e intenta de nuevo.",
       field: "turnstileToken",
     }
   }

@@ -29,7 +29,7 @@ export function ActivityCard({ entries }: { entries: ActivityEntry[] }) {
         <CardTitle>Actividad reciente</CardTitle>
         <Link
           href={"/admin/actividad" as Route}
-          className="border-b border-border-strong pb-px text-[13px] text-text-2 transition-colors hover:border-teal-500 hover:text-teal-500"
+          className="border-border-strong text-text-2 border-b pb-px text-[13px] transition-colors hover:border-teal-500 hover:text-teal-500"
         >
           Todo
         </Link>
@@ -47,10 +47,10 @@ function ActivityItem({ entry }: { entry: ActivityEntry }) {
   const Icon = entry.icon
   const variant = entry.variant ?? "default"
   return (
-    <div className="grid grid-cols-[auto_1fr] gap-3.5 border-b border-dashed border-border py-3.5 last:border-b-0">
+    <div className="border-border grid grid-cols-[auto_1fr] gap-3.5 border-b border-dashed py-3.5 last:border-b-0">
       <div
         className={cn(
-          "grid h-7 w-7 shrink-0 place-items-center rounded-md border text-text-2",
+          "text-text-2 grid h-7 w-7 shrink-0 place-items-center rounded-md border",
           variant === "default" && "border-border bg-background",
           variant === "teal" && "border-teal-500/30 bg-teal-500/[0.07] text-teal-500",
           variant === "warn" && "border-warning/30 bg-warning/[0.07] text-warning",
@@ -60,10 +60,10 @@ function ActivityItem({ entry }: { entry: ActivityEntry }) {
         <Icon size={14} strokeWidth={1.6} />
       </div>
       <div>
-        <div className="text-[13.5px] leading-[1.5] text-foreground [&_em]:font-medium [&_em]:not-italic [&_em]:text-foreground [&_a]:border-b [&_a]:border-border-strong [&_a]:pb-px [&_a]:text-foreground [&_a]:no-underline hover:[&_a]:border-teal-500 hover:[&_a]:text-teal-500">
+        <div className="text-foreground [&_em]:text-foreground [&_a]:border-border-strong [&_a]:text-foreground text-[13.5px] leading-[1.5] [&_a]:border-b [&_a]:pb-px [&_a]:no-underline hover:[&_a]:border-teal-500 hover:[&_a]:text-teal-500 [&_em]:font-medium [&_em]:not-italic">
           {entry.body}
         </div>
-        <div className="mt-0.5 font-mono text-[11.5px] tracking-[0.02em] text-text-3">
+        <div className="text-text-3 mt-0.5 font-mono text-[11.5px] tracking-[0.02em]">
           {entry.when}
         </div>
       </div>

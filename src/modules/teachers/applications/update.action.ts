@@ -19,10 +19,7 @@ type Result =
  * que diff-ear; el costo es despreciable para los tamaños esperados (<20
  * filas por postulación).
  */
-export async function updateApplication(
-  id: string,
-  input: ApplicationFormInput,
-): Promise<Result> {
+export async function updateApplication(id: string, input: ApplicationFormInput): Promise<Result> {
   await requireRole(["DIRECTOR", "COORDINATOR"])
 
   const parsed = ApplicationFormSchema.safeParse(input)

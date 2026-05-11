@@ -9,10 +9,7 @@ import {
   UserStatus,
 } from "@prisma/client"
 import { prisma } from "@/lib/prisma"
-import {
-  ClassGroupListFiltersSchema,
-  type ClassGroupListFilters,
-} from "./schemas"
+import { ClassGroupListFiltersSchema, type ClassGroupListFilters } from "./schemas"
 
 /**
  * Lecturas del módulo `classGroups` (aulas).
@@ -102,9 +99,7 @@ export async function listClassGroups(
   }
 }
 
-function buildListWhere(
-  filters: ClassGroupListFilters,
-): Prisma.ClassGroupWhereInput {
+function buildListWhere(filters: ClassGroupListFilters): Prisma.ClassGroupWhereInput {
   const where: Prisma.ClassGroupWhereInput = {}
   if (filters.status) where.status = filters.status
   if (filters.programLevelId) where.programLevelId = filters.programLevelId
@@ -181,85 +176,81 @@ export type ClassGroupDetail = {
   pastAssignments: ClassGroupTeacherAssignmentRow[]
 }
 
-export const getClassGroupDetail = cache(
-  async (id: string): Promise<ClassGroupDetail | null> => {
-    const today = startOfTodayUTC()
-    const row = await prisma.classGroup.findUnique({
-      where: { id },
-      include: {
-        programLevel: {
-          include: {
-            program: { include: { course: { include: { language: true } } } },
-          },
-        },
-        slots: {
-          orderBy: [{ dayOfWeek: "asc" }, { startTime: "asc" }],
-        },
-        enrollments: {
-          orderBy: { createdAt: "asc" },
-          include: { student: { include: { user: true } } },
-        },
-        teacherAssignments: {
-          orderBy: { startDate: "desc" },
-          include: { teacher: { include: { user: true } } },
-        },
-      },
-    })
-    if (!row) return null
-
-    const assignmentRows: ClassGroupTeacherAssignmentRow[] =
-      row.teacherAssignments.map((a) => ({
-        id: a.id,
-        teacherId: a.teacherId,
-        teacherName: `${a.teacher.user.firstName} ${a.teacher.user.lastName}`,
-        startDate: a.startDate,
-        endDate: a.endDate,
-        isCurrent:
-          a.startDate <= today && (a.endDate === null || a.endDate >= today),
-      }))
-
-    const current = assignmentRows.find((a) => a.isCurrent) ?? null
-    const past = assignmentRows.filter((a) => !a.isCurrent)
-
-    return {
-      id: row.id,
-      name: row.name,
-      modality: row.modality,
-      status: row.status,
-      notes: row.notes,
-      defaultMeetingUrl: row.defaultMeetingUrl,
-      defaultLocation: row.defaultLocation,
-      createdAt: row.createdAt,
-      closedAt: row.closedAt,
+export const getClassGroupDetail = cache(async (id: string): Promise<ClassGroupDetail | null> => {
+  const today = startOfTodayUTC()
+  const row = await prisma.classGroup.findUnique({
+    where: { id },
+    include: {
       programLevel: {
-        id: row.programLevel.id,
-        code: row.programLevel.code,
-        name: row.programLevel.name,
-        programLabel: `${row.programLevel.program.course.name} · ${row.programLevel.program.name} · ${row.programLevel.name}`,
-        cefrLevelCode: row.programLevel.cefrLevelCode,
-        classDurationMinutes: row.programLevel.program.course.classDuration,
-        languageId: row.programLevel.program.course.language.id,
+        include: {
+          program: { include: { course: { include: { language: true } } } },
+        },
       },
-      slots: row.slots.map((s) => ({
-        id: s.id,
-        dayOfWeek: s.dayOfWeek,
-        startTime: s.startTime,
-        durationMinutes: s.durationMinutes,
-      })),
-      enrollments: row.enrollments.map((e) => ({
-        enrollmentId: e.id,
-        studentId: e.studentId,
-        studentName: `${e.student.user.firstName} ${e.student.user.lastName}`,
-        studentEmail: e.student.user.email,
-        studentStatus: e.student.user.status,
-        enrollmentStatus: e.status,
-        joinedAt: e.createdAt,
-      })),
-      currentAssignment: current,
-      pastAssignments: past,
-    }
-  },
-)
+      slots: {
+        orderBy: [{ dayOfWeek: "asc" }, { startTime: "asc" }],
+      },
+      enrollments: {
+        orderBy: { createdAt: "asc" },
+        include: { student: { include: { user: true } } },
+      },
+      teacherAssignments: {
+        orderBy: { startDate: "desc" },
+        include: { teacher: { include: { user: true } } },
+      },
+    },
+  })
+  if (!row) return null
+
+  const assignmentRows: ClassGroupTeacherAssignmentRow[] = row.teacherAssignments.map((a) => ({
+    id: a.id,
+    teacherId: a.teacherId,
+    teacherName: `${a.teacher.user.firstName} ${a.teacher.user.lastName}`,
+    startDate: a.startDate,
+    endDate: a.endDate,
+    isCurrent: a.startDate <= today && (a.endDate === null || a.endDate >= today),
+  }))
+
+  const current = assignmentRows.find((a) => a.isCurrent) ?? null
+  const past = assignmentRows.filter((a) => !a.isCurrent)
+
+  return {
+    id: row.id,
+    name: row.name,
+    modality: row.modality,
+    status: row.status,
+    notes: row.notes,
+    defaultMeetingUrl: row.defaultMeetingUrl,
+    defaultLocation: row.defaultLocation,
+    createdAt: row.createdAt,
+    closedAt: row.closedAt,
+    programLevel: {
+      id: row.programLevel.id,
+      code: row.programLevel.code,
+      name: row.programLevel.name,
+      programLabel: `${row.programLevel.program.course.name} · ${row.programLevel.program.name} · ${row.programLevel.name}`,
+      cefrLevelCode: row.programLevel.cefrLevelCode,
+      classDurationMinutes: row.programLevel.program.course.classDuration,
+      languageId: row.programLevel.program.course.language.id,
+    },
+    slots: row.slots.map((s) => ({
+      id: s.id,
+      dayOfWeek: s.dayOfWeek,
+      startTime: s.startTime,
+      durationMinutes: s.durationMinutes,
+    })),
+    enrollments: row.enrollments.map((e) => ({
+      enrollmentId: e.id,
+      studentId: e.studentId,
+      studentName: `${e.student.user.firstName} ${e.student.user.lastName}`,
+      studentEmail: e.student.user.email,
+      studentStatus: e.student.user.status,
+      enrollmentStatus: e.status,
+      joinedAt: e.createdAt,
+    })),
+    currentAssignment: current,
+    pastAssignments: past,
+  }
+})
 
 // -----------------------------------------------------------------------------
 //  Vistas para el docente — solo aulas donde es el docente vigente
@@ -527,18 +518,12 @@ export const listActiveClassGroupsForPlanning = cache(
   },
 )
 
-function formatSlotsLabel(
-  slots: { dayOfWeek: number; startTime: string }[],
-): string {
+function formatSlotsLabel(slots: { dayOfWeek: number; startTime: string }[]): string {
   if (slots.length === 0) return "—"
   const orderedDays = [1, 2, 3, 4, 5, 6, 0]
   const daySet = new Set(slots.map((s) => s.dayOfWeek))
-  const days = orderedDays
-    .filter((d) => daySet.has(d))
-    .map((d) => DAY_SHORT[d])
-  const earliest = [...slots].sort((a, b) =>
-    a.startTime.localeCompare(b.startTime),
-  )[0]?.startTime
+  const days = orderedDays.filter((d) => daySet.has(d)).map((d) => DAY_SHORT[d])
+  const earliest = [...slots].sort((a, b) => a.startTime.localeCompare(b.startTime))[0]?.startTime
   return earliest ? `${days.join("-")} ${earliest}` : days.join("-")
 }
 
@@ -809,7 +794,5 @@ export async function listEligibleTeachersForLevel(
 
 function startOfTodayUTC(): Date {
   const now = new Date()
-  return new Date(
-    Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()),
-  )
+  return new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()))
 }

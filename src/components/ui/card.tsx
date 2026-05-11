@@ -17,34 +17,29 @@ import { cn } from "@/lib/utils"
  * jerarquía adicional.
  */
 
-export const Card = React.forwardRef<
-  HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement>
->(({ className, ...props }, ref) => (
-  <div
-    ref={ref}
-    className={cn(
-      "rounded-2xl border border-border bg-surface text-foreground",
-      className,
-    )}
-    {...props}
-  />
-))
+export const Card = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
+  ({ className, ...props }, ref) => (
+    <div
+      ref={ref}
+      className={cn("border-border bg-surface text-foreground rounded-2xl border", className)}
+      {...props}
+    />
+  ),
+)
 Card.displayName = "Card"
 
-export const CardHeader = React.forwardRef<
-  HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement>
->(({ className, ...props }, ref) => (
-  <div
-    ref={ref}
-    className={cn(
-      "flex flex-wrap items-center justify-between gap-3.5 border-b border-border px-[22px] py-[18px]",
-      className,
-    )}
-    {...props}
-  />
-))
+export const CardHeader = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
+  ({ className, ...props }, ref) => (
+    <div
+      ref={ref}
+      className={cn(
+        "border-border flex flex-wrap items-center justify-between gap-3.5 border-b px-[22px] py-[18px]",
+        className,
+      )}
+      {...props}
+    />
+  ),
+)
 CardHeader.displayName = "CardHeader"
 
 /**
@@ -57,10 +52,7 @@ export const CardKicker = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <p
     ref={ref}
-    className={cn(
-      "font-mono text-[11px] uppercase tracking-[0.08em] text-text-3",
-      className,
-    )}
+    className={cn("text-text-3 font-mono text-[11px] tracking-[0.08em] uppercase", className)}
     {...props}
   />
 ))
@@ -73,7 +65,7 @@ export const CardTitle = React.forwardRef<
   <h3
     ref={ref}
     className={cn(
-      "m-0 font-serif text-[20px] font-normal leading-[1.2] tracking-[-0.015em] text-foreground",
+      "text-foreground m-0 font-serif text-[20px] leading-[1.2] font-normal tracking-[-0.015em]",
       className,
     )}
     {...props}
@@ -85,11 +77,7 @@ export const CardDescription = React.forwardRef<
   HTMLParagraphElement,
   React.HTMLAttributes<HTMLParagraphElement>
 >(({ className, ...props }, ref) => (
-  <p
-    ref={ref}
-    className={cn("text-[13.5px] text-text-2", className)}
-    {...props}
-  />
+  <p ref={ref} className={cn("text-text-2 text-[13.5px]", className)} {...props} />
 ))
 CardDescription.displayName = "CardDescription"
 
@@ -97,40 +85,31 @@ CardDescription.displayName = "CardDescription"
  * Meta secundario del card-head: ej. "12 clases · 4 docentes" en mono 12px
  * tracking 0.04em.
  */
-export const CardMeta = React.forwardRef<
-  HTMLSpanElement,
-  React.HTMLAttributes<HTMLSpanElement>
->(({ className, ...props }, ref) => (
-  <span
-    ref={ref}
-    className={cn(
-      "font-mono text-[12px] tracking-[0.04em] text-text-3",
-      className,
-    )}
-    {...props}
-  />
-))
+export const CardMeta = React.forwardRef<HTMLSpanElement, React.HTMLAttributes<HTMLSpanElement>>(
+  ({ className, ...props }, ref) => (
+    <span
+      ref={ref}
+      className={cn("text-text-3 font-mono text-[12px] tracking-[0.04em]", className)}
+      {...props}
+    />
+  ),
+)
 CardMeta.displayName = "CardMeta"
 
-export const CardContent = React.forwardRef<
-  HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement>
->(({ className, ...props }, ref) => (
-  <div ref={ref} className={cn("px-[22px] py-5", className)} {...props} />
-))
+export const CardContent = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
+  ({ className, ...props }, ref) => (
+    <div ref={ref} className={cn("px-[22px] py-5", className)} {...props} />
+  ),
+)
 CardContent.displayName = "CardContent"
 
-export const CardFooter = React.forwardRef<
-  HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement>
->(({ className, ...props }, ref) => (
-  <div
-    ref={ref}
-    className={cn(
-      "flex items-center gap-3 border-t border-border px-[22px] py-4",
-      className,
-    )}
-    {...props}
-  />
-))
+export const CardFooter = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
+  ({ className, ...props }, ref) => (
+    <div
+      ref={ref}
+      className={cn("border-border flex items-center gap-3 border-t px-[22px] py-4", className)}
+      {...props}
+    />
+  ),
+)
 CardFooter.displayName = "CardFooter"

@@ -26,14 +26,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
     const hasAction = !!endAdornment
 
     if (!hasIcon && !hasAction) {
-      return (
-        <input
-          ref={ref}
-          type={type}
-          className={cn(inputBaseClasses, className)}
-          {...props}
-        />
-      )
+      return <input ref={ref} type={type} className={cn(inputBaseClasses, className)} {...props} />
     }
 
     return (
@@ -41,7 +34,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
         {hasIcon && (
           <span
             aria-hidden
-            className="pointer-events-none absolute left-[13px] top-1/2 -translate-y-1/2 text-text-4"
+            className="text-text-4 pointer-events-none absolute top-1/2 left-[13px] -translate-y-1/2"
           >
             <Icon size={15} strokeWidth={1.6} />
           </span>
@@ -49,18 +42,11 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
         <input
           ref={ref}
           type={type}
-          className={cn(
-            inputBaseClasses,
-            hasIcon && "pl-[38px]",
-            hasAction && "pr-10",
-            className,
-          )}
+          className={cn(inputBaseClasses, hasIcon && "pl-[38px]", hasAction && "pr-10", className)}
           {...props}
         />
         {hasAction && (
-          <div className="absolute right-2 top-1/2 -translate-y-1/2">
-            {endAdornment}
-          </div>
+          <div className="absolute top-1/2 right-2 -translate-y-1/2">{endAdornment}</div>
         )}
       </div>
     )
@@ -89,7 +75,7 @@ export const InputAction = React.forwardRef<
     ref={ref}
     type="button"
     className={cn(
-      "rounded-md p-1.5 text-text-3 transition-colors hover:text-foreground",
+      "text-text-3 hover:text-foreground rounded-md p-1.5 transition-colors",
       className,
     )}
     {...props}

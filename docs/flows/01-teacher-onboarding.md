@@ -45,6 +45,7 @@ Postulante                   Sistema                      Coordinador
 **Ruta**: `/postular-docente` (sin auth)
 
 **Campos**:
+
 - Datos personales: `firstName`, `lastName`, `email`, `phone`, `document`.
 - `bio` (texto libre).
 - CV (archivo PDF/DOCX, opcional).
@@ -52,6 +53,7 @@ Postulante                   Sistema                      Coordinador
 - Disponibilidad semanal: componente de grilla día × hora (mismo componente que usará el estudiante y el docente contratado).
 
 **Validación Zod** (en `src/modules/teachers/applications/schemas.ts`):
+
 - `email` formato válido, único contra `User.email` Y `TeacherApplication.email` con status PENDING.
 - `document` formato cédula/pasaporte ecuatoriano.
 - Al menos 1 nivel.
@@ -65,19 +67,19 @@ Server Action:
 await prisma.$transaction(async (tx) => {
   // Subir CV al storage si existe
   const cvKey = cv ? await storage.upload(`applications/${randomId}/cv.${ext}`, cv) : null
-  
+
   const application = await tx.teacherApplication.create({
     data: { firstName, lastName, email, phone, document, bio, cvStorageKey: cvKey?.key },
   })
-  
+
   await tx.teacherApplicationLevel.createMany({
     data: levelIds.map(levelId => ({ applicationId: application.id, levelId })),
   })
-  
+
   await tx.applicationAvailability.createMany({
     data: slots.map(s => ({ applicationId: application.id, ...s })),
   })
-  
+
   // Encolar emails (NO enviar dentro de la transacción)
   // Se hace después del commit con un callback o en un endpoint separado
 })
@@ -94,6 +96,7 @@ Redirige a `/postular-docente/success`.
 **Ruta**: `/admin/postulaciones` (guard: `requireRole(['COORDINATOR', 'DIRECTOR'])`)
 
 Lista filtrable por status. Al abrir una postulación, ve:
+
 - Datos completos del postulante.
 - CV descargable (URL firmada del `StorageAdapter`).
 - Niveles propuestos vs niveles que puede aprobar (subset editable).
@@ -114,10 +117,10 @@ await prisma.$transaction(async (tx) => {
       lastName: app.lastName,
       document: app.document,
       phone: app.phone,
-      role: 'TEACHER',
+      role: "TEACHER",
     },
   })
-  
+
   // 2. Crear TeacherProfile
   await tx.teacherProfile.create({
     data: {
@@ -128,30 +131,40 @@ await prisma.$transaction(async (tx) => {
       isActive: true,
     },
   })
-  
+
   // 3. Copiar niveles APROBADOS (pueden ser subset de los propuestos)
   await tx.teacherLevel.createMany({
-    data: approvedLevelIds.map(levelId => ({ teacherId: user.id, levelId })),
+    data: approvedLevelIds.map((levelId) => ({ teacherId: user.id, levelId })),
   })
-  
+
   // 4. Copiar disponibilidad propuesta
   const proposed = await tx.applicationAvailability.findMany({ where: { applicationId: app.id } })
   await tx.teacherAvailability.createMany({
-    data: proposed.map(s => ({ teacherId: user.id, dayOfWeek: s.dayOfWeek, startTime: s.startTime, endTime: s.endTime })),
+    data: proposed.map((s) => ({
+      teacherId: user.id,
+      dayOfWeek: s.dayOfWeek,
+      startTime: s.startTime,
+      endTime: s.endTime,
+    })),
   })
-  
+
   // 5. Actualizar la application
   await tx.teacherApplication.update({
     where: { id: app.id },
-    data: { status: 'APPROVED', reviewedBy: coordinatorId, reviewedAt: new Date(), userId: user.id },
+    data: {
+      status: "APPROVED",
+      reviewedBy: coordinatorId,
+      reviewedAt: new Date(),
+      userId: user.id,
+    },
   })
-  
+
   return { user, tempPassword }
 })
 
 // FUERA de la transacción:
 await enqueueEmail({
-  type: 'TEACHER_APPLICATION_APPROVED',
+  type: "TEACHER_APPLICATION_APPROVED",
   to: user.email,
   templateData: { firstName, tempPassword, loginUrl: `${APP_URL}/login` },
 })

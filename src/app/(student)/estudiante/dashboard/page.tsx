@@ -24,14 +24,8 @@ import {
 } from "@/modules/students/queries"
 import { KpiBand, type Kpi } from "@/components/dashboard/KpiBand"
 import { StudentAgendaCard } from "@/components/dashboard/StudentAgendaCard"
-import {
-  ActivityCard,
-  type ActivityEntry,
-} from "@/components/dashboard/ActivityCard"
-import {
-  MyLevelCard,
-  type MyLevelEntry,
-} from "@/components/dashboard/MyLevelCard"
+import { ActivityCard, type ActivityEntry } from "@/components/dashboard/ActivityCard"
+import { MyLevelCard, type MyLevelEntry } from "@/components/dashboard/MyLevelCard"
 import { HomeworkCard } from "@/components/dashboard/HomeworkCard"
 import { LevelsCard, type LevelEntry } from "@/components/dashboard/LevelsCard"
 import { EmptyState } from "@/components/ui/empty-state"
@@ -71,23 +65,23 @@ export default async function StudentDashboardPage() {
         { label: "Dashboard" },
       ]}
     >
-      <header className="mb-8 flex flex-wrap items-end justify-between gap-7 border-b border-border pb-6">
+      <header className="border-border mb-8 flex flex-wrap items-end justify-between gap-7 border-b pb-6">
         <div>
-          <p className="mb-2 font-mono text-[12px] uppercase tracking-[0.08em] text-text-3">
+          <p className="text-text-3 mb-2 font-mono text-[12px] tracking-[0.08em] uppercase">
             {formatHeaderDate()}
           </p>
-          <h1 className="font-serif text-[40px] font-normal leading-[1.15] tracking-[-0.02em]">
+          <h1 className="font-serif text-[40px] leading-[1.15] font-normal tracking-[-0.02em]">
             Hola{firstName ? `, ${firstName}` : ""}
-            <span className="font-light italic text-text-2"> — qué gusto verte.</span>
+            <span className="text-text-2 font-light italic"> — qué gusto verte.</span>
           </h1>
-          <p className="mt-2.5 max-w-[560px] text-[15px] text-text-2">
+          <p className="text-text-2 mt-2.5 max-w-[560px] text-[15px]">
             {buildSubtitle(dashboard, primary)}
           </p>
         </div>
         {meta && (
-          <div className="text-right font-mono text-[12.5px] leading-[1.7] tracking-[0.04em] text-text-3">
+          <div className="text-text-3 text-right font-mono text-[12.5px] leading-[1.7] tracking-[0.04em]">
             <div>{meta.label}</div>
-            <div className="text-[14px] text-foreground">{meta.value}</div>
+            <div className="text-foreground text-[14px]">{meta.value}</div>
           </div>
         )}
       </header>
@@ -118,36 +112,36 @@ export default async function StudentDashboardPage() {
           {primary?.classGroup && (
             <section
               aria-label="Mi aula"
-              className="mb-5 rounded-2xl border border-border bg-surface px-5 py-4"
+              className="border-border bg-surface mb-5 rounded-2xl border px-5 py-4"
             >
               <div className="flex flex-wrap items-start justify-between gap-4">
                 <div className="min-w-0">
-                  <div className="mb-1.5 inline-flex items-center gap-1.5 font-mono text-[11px] uppercase tracking-[0.08em] text-text-3">
+                  <div className="text-text-3 mb-1.5 inline-flex items-center gap-1.5 font-mono text-[11px] tracking-[0.08em] uppercase">
                     <School size={11} strokeWidth={1.6} />
                     Mi aula
                   </div>
-                  <div className="font-serif text-[20px] font-normal leading-[1.2] tracking-[-0.01em] text-foreground">
+                  <div className="text-foreground font-serif text-[20px] leading-[1.2] font-normal tracking-[-0.01em]">
                     {primary.classGroup.name}
                   </div>
                   <div className="mt-2 flex flex-wrap gap-1.5">
                     {primary.classGroup.slots.map((s, idx) => (
                       <span
                         key={idx}
-                        className="inline-flex items-center gap-1 rounded-md border border-border bg-bone-50 px-2 py-0.5 font-mono text-[11.5px] text-text-2"
+                        className="border-border bg-bone-50 text-text-2 inline-flex items-center gap-1 rounded-md border px-2 py-0.5 font-mono text-[11.5px]"
                       >
                         {DAYS_SHORT_ES[s.dayOfWeek]} {s.startTime}
                       </span>
                     ))}
                   </div>
                   {primary.classGroup.currentTeacher ? (
-                    <p className="mt-2 text-[13px] text-text-2">
+                    <p className="text-text-2 mt-2 text-[13px]">
                       Docente:{" "}
-                      <span className="font-medium text-foreground">
+                      <span className="text-foreground font-medium">
                         {primary.classGroup.currentTeacher.name}
                       </span>
                     </p>
                   ) : (
-                    <p className="mt-2 text-[13px] text-warning">
+                    <p className="text-warning mt-2 text-[13px]">
                       Pendiente de asignación de docente
                     </p>
                   )}
@@ -160,7 +154,7 @@ export default async function StudentDashboardPage() {
                       href={dashboard.nextClass.meetingUrl}
                       target="_blank"
                       rel="noreferrer"
-                      className="inline-flex items-center gap-2 rounded-lg bg-teal-500 px-4 py-2.5 text-[13px] font-medium text-bone shadow-sm transition-colors hover:bg-teal-deep"
+                      className="text-bone hover:bg-teal-deep inline-flex items-center gap-2 rounded-lg bg-teal-500 px-4 py-2.5 text-[13px] font-medium shadow-sm transition-colors"
                     >
                       <Video size={13} strokeWidth={1.8} />
                       Conectar a la clase
@@ -171,7 +165,7 @@ export default async function StudentDashboardPage() {
                   dashboard.nextClass.location &&
                   (dashboard.nextClass.modality === "PRESENCIAL" ||
                     dashboard.nextClass.modality === "HIBRIDO") && (
-                    <div className="inline-flex items-center gap-1.5 rounded-md border border-border bg-surface-alt px-3 py-1.5 text-[12.5px] text-text-2">
+                    <div className="border-border bg-surface-alt text-text-2 inline-flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-[12.5px]">
                       <MapPin size={12} strokeWidth={1.6} />
                       {dashboard.nextClass.location}
                     </div>
@@ -181,24 +175,20 @@ export default async function StudentDashboardPage() {
           )}
 
           {attendanceRows.length > 0 ? (
-            <LevelsCard
-              items={attendanceRows}
-              meta={buildAttendanceMeta(dashboard.attendance)}
-            />
+            <LevelsCard items={attendanceRows} meta={buildAttendanceMeta(dashboard.attendance)} />
           ) : (
             <section
               aria-label="Asistencia"
-              className="rounded-2xl border border-dashed border-border-strong bg-surface p-8 text-center"
+              className="border-border-strong bg-surface rounded-2xl border border-dashed p-8 text-center"
             >
-              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full border border-border bg-surface-alt text-text-3">
+              <div className="border-border bg-surface-alt text-text-3 mx-auto flex h-12 w-12 items-center justify-center rounded-full border">
                 <CalendarCheck size={20} strokeWidth={1.6} />
               </div>
-              <h2 className="mt-3.5 font-serif text-[18px] italic font-light tracking-[-0.01em]">
+              <h2 className="mt-3.5 font-serif text-[18px] font-light tracking-[-0.01em] italic">
                 Aún sin asistencias registradas
               </h2>
-              <p className="mx-auto mt-1 max-w-[420px] text-[13.5px] text-text-2">
-                Cuando el docente cierre tus primeras clases vas a ver acá tu
-                resumen de asistencia.
+              <p className="text-text-2 mx-auto mt-1 max-w-[420px] text-[13.5px]">
+                Cuando el docente cierre tus primeras clases vas a ver acá tu resumen de asistencia.
               </p>
             </section>
           )}
@@ -241,9 +231,7 @@ function buildKpis(
     },
     {
       label: "Próxima clase",
-      value: dashboard.nextClass
-        ? formatNextClassValue(dashboard.nextClass.scheduledStart)
-        : "—",
+      value: dashboard.nextClass ? formatNextClassValue(dashboard.nextClass.scheduledStart) : "—",
       icon: CalendarClock,
       delta: dashboard.nextClass
         ? buildNextClassDelta(dashboard.nextClass)
@@ -271,9 +259,7 @@ function buildKpis(
   ]
 }
 
-function buildLevelEntries(
-  enrollments: StudentDashboard["enrollments"],
-): MyLevelEntry[] {
+function buildLevelEntries(enrollments: StudentDashboard["enrollments"]): MyLevelEntry[] {
   return enrollments.map((e) => ({
     enrollmentId: e.enrollmentId,
     programName: e.programName,
@@ -289,18 +275,10 @@ function buildActivity(items: StudentRecentSession[]): ActivityEntry[] {
   return items.map((s) => {
     const isCompleted = s.sessionStatus === "COMPLETED"
     const isNoShow = s.sessionStatus === "NO_SHOW"
-    const isPresent =
-      s.attendance === "PRESENT" || s.attendance === "LATE"
-    const isAbsent =
-      s.attendance === "ABSENT" || s.attendance === "EXCUSED"
+    const isPresent = s.attendance === "PRESENT" || s.attendance === "LATE"
+    const isAbsent = s.attendance === "ABSENT" || s.attendance === "EXCUSED"
 
-    const icon = isNoShow
-      ? AlertTriangle
-      : isPresent
-        ? Check
-        : isAbsent
-          ? X
-          : BookOpen
+    const icon = isNoShow ? AlertTriangle : isPresent ? Check : isAbsent ? X : BookOpen
     const variant: ActivityEntry["variant"] = isNoShow
       ? "warn"
       : isPresent
@@ -330,9 +308,7 @@ function buildActivity(items: StudentRecentSession[]): ActivityEntry[] {
   })
 }
 
-function attendanceLabel(
-  attendance: StudentRecentSession["attendance"],
-): string {
+function attendanceLabel(attendance: StudentRecentSession["attendance"]): string {
   switch (attendance) {
     case "PRESENT":
       return "Asististe"
@@ -428,9 +404,7 @@ function buildSubtitle(
       `${dashboard.todaySessionCount} ${dashboard.todaySessionCount === 1 ? "clase hoy" : "clases hoy"}`,
     )
   } else if (dashboard.nextClass) {
-    parts.push(
-      `próxima clase ${formatNextClassShort(dashboard.nextClass.scheduledStart)}`,
-    )
+    parts.push(`próxima clase ${formatNextClassShort(dashboard.nextClass.scheduledStart)}`)
   }
   if (dashboard.attendance.registered > 0) {
     const attended = dashboard.attendance.present + dashboard.attendance.late
@@ -465,9 +439,7 @@ function buildAttendanceDelta(
   }
 }
 
-function buildNextClassDelta(
-  nextClass: NonNullable<StudentDashboard["nextClass"]>,
-): Kpi["delta"] {
+function buildNextClassDelta(nextClass: NonNullable<StudentDashboard["nextClass"]>): Kpi["delta"] {
   const isLive =
     nextClass.scheduledStart.getTime() <= Date.now() &&
     Date.now() < nextClass.scheduledEnd.getTime()

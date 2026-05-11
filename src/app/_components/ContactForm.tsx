@@ -111,7 +111,7 @@ export function ContactForm({ turnstileSiteKey }: Props) {
     <form
       onSubmit={onSubmit}
       noValidate
-      className="rounded-2xl border border-border bg-surface p-6 sm:p-8"
+      className="border-border bg-surface rounded-2xl border p-6 sm:p-8"
     >
       {serverError && (
         <div className="mb-6">
@@ -161,14 +161,10 @@ export function ContactForm({ turnstileSiteKey }: Props) {
           <Controller
             control={control}
             name="topic"
-            render={({ field }) => (
-              <TopicChoice value={field.value} onChange={field.onChange} />
-            )}
+            render={({ field }) => <TopicChoice value={field.value} onChange={field.onChange} />}
           />
           {errors.topic && (
-            <p className="mt-1.5 text-[12.5px] text-danger">
-              {errors.topic.message}
-            </p>
+            <p className="text-danger mt-1.5 text-[12.5px]">{errors.topic.message}</p>
           )}
         </div>
 
@@ -183,7 +179,7 @@ export function ContactForm({ turnstileSiteKey }: Props) {
             rows={5}
             aria-invalid={!!errors.message}
             placeholder="Por ejemplo: Quiero retomar inglés para mi trabajo. Tengo nivel intermedio y prefiero clases por la noche."
-            className="block w-full rounded-lg border border-border bg-background px-3.5 py-3 text-[14px] leading-[1.55] text-foreground placeholder:text-text-4 transition-[border-color] hover:border-border-strong focus:border-teal-500 focus:outline-none aria-[invalid=true]:border-danger"
+            className="border-border bg-background text-foreground placeholder:text-text-4 hover:border-border-strong aria-[invalid=true]:border-danger block w-full rounded-lg border px-3.5 py-3 text-[14px] leading-[1.55] transition-[border-color] focus:border-teal-500 focus:outline-none"
           />
         </Field>
 
@@ -194,21 +190,16 @@ export function ContactForm({ turnstileSiteKey }: Props) {
             render={({ field }) => (
               <Checkbox
                 checked={!!field.value}
-                onChange={(e) =>
-                  field.onChange(e.target.checked || undefined)
-                }
+                onChange={(e) => field.onChange(e.target.checked || undefined)}
               />
             )}
           />
           <span className="text-text-2">
-            Acepto que CM English Instructor use mis datos para responder esta
-            consulta.
+            Acepto que CM English Instructor use mis datos para responder esta consulta.
           </span>
         </CheckLabel>
         {errors.consentAccepted && (
-          <p className="-mt-2 text-[12.5px] text-danger">
-            {errors.consentAccepted.message}
-          </p>
+          <p className="text-danger -mt-2 text-[12.5px]">{errors.consentAccepted.message}</p>
         )}
 
         {turnstileSiteKey && (
@@ -221,30 +212,17 @@ export function ContactForm({ turnstileSiteKey }: Props) {
               options={{ theme: "light" }}
             />
             {errors.turnstileToken && (
-              <p className="mt-1.5 text-[12.5px] text-danger">
-                {errors.turnstileToken.message}
-              </p>
+              <p className="text-danger mt-1.5 text-[12.5px]">{errors.turnstileToken.message}</p>
             )}
           </div>
         )}
 
-        <div className="flex flex-col gap-3 border-t border-border pt-5 sm:flex-row sm:items-center sm:justify-between">
-          <p className="text-[12.5px] text-text-3">
-            Te respondemos en menos de 24 horas hábiles.
-          </p>
-          <Button
-            type="submit"
-            variant="primary"
-            size="lg"
-            disabled={isPending}
-          >
+        <div className="border-border flex flex-col gap-3 border-t pt-5 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-text-3 text-[12.5px]">Te respondemos en menos de 24 horas hábiles.</p>
+          <Button type="submit" variant="primary" size="lg" disabled={isPending}>
             {isPending ? (
               <>
-                <Loader2
-                  size={14}
-                  strokeWidth={1.6}
-                  className="animate-spin"
-                />
+                <Loader2 size={14} strokeWidth={1.6} className="animate-spin" />
                 Enviando…
               </>
             ) : (
@@ -282,14 +260,12 @@ function Field({
       <div className="mb-1.5 flex items-baseline justify-between gap-3">
         <Label className="block">
           {label}
-          {required && <span className="ml-0.5 text-danger">*</span>}
+          {required && <span className="text-danger ml-0.5">*</span>}
         </Label>
-        {hint && !error && (
-          <span className="text-[12px] text-text-4">{hint}</span>
-        )}
+        {hint && !error && <span className="text-text-4 text-[12px]">{hint}</span>}
       </div>
       {children}
-      {error && <p className="mt-1.5 text-[12.5px] text-danger">{error}</p>}
+      {error && <p className="text-danger mt-1.5 text-[12.5px]">{error}</p>}
     </div>
   )
 }
@@ -302,11 +278,7 @@ function TopicChoice({
   onChange: (next: InquiryTopic) => void
 }) {
   return (
-    <div
-      role="radiogroup"
-      aria-label="Tipo de consulta"
-      className="grid gap-2 sm:grid-cols-3"
-    >
+    <div role="radiogroup" aria-label="Tipo de consulta" className="grid gap-2 sm:grid-cols-3">
       {TOPICS.map((opt) => {
         const selected = value === opt.value
         return (
@@ -319,16 +291,12 @@ function TopicChoice({
             className={cn(
               "flex flex-col items-start rounded-lg border px-3.5 py-3 text-left transition-[background-color,border-color,color] duration-150",
               selected
-                ? "border-teal-500 bg-teal-500/[0.06] text-foreground"
+                ? "text-foreground border-teal-500 bg-teal-500/[0.06]"
                 : "border-border bg-background text-foreground hover:border-border-strong",
             )}
           >
-            <span className="text-[14px] font-medium leading-tight">
-              {opt.label}
-            </span>
-            <span className="mt-0.5 text-[12px] leading-snug text-text-3">
-              {opt.hint}
-            </span>
+            <span className="text-[14px] leading-tight font-medium">{opt.label}</span>
+            <span className="text-text-3 mt-0.5 text-[12px] leading-snug">{opt.hint}</span>
           </button>
         )
       })}
@@ -339,24 +307,20 @@ function TopicChoice({
 function SuccessCard({ email }: { email: string }) {
   return (
     <div
-      className="rounded-2xl border border-teal-500/40 bg-teal-100/30 p-7 dark:bg-teal-500/10 sm:p-9"
+      className="rounded-2xl border border-teal-500/40 bg-teal-100/30 p-7 sm:p-9 dark:bg-teal-500/10"
       role="status"
       aria-live="polite"
     >
       <div className="flex items-center gap-2 text-teal-700 dark:text-teal-500">
         <CheckCircle2 size={20} strokeWidth={1.6} />
-        <p className="font-mono text-[11px] uppercase tracking-[0.12em]">
-          Consulta enviada
-        </p>
+        <p className="font-mono text-[11px] tracking-[0.12em] uppercase">Consulta enviada</p>
       </div>
-      <h3 className="mt-3 font-serif text-[26px] leading-[1.18] tracking-[-0.02em] text-foreground sm:text-[30px]">
+      <h3 className="text-foreground mt-3 font-serif text-[26px] leading-[1.18] tracking-[-0.02em] sm:text-[30px]">
         ¡Gracias! Recibimos tu mensaje.
       </h3>
-      <p className="mt-3 max-w-[460px] text-[15px] leading-[1.6] text-text-2">
-        Te respondemos a{" "}
-        <span className="font-medium text-foreground">{email}</span> en menos de
-        24 horas hábiles. Mientras tanto, puedes seguir explorando los programas
-        más arriba.
+      <p className="text-text-2 mt-3 max-w-[460px] text-[15px] leading-[1.6]">
+        Te respondemos a <span className="text-foreground font-medium">{email}</span> en menos de 24
+        horas hábiles. Mientras tanto, puedes seguir explorando los programas más arriba.
       </p>
     </div>
   )

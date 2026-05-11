@@ -97,9 +97,7 @@ async function findUserConflict(
 ): Promise<{ error: string; field: keyof NewTeacherInput } | null> {
   const [byEmail, byDoc] = await Promise.all([
     prisma.user.findUnique({ where: { email } }),
-    document
-      ? prisma.user.findUnique({ where: { document } })
-      : Promise.resolve(null),
+    document ? prisma.user.findUnique({ where: { document } }) : Promise.resolve(null),
   ])
   if (byEmail) return { error: "Ya existe un usuario con este correo", field: "email" }
   if (byDoc) return { error: "Ya existe un usuario con este documento", field: "document" }

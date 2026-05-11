@@ -43,6 +43,7 @@ NEXT_PUBLIC_APP_URL="http://localhost:3000"
 ```
 
 Opcionales para empezar (puedes dejar valores default):
+
 - `EMAIL_PROVIDER=console` (no envía mails reales en dev)
 - `STORAGE_DRIVER=local` (guarda archivos en `./storage`)
 
@@ -85,6 +86,7 @@ pnpm db:seed
 ```
 
 El seed crea:
+
 - Catálogo académico real (Time Zones, Life, Market Leader, Specialization, Kids, Vistas).
 - Niveles CEFR para inglés y español.
 - 4 usuarios demo (uno por rol) con password `Demo2026!`.
@@ -101,6 +103,7 @@ pnpm dev
 Abre http://localhost:3000.
 
 Logins demo:
+
 - `directora@cmenglish.test` / `Demo2026!`
 - `coordinacion@cmenglish.test` / `Demo2026!`
 - `docente@cmenglish.test` / `Demo2026!`
@@ -121,6 +124,7 @@ bash scripts/init-project.sh
 Esto instala las siguientes skills oficiales (en orden de prioridad):
 
 **Nivel 1 — Base (obligatorias)**:
+
 - `anthropics/skills/frontend-design` — principios de diseño visual
 - `vercel-labs/agent-skills/web-design-guidelines` — guidelines de UI web
 - `vercel-labs/agent-skills/react-best-practices` — patrones React

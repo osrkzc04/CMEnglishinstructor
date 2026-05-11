@@ -176,9 +176,7 @@ export const NewStudentWithEnrollmentSchema = z.object({
   preferredSchedule: z.array(StudentScheduleBlockSchema).default([]),
 })
 
-export type NewStudentWithEnrollmentInput = z.infer<
-  typeof NewStudentWithEnrollmentSchema
->
+export type NewStudentWithEnrollmentInput = z.infer<typeof NewStudentWithEnrollmentSchema>
 
 // -----------------------------------------------------------------------------
 //  Filtros del listado

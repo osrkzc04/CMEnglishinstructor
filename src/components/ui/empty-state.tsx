@@ -36,23 +36,21 @@ export function EmptyState({
         "flex flex-col items-center text-center",
         bare
           ? "px-4 py-10"
-          : "rounded-2xl border border-dashed border-border-strong bg-surface px-6 py-12",
+          : "border-border-strong bg-surface rounded-2xl border border-dashed px-6 py-12",
         className,
       )}
       {...props}
     >
       {Icon && (
-        <div className="mb-3.5 grid h-12 w-12 place-items-center rounded-full border border-border bg-surface-alt text-text-3">
+        <div className="border-border bg-surface-alt text-text-3 mb-3.5 grid h-12 w-12 place-items-center rounded-full border">
           <Icon size={20} strokeWidth={1.6} />
         </div>
       )}
-      <h4 className="m-0 font-serif text-[18px] font-light italic tracking-[-0.01em] text-foreground">
+      <h4 className="text-foreground m-0 font-serif text-[18px] font-light tracking-[-0.01em] italic">
         {title}
       </h4>
       {description && (
-        <p className="m-0 mt-1 max-w-[420px] text-[13.5px] text-text-2">
-          {description}
-        </p>
+        <p className="text-text-2 m-0 mt-1 max-w-[420px] text-[13.5px]">{description}</p>
       )}
       {action && <div className="mt-4">{action}</div>}
     </div>

@@ -6,9 +6,7 @@ import { prisma } from "@/lib/prisma"
 import { requireRole } from "@/modules/auth/guards"
 import { issueAndSendActivation } from "@/modules/auth/emails"
 
-type Result =
-  | { success: true; teacherId: string }
-  | { success: false; error: string }
+type Result = { success: true; teacherId: string } | { success: false; error: string }
 
 /**
  * Aprueba una postulación: la convierte en docente activo y dispara el
@@ -28,9 +26,7 @@ type Result =
  * rate-limit, etc.) la aprobación sigue válida y desde el detalle del
  * docente se puede regenerar el enlace.
  */
-export async function approveApplication(
-  applicationId: string,
-): Promise<Result> {
+export async function approveApplication(applicationId: string): Promise<Result> {
   const reviewer = await requireRole(["DIRECTOR", "COORDINATOR"])
 
   type CreatedUser = { id: string; email: string; firstName: string }

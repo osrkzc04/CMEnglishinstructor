@@ -67,8 +67,7 @@ async function main() {
     {
       file: "email-application.html",
       html: renderEmail({
-        preheader:
-          "Gracias por postular. Vamos a revisar tu perfil y te contactamos pronto.",
+        preheader: "Gracias por postular. Vamos a revisar tu perfil y te contactamos pronto.",
         eyebrow: "Postulación recibida",
         heading: "Hola, Oscar",
         body: [

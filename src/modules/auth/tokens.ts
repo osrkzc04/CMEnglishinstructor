@@ -25,9 +25,7 @@ function makeIdentifier(purpose: TokenPurpose, userId: string): string {
   return `${purpose}:${userId}`
 }
 
-function parseIdentifier(
-  identifier: string,
-): { purpose: TokenPurpose; userId: string } | null {
+function parseIdentifier(identifier: string): { purpose: TokenPurpose; userId: string } | null {
   const idx = identifier.indexOf(":")
   if (idx <= 0) return null
   const purpose = identifier.slice(0, idx)
@@ -99,9 +97,7 @@ export type ConsumedToken = {
  * `null` si el token es inválido o expiró — ambos errores se devuelven
  * iguales para no filtrar si el token existió.
  */
-export async function consumeUserToken(
-  token: string,
-): Promise<ConsumedToken | null> {
+export async function consumeUserToken(token: string): Promise<ConsumedToken | null> {
   const row = await prisma.verificationToken.findUnique({ where: { token } })
   if (!row) return null
 
@@ -125,9 +121,7 @@ export async function consumeUserToken(
  * el form de "setear contraseña" (no queremos quemar el token solo por
  * abrir la página).
  */
-export async function peekUserToken(
-  token: string,
-): Promise<ConsumedToken | null> {
+export async function peekUserToken(token: string): Promise<ConsumedToken | null> {
   const row = await prisma.verificationToken.findUnique({ where: { token } })
   if (!row) return null
   if (row.expires < new Date()) return null
@@ -138,18 +132,12 @@ export async function peekUserToken(
  * Borra todos los tokens vivos de un usuario para un propósito. Útil cuando
  * el admin desactiva al usuario (los enlaces emitidos quedan inválidos).
  */
-export async function revokeUserTokens(
-  userId: string,
-  purpose?: TokenPurpose,
-): Promise<number> {
+export async function revokeUserTokens(userId: string, purpose?: TokenPurpose): Promise<number> {
   const where = purpose
     ? { identifier: makeIdentifier(purpose, userId) }
     : {
         identifier: {
-          in: [
-            makeIdentifier("activation", userId),
-            makeIdentifier("reset", userId),
-          ],
+          in: [makeIdentifier("activation", userId), makeIdentifier("reset", userId)],
         },
       }
   const result = await prisma.verificationToken.deleteMany({ where })

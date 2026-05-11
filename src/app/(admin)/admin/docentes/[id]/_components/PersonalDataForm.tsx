@@ -95,12 +95,7 @@ export function PersonalDataForm({ teacherId, initialValues }: Props) {
             {...register("email")}
           />
         </Field>
-        <Field
-          id="phone"
-          label="Teléfono"
-          optional
-          error={errors.phone?.message}
-        >
+        <Field id="phone" label="Teléfono" optional error={errors.phone?.message}>
           <Input
             id="phone"
             type="tel"
@@ -110,12 +105,7 @@ export function PersonalDataForm({ teacherId, initialValues }: Props) {
             {...register("phone")}
           />
         </Field>
-        <Field
-          id="document"
-          label="Documento"
-          optional
-          error={errors.document?.message}
-        >
+        <Field id="document" label="Documento" optional error={errors.document?.message}>
           <Input
             id="document"
             placeholder="Cédula o pasaporte"
@@ -127,8 +117,8 @@ export function PersonalDataForm({ teacherId, initialValues }: Props) {
           <select
             id="status"
             className={cn(
-              "block w-full rounded-md border border-border bg-surface px-3 py-2 text-[13.5px] text-foreground",
-              "transition-colors duration-[150ms] hover:border-border-strong focus:border-teal-500 focus:outline-none",
+              "border-border bg-surface text-foreground block w-full rounded-md border px-3 py-2 text-[13.5px]",
+              "hover:border-border-strong transition-colors duration-[150ms] focus:border-teal-500 focus:outline-none",
             )}
             {...register("status")}
           >
@@ -140,17 +130,12 @@ export function PersonalDataForm({ teacherId, initialValues }: Props) {
 
       <div className="flex items-center justify-end gap-3 pt-2">
         {savedAt && !isDirty && (
-          <span className="inline-flex items-center gap-1.5 text-[12.5px] text-text-3">
+          <span className="text-text-3 inline-flex items-center gap-1.5 text-[12.5px]">
             <Check size={13} strokeWidth={1.8} className="text-teal-500" />
             Cambios guardados
           </span>
         )}
-        <Button
-          type="submit"
-          variant="primary"
-          size="md"
-          disabled={isPending || !isDirty}
-        >
+        <Button type="submit" variant="primary" size="md" disabled={isPending || !isDirty}>
           {isPending ? (
             <>
               <Loader2 size={14} strokeWidth={1.6} className="animate-spin" />
@@ -183,13 +168,13 @@ function Field({
       <div className="mb-1.5 flex items-baseline justify-between gap-2">
         <Label htmlFor={id}>{label}</Label>
         {optional && (
-          <span className="font-sans text-[11px] normal-case tracking-normal text-text-4">
+          <span className="text-text-4 font-sans text-[11px] tracking-normal normal-case">
             opcional
           </span>
         )}
       </div>
       {children}
-      {error && <p className="mt-1 text-[12px] text-danger">{error}</p>}
+      {error && <p className="text-danger mt-1 text-[12px]">{error}</p>}
     </div>
   )
 }

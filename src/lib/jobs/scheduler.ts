@@ -47,9 +47,7 @@ export function startEmailRetryScheduler(): void {
 
   globalThis.__cmEmailRetryHandle = setInterval(async () => {
     try {
-      const { retryFailedEmails } = await import(
-        "@/modules/auth/retryFailedEmails"
-      )
+      const { retryFailedEmails } = await import("@/modules/auth/retryFailedEmails")
       const result = await retryFailedEmails()
       if (result.attempted > 0) {
         // eslint-disable-next-line no-console
@@ -88,9 +86,8 @@ export function startSessionMaterializeScheduler(): void {
 
 async function runMaterializeOnce(): Promise<void> {
   try {
-    const { materializeUpcomingForAllActive } = await import(
-      "@/modules/classGroups/materializeUpcoming"
-    )
+    const { materializeUpcomingForAllActive } =
+      await import("@/modules/classGroups/materializeUpcoming")
     const summary = await materializeUpcomingForAllActive()
     if (summary.groupsProcessed > 0) {
       // eslint-disable-next-line no-console
@@ -128,15 +125,11 @@ export function startAutoCloseStaleScheduler(): void {
 
 async function runAutoCloseOnce(): Promise<void> {
   try {
-    const { autoCloseStaleSessions } = await import(
-      "@/modules/classes/autoCloseStaleSessions"
-    )
+    const { autoCloseStaleSessions } = await import("@/modules/classes/autoCloseStaleSessions")
     const summary = await autoCloseStaleSessions()
     if (summary.closed > 0) {
       // eslint-disable-next-line no-console
-      console.log(
-        `[auto-close] closed=${summary.closed} ids=${summary.sessionIds.join(",")}`,
-      )
+      console.log(`[auto-close] closed=${summary.closed} ids=${summary.sessionIds.join(",")}`)
     }
   } catch (err) {
     // eslint-disable-next-line no-console

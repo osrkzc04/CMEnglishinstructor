@@ -72,10 +72,7 @@ describe("intersectSchedules", () => {
       { dayOfWeek: 5, startTime: "17:00", endTime: "21:00" },
     ]
     const result = intersectSchedules(student, teacher, 45)
-    expect(result.map((r) => `${r.dayOfWeek}@${r.startTime}`)).toEqual([
-      "1@19:00",
-      "5@18:00",
-    ])
+    expect(result.map((r) => `${r.dayOfWeek}@${r.startTime}`)).toEqual(["1@19:00", "5@18:00"])
   })
 })
 

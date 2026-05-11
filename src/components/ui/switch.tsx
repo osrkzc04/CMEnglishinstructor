@@ -17,7 +17,7 @@ export const Switch = React.forwardRef<
   <SwitchPrimitive.Root
     ref={ref}
     className={cn(
-      "peer relative h-[18px] w-8 shrink-0 cursor-pointer rounded-full bg-ink-200 transition-colors",
+      "peer bg-ink-200 relative h-[18px] w-8 shrink-0 cursor-pointer rounded-full transition-colors",
       "data-[state=checked]:bg-teal-500",
       "disabled:cursor-not-allowed disabled:opacity-50",
       className,

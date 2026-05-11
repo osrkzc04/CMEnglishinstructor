@@ -15,10 +15,7 @@ type Result =
  * Estrategia: delete-all + insert. La cantidad esperada (<20 filas por
  * docente) hace innecesario diff-ear el delta.
  */
-export async function updateTeacherLevels(
-  id: string,
-  input: TeacherLevelsInput,
-): Promise<Result> {
+export async function updateTeacherLevels(id: string, input: TeacherLevelsInput): Promise<Result> {
   await requireRole(["DIRECTOR", "COORDINATOR"])
 
   const parsed = TeacherLevelsSchema.safeParse(input)

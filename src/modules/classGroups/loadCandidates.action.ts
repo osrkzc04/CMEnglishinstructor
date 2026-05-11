@@ -24,9 +24,7 @@ export type LoadCandidatesResult =
  * nivel — devuelve docentes elegibles, estudiantes elegibles y la duración
  * de la clase para alimentar el heatmap.
  */
-export async function loadAulaCandidates(
-  programLevelId: string,
-): Promise<LoadCandidatesResult> {
+export async function loadAulaCandidates(programLevelId: string): Promise<LoadCandidatesResult> {
   await requireRole(["DIRECTOR", "COORDINATOR"])
 
   const level = await prisma.programLevel.findUnique({

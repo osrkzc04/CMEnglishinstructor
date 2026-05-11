@@ -20,10 +20,7 @@ const InputSchema = z.object({
  * sincronía. Soft-delete: nunca borramos el registro porque el docente puede
  * tener bitácoras, asignaciones y registros de payroll asociados.
  */
-export async function setTeacherStatus(input: {
-  id: string
-  status: UserStatus
-}): Promise<Result> {
+export async function setTeacherStatus(input: { id: string; status: UserStatus }): Promise<Result> {
   await requireRole(["DIRECTOR", "COORDINATOR"])
 
   const parsed = InputSchema.safeParse(input)
@@ -49,10 +46,7 @@ export async function setTeacherStatus(input: {
   })
 
   // Si pasa ACTIVE → INACTIVE: revocar tokens vivos y notificar por cortesía.
-  if (
-    target.status === UserStatus.ACTIVE &&
-    parsed.data.status === UserStatus.INACTIVE
-  ) {
+  if (target.status === UserStatus.ACTIVE && parsed.data.status === UserStatus.INACTIVE) {
     await revokeUserTokens(target.id)
     await sendDeactivationEmail({
       userId: target.id,

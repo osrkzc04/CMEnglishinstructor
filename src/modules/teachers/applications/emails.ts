@@ -77,8 +77,7 @@ export async function sendApplicationReceivedEmail(args: {
   firstName: string
 }): Promise<{ ok: boolean }> {
   const html = renderEmail({
-    preheader:
-      "Gracias por postular. Vamos a revisar tu perfil y te contactamos pronto.",
+    preheader: "Gracias por postular. Vamos a revisar tu perfil y te contactamos pronto.",
     eyebrow: "Postulación recibida",
     heading: `Hola, ${args.firstName}`,
     body: [

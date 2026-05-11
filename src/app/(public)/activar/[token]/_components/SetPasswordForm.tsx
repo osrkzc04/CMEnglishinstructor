@@ -3,14 +3,7 @@
 import { useState, useTransition } from "react"
 import { useRouter } from "next/navigation"
 import type { Route } from "next"
-import {
-  AlertTriangle,
-  ArrowRight,
-  Eye,
-  EyeOff,
-  Loader2,
-  Lock,
-} from "lucide-react"
+import { AlertTriangle, ArrowRight, Eye, EyeOff, Loader2, Lock } from "lucide-react"
 import { Alert } from "@/components/ui/alert"
 import { Input, InputAction } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -55,8 +48,7 @@ export function SetPasswordForm({ token, variant }: Props) {
         }
         return
       }
-      const reason =
-        result.purpose === "activation" ? "activated" : "reset"
+      const reason = result.purpose === "activation" ? "activated" : "reset"
       router.push(`/login?reason=${reason}` as Route)
       router.refresh()
     })
@@ -91,8 +83,7 @@ export function SetPasswordForm({ token, variant }: Props) {
           value={password}
           onChange={(e) => {
             setPassword(e.target.value)
-            if (errors.password)
-              setErrors((p) => ({ ...p, password: undefined }))
+            if (errors.password) setErrors((p) => ({ ...p, password: undefined }))
           }}
           aria-invalid={errors.password ? "true" : undefined}
           endAdornment={
@@ -110,7 +101,7 @@ export function SetPasswordForm({ token, variant }: Props) {
           }
         />
         {errors.password && (
-          <p className="mt-1.5 text-[12.5px] leading-[1.4] text-danger" role="alert">
+          <p className="text-danger mt-1.5 text-[12.5px] leading-[1.4]" role="alert">
             {errors.password}
           </p>
         )}
@@ -129,13 +120,12 @@ export function SetPasswordForm({ token, variant }: Props) {
           value={confirmPassword}
           onChange={(e) => {
             setConfirmPassword(e.target.value)
-            if (errors.confirmPassword)
-              setErrors((p) => ({ ...p, confirmPassword: undefined }))
+            if (errors.confirmPassword) setErrors((p) => ({ ...p, confirmPassword: undefined }))
           }}
           aria-invalid={errors.confirmPassword ? "true" : undefined}
         />
         {errors.confirmPassword && (
-          <p className="mt-1.5 text-[12.5px] leading-[1.4] text-danger" role="alert">
+          <p className="text-danger mt-1.5 text-[12.5px] leading-[1.4]" role="alert">
             {errors.confirmPassword}
           </p>
         )}
@@ -145,11 +135,11 @@ export function SetPasswordForm({ token, variant }: Props) {
         type="submit"
         disabled={isPending}
         className={cn(
-          "inline-flex w-full items-center justify-center gap-2.5 rounded-lg border border-ink-900 bg-ink-900 px-4 py-3.5 text-[14px] tracking-[0.005em] text-bone",
+          "border-ink-900 bg-ink-900 text-bone inline-flex w-full items-center justify-center gap-2.5 rounded-lg border px-4 py-3.5 text-[14px] tracking-[0.005em]",
           "transition-colors duration-[150ms]",
-          "hover:bg-teal-500 hover:border-teal-500",
-          "dark:bg-bone dark:text-ink-900 dark:border-bone dark:hover:bg-teal-500 dark:hover:text-bone dark:hover:border-teal-500",
-          "disabled:cursor-not-allowed disabled:opacity-70 disabled:hover:bg-ink-900 disabled:hover:border-ink-900",
+          "hover:border-teal-500 hover:bg-teal-500",
+          "dark:bg-bone dark:text-ink-900 dark:border-bone dark:hover:text-bone dark:hover:border-teal-500 dark:hover:bg-teal-500",
+          "disabled:hover:bg-ink-900 disabled:hover:border-ink-900 disabled:cursor-not-allowed disabled:opacity-70",
           "dark:disabled:hover:bg-bone dark:disabled:hover:border-bone",
         )}
       >

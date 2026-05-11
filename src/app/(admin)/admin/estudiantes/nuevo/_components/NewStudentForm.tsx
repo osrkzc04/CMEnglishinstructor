@@ -48,7 +48,11 @@ const MODALITY_OPTIONS: {
 ]
 
 const STATUS_OPTIONS: { value: UserStatus; label: string; hint: string }[] = [
-  { value: UserStatus.ACTIVE, label: "Activo", hint: "Puede iniciar sesión apenas defina su contraseña" },
+  {
+    value: UserStatus.ACTIVE,
+    label: "Activo",
+    hint: "Puede iniciar sesión apenas defina su contraseña",
+  },
   {
     value: UserStatus.PENDING_APPROVAL,
     label: "Pendiente",
@@ -125,26 +129,13 @@ export function NewStudentForm({ programLevels }: Props) {
       <Section title="Datos personales">
         <div className="grid gap-4 sm:grid-cols-2">
           <Field id="firstName" label="Nombres" error={errors.firstName?.message}>
-            <Input
-              id="firstName"
-              autoComplete="given-name"
-              {...register("firstName")}
-            />
+            <Input id="firstName" autoComplete="given-name" {...register("firstName")} />
           </Field>
           <Field id="lastName" label="Apellidos" error={errors.lastName?.message}>
-            <Input
-              id="lastName"
-              autoComplete="family-name"
-              {...register("lastName")}
-            />
+            <Input id="lastName" autoComplete="family-name" {...register("lastName")} />
           </Field>
           <Field id="email" label="Correo" error={errors.email?.message}>
-            <Input
-              id="email"
-              type="email"
-              autoComplete="email"
-              {...register("email")}
-            />
+            <Input id="email" type="email" autoComplete="email" {...register("email")} />
           </Field>
           <Field id="phone" label="Teléfono" optional error={errors.phone?.message}>
             <Input
@@ -173,9 +164,7 @@ export function NewStudentForm({ programLevels }: Props) {
       >
         <StatusPicker
           value={watchedStatus}
-          onChange={(s) =>
-            setValue("status", s, { shouldValidate: true, shouldDirty: true })
-          }
+          onChange={(s) => setValue("status", s, { shouldValidate: true, shouldDirty: true })}
         />
       </Section>
 
@@ -205,16 +194,12 @@ export function NewStudentForm({ programLevels }: Props) {
       </Section>
 
       <Section title="Matrícula">
-        <Field
-          id="programLevelId"
-          label="Programa y nivel"
-          error={errors.programLevelId?.message}
-        >
+        <Field id="programLevelId" label="Programa y nivel" error={errors.programLevelId?.message}>
           <select
             id="programLevelId"
             className={cn(
-              "block w-full rounded-md border border-border bg-surface px-3 py-2.5 text-[13.5px] text-foreground",
-              "transition-colors duration-[150ms] hover:border-border-strong focus:border-teal-500 focus:outline-none",
+              "border-border bg-surface text-foreground block w-full rounded-md border px-3 py-2.5 text-[13.5px]",
+              "hover:border-border-strong transition-colors duration-[150ms] focus:border-teal-500 focus:outline-none",
             )}
             {...register("programLevelId")}
           >
@@ -241,23 +226,14 @@ export function NewStudentForm({ programLevels }: Props) {
           error={errors.enrollmentNotes?.message}
           className="mt-4"
         >
-          <Textarea
-            id="enrollmentNotes"
-            rows={2}
-            {...register("enrollmentNotes")}
-          />
+          <Textarea id="enrollmentNotes" rows={2} {...register("enrollmentNotes")} />
         </Field>
       </Section>
 
-      <Section
-        title="Modalidad"
-        hint="Cómo va a cursar el alumno."
-      >
+      <Section title="Modalidad" hint="Cómo va a cursar el alumno.">
         <ModalityPicker
           value={watchedModality}
-          onChange={(m) =>
-            setValue("modality", m, { shouldValidate: true, shouldDirty: true })
-          }
+          onChange={(m) => setValue("modality", m, { shouldValidate: true, shouldDirty: true })}
           error={errors.modality?.message}
         />
       </Section>
@@ -282,21 +258,17 @@ export function NewStudentForm({ programLevels }: Props) {
           )}
         />
         {errors.preferredSchedule?.message && (
-          <p className="mt-2 text-[12.5px] text-danger">
-            {errors.preferredSchedule.message}
-          </p>
+          <p className="text-danger mt-2 text-[12.5px]">{errors.preferredSchedule.message}</p>
         )}
       </Section>
 
-      <p className="rounded-md border border-border bg-surface-alt px-4 py-3 text-[12.5px] leading-[1.55] text-text-3">
-        El alumno se crea en{" "}
-        <strong className="text-foreground">espera de aula</strong>. La
-        asignación a un aula existente o la creación de un aula nueva con
-        este alumno se hace desde{" "}
+      <p className="border-border bg-surface-alt text-text-3 rounded-md border px-4 py-3 text-[12.5px] leading-[1.55]">
+        El alumno se crea en <strong className="text-foreground">espera de aula</strong>. La
+        asignación a un aula existente o la creación de un aula nueva con este alumno se hace desde{" "}
         <strong className="text-foreground">Aulas</strong>.
       </p>
 
-      <div className="flex items-center justify-end gap-3 border-t border-border pt-5">
+      <div className="border-border flex items-center justify-end gap-3 border-t pt-5">
         <Button
           type="button"
           variant="ghost"
@@ -337,20 +309,16 @@ function Section({
   children: React.ReactNode
 }) {
   return (
-    <section className="rounded-xl border border-border bg-surface p-5 sm:p-6">
+    <section className="border-border bg-surface rounded-xl border p-5 sm:p-6">
       <div className="mb-1 flex items-baseline justify-between gap-2">
-        <h2 className="font-serif text-[18px] font-normal tracking-[-0.01em] text-foreground">
+        <h2 className="text-foreground font-serif text-[18px] font-normal tracking-[-0.01em]">
           {title}
         </h2>
         {optional && (
-          <span className="text-[11px] uppercase tracking-[0.08em] text-text-4">
-            opcional
-          </span>
+          <span className="text-text-4 text-[11px] tracking-[0.08em] uppercase">opcional</span>
         )}
       </div>
-      {hint && (
-        <p className="mb-4 text-[13px] leading-[1.5] text-text-3">{hint}</p>
-      )}
+      {hint && <p className="text-text-3 mb-4 text-[13px] leading-[1.5]">{hint}</p>}
       {!hint && <div className="mb-4" />}
       {children}
     </section>
@@ -376,10 +344,10 @@ function Field({
     <div className={className}>
       <div className="mb-1.5 flex items-baseline justify-between gap-2">
         <Label htmlFor={id}>{label}</Label>
-        {optional && <span className="text-[11px] text-text-4">opcional</span>}
+        {optional && <span className="text-text-4 text-[11px]">opcional</span>}
       </div>
       {children}
-      {error && <p className="mt-1 text-[12px] text-danger">{error}</p>}
+      {error && <p className="text-danger mt-1 text-[12px]">{error}</p>}
     </div>
   )
 }
@@ -410,12 +378,8 @@ function StatusPicker({
             onChange={() => onChange(opt.value)}
           />
           <span>
-            <span className="block text-[14px] font-medium text-foreground">
-              {opt.label}
-            </span>
-            <span className="mt-0.5 block text-[12px] text-text-3">
-              {opt.hint}
-            </span>
+            <span className="text-foreground block text-[14px] font-medium">{opt.label}</span>
+            <span className="text-text-3 mt-0.5 block text-[12px]">{opt.hint}</span>
           </span>
         </CheckLabel>
       ))}
@@ -452,17 +416,13 @@ function ModalityPicker({
               onChange={() => onChange(opt.value)}
             />
             <span>
-              <span className="block text-[14px] font-medium text-foreground">
-                {opt.label}
-              </span>
-              <span className="mt-0.5 block text-[12px] text-text-3">
-                {opt.hint}
-              </span>
+              <span className="text-foreground block text-[14px] font-medium">{opt.label}</span>
+              <span className="text-text-3 mt-0.5 block text-[12px]">{opt.hint}</span>
             </span>
           </CheckLabel>
         ))}
       </div>
-      {error && <p className="mt-2 text-[12.5px] text-danger">{error}</p>}
+      {error && <p className="text-danger mt-2 text-[12.5px]">{error}</p>}
     </>
   )
 }
@@ -482,15 +442,15 @@ function ScheduleSummary({
   })
 
   return (
-    <div className="mt-4 rounded-md border border-border bg-surface-alt px-4 py-3">
-      <p className="mb-2 font-mono text-[11px] uppercase tracking-[0.08em] text-text-3">
+    <div className="border-border bg-surface-alt mt-4 rounded-md border px-4 py-3">
+      <p className="text-text-3 mb-2 font-mono text-[11px] tracking-[0.08em] uppercase">
         Horario seleccionado
       </p>
       <ul className="flex flex-wrap gap-1.5">
         {sorted.map((b, i) => (
           <li
             key={`${b.dayOfWeek}-${b.startTime}-${i}`}
-            className="rounded-md border border-border bg-surface px-2.5 py-1 font-mono text-[12px] tracking-[0.02em] text-foreground"
+            className="border-border bg-surface text-foreground rounded-md border px-2.5 py-1 font-mono text-[12px] tracking-[0.02em]"
           >
             {DAY_SHORT_LABELS[b.dayOfWeek]}. {b.startTime} - {b.endTime}
           </li>

@@ -23,27 +23,23 @@ const badgeVariants = cva(
     variants: {
       variant: {
         default: "border-border text-text-2",
-        solid:   "border-ink-900 bg-ink-900 text-bone dark:border-bone dark:bg-bone dark:text-ink-900",
-        teal:    "border-teal-500/35 bg-teal-500/[0.08] text-teal-500",
+        solid:
+          "border-ink-900 bg-ink-900 text-bone dark:border-bone dark:bg-bone dark:text-ink-900",
+        teal: "border-teal-500/35 bg-teal-500/[0.08] text-teal-500",
         warning: "border-warning/35 bg-warning/[0.08] text-warning",
-        danger:  "border-danger/35 bg-danger/[0.08] text-danger",
-        info:    "border-info/35 bg-info/[0.08] text-info",
+        danger: "border-danger/35 bg-danger/[0.08] text-danger",
+        info: "border-info/35 bg-info/[0.08] text-info",
       },
     },
     defaultVariants: { variant: "default" },
   },
 )
 
-export type BadgeProps = React.HTMLAttributes<HTMLSpanElement> &
-  VariantProps<typeof badgeVariants>
+export type BadgeProps = React.HTMLAttributes<HTMLSpanElement> & VariantProps<typeof badgeVariants>
 
 export const Badge = React.forwardRef<HTMLSpanElement, BadgeProps>(
   ({ className, variant, ...props }, ref) => (
-    <span
-      ref={ref}
-      className={cn(badgeVariants({ variant }), className)}
-      {...props}
-    />
+    <span ref={ref} className={cn(badgeVariants({ variant }), className)} {...props} />
   ),
 )
 Badge.displayName = "Badge"
@@ -52,10 +48,5 @@ Badge.displayName = "Badge"
  * Dot indicator que vive dentro de un Badge tinted. 5×5 currentColor.
  */
 export function BadgeDot() {
-  return (
-    <span
-      aria-hidden
-      className="inline-block h-[5px] w-[5px] rounded-full bg-current"
-    />
-  )
+  return <span aria-hidden className="inline-block h-[5px] w-[5px] rounded-full bg-current" />
 }

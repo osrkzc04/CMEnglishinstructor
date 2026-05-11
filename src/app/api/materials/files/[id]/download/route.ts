@@ -19,10 +19,7 @@ import { canAccessProgramLevel } from "@/modules/materials/access"
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
 
-export async function GET(
-  req: Request,
-  { params }: { params: Promise<{ id: string }> },
-) {
+export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const user = await requireAuth({ redirectTo: "throw" })
     const { id } = await params
