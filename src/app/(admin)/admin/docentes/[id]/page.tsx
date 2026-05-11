@@ -13,7 +13,7 @@ import {
 } from "@/modules/teachers/queries"
 import { Tag } from "@/components/ui/tag"
 import { ResendAccessLinkButton } from "@/components/auth/ResendAccessLinkButton"
-import { StatusBadge } from "../_components/StatusBadge"
+import { StatusBadge } from "@/app/(admin)/admin/docentes/_components/StatusBadge"
 import { PersonalDataForm } from "./_components/PersonalDataForm"
 import { TeachableLevelsForm } from "./_components/TeachableLevelsForm"
 import { AvailabilityForm } from "./_components/AvailabilityForm"

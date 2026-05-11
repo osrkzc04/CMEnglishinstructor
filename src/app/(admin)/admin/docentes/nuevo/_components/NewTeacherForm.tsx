@@ -18,7 +18,7 @@ import {
 } from "@/modules/teachers/schemas"
 import { createTeacher } from "@/modules/teachers/create.action"
 import type { CefrLanguageGroup } from "@/modules/teachers/queries"
-import { AvailabilityGrid } from "../../_components/AvailabilityGrid"
+import { AvailabilityGrid } from "@/app/(admin)/admin/docentes/_components/AvailabilityGrid"
 import { cn } from "@/lib/utils"
 
 type Props = {

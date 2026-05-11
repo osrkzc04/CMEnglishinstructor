@@ -14,7 +14,7 @@ import {
 import { Tag } from "@/components/ui/tag"
 import { ResendAccessLinkButton } from "@/components/auth/ResendAccessLinkButton"
 import { HoursProgress } from "@/components/shared/HoursProgress"
-import { StatusBadge } from "../_components/StatusBadge"
+import { StatusBadge } from "@/app/(admin)/admin/estudiantes/_components/StatusBadge"
 import { PersonalDataForm } from "./_components/PersonalDataForm"
 import { PreferredScheduleForm } from "./_components/PreferredScheduleForm"
 

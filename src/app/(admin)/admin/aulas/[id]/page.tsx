@@ -14,7 +14,7 @@ import {
 } from "@/modules/classGroups/queries"
 import { findCandidatesForClassGroup } from "@/modules/classGroups/eligibility"
 import { Tag } from "@/components/ui/tag"
-import { StatusBadge } from "../_components/StatusBadge"
+import { StatusBadge } from "@/app/(admin)/admin/aulas/_components/StatusBadge"
 import { MetadataForm } from "./_components/MetadataForm"
 import { TeacherCard } from "./_components/TeacherCard"
 import { EnrollmentsCard } from "./_components/EnrollmentsCard"

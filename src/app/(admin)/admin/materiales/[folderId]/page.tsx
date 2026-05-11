@@ -7,7 +7,7 @@ import { AppShell } from "@/components/layout/AppShell"
 import { requireRole } from "@/modules/auth/guards"
 import { roleLabel } from "@/modules/auth/role-labels"
 import { getFolderDetail } from "@/modules/materials/queries"
-import { FolderBrowser } from "../_components/FolderBrowser"
+import { FolderBrowser } from "@/app/(admin)/admin/materiales/_components/FolderBrowser"
 
 export const metadata: Metadata = { title: "Materiales" }
 

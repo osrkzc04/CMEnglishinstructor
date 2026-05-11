@@ -285,8 +285,8 @@ export default async function TeacherAulaDetallePage({
                 </a>
               ) : (
                 <p className="text-[13px] text-text-3">
-                  Aún no cargaste el link. Pegálo en "Datos del aula" para que
-                  estudiantes lo vean.
+                  Aún no cargaste el link. Pegálo en &ldquo;Datos del
+                  aula&rdquo; para que estudiantes lo vean.
                 </p>
               )}
             </Card>

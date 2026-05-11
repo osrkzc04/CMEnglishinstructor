@@ -7,7 +7,7 @@ import { AppShell } from "@/components/layout/AppShell"
 import { requireRole } from "@/modules/auth/guards"
 import { roleLabel } from "@/modules/auth/role-labels"
 import { getApplicationFullDetail } from "@/modules/teachers/applications/queries"
-import { StatusBadge } from "../_components/StatusBadge"
+import { StatusBadge } from "@/app/(admin)/admin/postulaciones/_components/StatusBadge"
 import { ApplicationActions } from "./_components/ApplicationActions"
 
 /**

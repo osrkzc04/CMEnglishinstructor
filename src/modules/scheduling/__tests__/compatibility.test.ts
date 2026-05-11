@@ -4,7 +4,7 @@ import {
   intersectSchedules,
   minutesToTime,
   timeToMinutes,
-} from "../compatibility"
+} from "@/modules/scheduling/compatibility"
 
 describe("timeToMinutes / minutesToTime", () => {
   it("ida y vuelta", () => {

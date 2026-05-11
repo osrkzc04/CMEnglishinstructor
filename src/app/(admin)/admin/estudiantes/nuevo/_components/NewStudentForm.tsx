@@ -19,7 +19,7 @@ import {
 } from "@/modules/students/schemas"
 import { createStudentWithEnrollment } from "@/modules/students/createWithEnrollment.action"
 import type { ProgramLevelOption } from "@/modules/enrollments/queries"
-import { AvailabilityGrid } from "../../../docentes/_components/AvailabilityGrid"
+import { AvailabilityGrid } from "@/app/(admin)/admin/docentes/_components/AvailabilityGrid"
 import { cn } from "@/lib/utils"
 
 /**

@@ -13,7 +13,7 @@ import {
   type StudentScheduleBlock,
 } from "@/modules/students/schemas"
 import { updateStudentPreferredSchedule } from "@/modules/students/updatePreferredSchedule.action"
-import { AvailabilityGrid } from "../../../docentes/_components/AvailabilityGrid"
+import { AvailabilityGrid } from "@/app/(admin)/admin/docentes/_components/AvailabilityGrid"
 
 /**
  * Form inline para el horario preferido del estudiante. Reusa la grilla de

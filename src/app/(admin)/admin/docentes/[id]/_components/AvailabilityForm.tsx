@@ -13,7 +13,7 @@ import {
   type AvailabilityBlock,
 } from "@/modules/teachers/schemas"
 import { updateTeacherAvailability } from "@/modules/teachers/updateAvailability.action"
-import { AvailabilityGrid } from "../../_components/AvailabilityGrid"
+import { AvailabilityGrid } from "@/app/(admin)/admin/docentes/_components/AvailabilityGrid"
 
 /**
  * Form inline para la disponibilidad semanal del docente. La grilla es la

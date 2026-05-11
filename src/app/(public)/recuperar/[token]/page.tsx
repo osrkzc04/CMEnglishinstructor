@@ -1,7 +1,7 @@
 import type { Metadata } from "next"
 import { AuthCardShell } from "@/components/auth/AuthCardShell"
 import { peekUserToken } from "@/modules/auth/tokens"
-import { SetPasswordForm } from "../../activar/[token]/_components/SetPasswordForm"
+import { SetPasswordForm } from "@/app/(public)/activar/[token]/_components/SetPasswordForm"
 
 export const metadata: Metadata = { title: "Restablecer contraseña" }
 
