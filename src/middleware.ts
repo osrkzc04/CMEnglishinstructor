@@ -1,15 +1,31 @@
-import { auth } from "@/lib/auth"
+import NextAuth from "next-auth"
 import { NextResponse } from "next/server"
+import { authConfig } from "@/lib/auth.config"
 
 /**
- * Middleware ligero: solo verifica presencia de sesión para rutas protegidas.
- * La autorización por rol se hace en cada layout / Server Action vía requireRole().
+ * Middleware ligero (Edge runtime): verifica presencia de JWT en rutas
+ * protegidas y redirige a /login. La autorización por rol se hace en cada
+ * layout y Server Action vía requireRole() — el middleware NO hace esa
+ * distinción para evitar depender de Prisma en Edge.
  */
+
+const { auth } = NextAuth(authConfig)
+
 export default auth((req) => {
   const { pathname } = req.nextUrl
   const isLoggedIn = !!req.auth
 
-  const publicPaths = ["/", "/login", "/postular-docente", "/prueba", "/api/auth", "/api/cron", "/api/test-sessions"]
+  const publicPaths = [
+    "/",
+    "/login",
+    "/activar",
+    "/recuperar",
+    "/postular-docente",
+    "/prueba",
+    "/api/auth",
+    "/api/cron",
+    "/api/test-sessions",
+  ]
   const isPublic = publicPaths.some((p) => pathname === p || pathname.startsWith(`${p}/`))
 
   if (!isPublic && !isLoggedIn) {

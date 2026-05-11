@@ -1,0 +1,9 @@
+{
+  "_meta": {
+    "locale": "en",
+    "note": "Landing copy catalog — English. Long editorial copy will be tagged with [EN-TODO] markers in Step 3 for Carolina to translate."
+  },
+  "_smoke": {
+    "ping": "Hello from the English catalog"
+  }
+}

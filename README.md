@@ -41,12 +41,12 @@ Abre http://localhost:3000.
 
 ## Documentación
 
-- **`CLAUDE.md`** — contexto completo del proyecto (para Claude Code y humanos nuevos en el repo).
 - **`docs/data-model.md`** — modelo de datos completo con decisiones de diseño.
 - **`docs/design-brief.md`** — sistema de marca, paleta, tipografía, anti-patrones.
 - **`docs/decisions.md`** — Architecture Decision Records.
 - **`docs/flows/`** — los 6 flujos críticos del sistema, paso a paso.
 - **`docs/setup.md`** — guía detallada de setup y onboarding.
+- **`docs/deployment.md`** — despliegue en Dokploy (Dockerfile + Postgres administrado + persistencia).
 
 ## Scripts principales
 

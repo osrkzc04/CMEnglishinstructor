@@ -318,3 +318,142 @@ Antes de mergear cualquier componente nuevo, verificar contra esta checklist:
 - [ ] ¿Focus visible con ring teal?
 - [ ] ¿Sin emojis, sin ilustraciones decorativas?
 - [ ] ¿Densidad media-alta con respiración entre secciones?
+
+---
+
+## Aprobado contra mockups · 2026-04-25
+
+Los mockups HTML aprobados son **la fuente de verdad final** del sistema visual. Cuando este brief contradice los mockups, ganan los mockups. Esta sección registra los overrides aplicados después del audit.
+
+**Archivos de referencia (commit congelado):**
+
+- `design-mockups/Layout.html` — app shell completo
+- `design-mockups/Login.html` — autenticación
+- `design-mockups/Dashboard.html` — dashboard admin con datos
+- `design-mockups/Widgets.html` — catálogo de componentes (38 widgets, 8 secciones)
+
+### Overrides sobre las secciones anteriores
+
+#### Estructura global (deroga "Sidebar y Topbar en ink.900")
+
+- **Sidebar:** ink-900 fijo (sin importar tema). ✓ se mantiene.
+- **Topbar (header):** **light** en producto. White/`--surface` con borde inferior `ink-100` y un box-shadow muy sutil (`0 1px 0 rgba(35,54,65,0.04), 0 6px 18px rgba(35,54,65,0.05)`). Es la única sombra real del sistema. El contraste sidebar-dark / topbar-light es la nueva firma visual.
+- **Área de trabajo:** bone (light) / ink-900 (dark). ✓ se mantiene.
+
+> El brief original decía topbar también en ink-900. Carolina aprobó topbar light en Dashboard.html y Widgets.html — se descarta la versión dark del topbar.
+
+#### Tipografía (deroga "weight 500 máximo")
+
+- **Default Fraunces: weight 400.** Italic disponible en 300 y 400. Weight 500 reservado solo para énfasis dentro de body (`<em>` decorativo en activity items).
+- **Default Geist: weight 400.** 500 disponible para acciones/labels.
+- **Italic serif** es la voz editorial: usada en breadcrumb actual (`.here`), en `<em>` dentro de h1 ("— acá está hoy."), y en titles de empty state.
+- **Italic teal** específica: solo en la quote del aside del login (`<em>everyone</em>`).
+
+#### Escala tipográfica (deroga la tabla anterior)
+
+| Token | Tamaño | Peso | Uso |
+|---|---|---|---|
+| `display` / `h1` | **40px** (2.5rem) | Fraunces 400 | Greeting principal, page titles |
+| `display-sm` | **32px** (2rem) | Fraunces 400 | Login h1 |
+| `h2` | **28px** (1.75rem) | Fraunces 400 | Sección dentro de página |
+| `h3` | **20px** (1.25rem) | Fraunces 400 | Card titles |
+| `h4` | **18px** (1.125rem) | Fraunces 400 | Empty state title |
+| `body-lg` | **15px** (default) | Geist 400 | Body principal |
+| `body` | 14px | Geist 400 | Inputs, captions |
+| `body-sm` | 13px | Geist 400 | Meta info |
+| `caption` | 12px | Geist 400 | Labels |
+| `micro` | **11px** | Geist Mono 400 | Eyebrows, mono uppercase labels |
+| `kpi` | **38px** | Fraunces 400 | KPI value |
+
+Tracking discreto: `-0.02em` para display, `-0.015em` para h3, `0.06–0.10em` para mono caps.
+
+#### Bordes (deroga "border 0.5px")
+
+- Todas las cards y paneles: **`border: 1px solid var(--border)`** (no 0.5px).
+- 0.5px solo se reserva para divisores extra-finos opcionales — no se usa en el mockup.
+
+#### Border radius (refina la escala anterior)
+
+Escala discreta del mockup:
+```
+4px   → badges, tags, micro pills
+6px   → pagination buttons
+7px   → botones, sidebar links, inputs en toolbars, segmented
+8px   → inputs form-grade, primary button (login), alerts
+10px  → mid panels (toolbars internos, secondaries)
+12px  → cards y paneles macro
+50%   → avatares circulares
+```
+
+**Nada > 12px** se mantiene.
+
+#### Shadows (refina "prohibido box-shadow en cards")
+
+La regla "sin shadow en cards" se mantiene. **Excepciones permitidas:**
+
+1. **Header light** sobre área de trabajo: `0 1px 0 rgba(35,54,65,0.04), 0 6px 18px rgba(35,54,65,0.05)`. Marca el chrome flotando.
+2. **Focus ring** teal: `0 0 0 2px var(--bg), 0 0 0 4px color-mix(teal 35%, transparent)`. Doble shadow obligatorio para accesibilidad.
+3. **Avatar stack**: `0 0 0 2px var(--surface)` ring para separar avatares apilados.
+4. **Switch knob**: `0 1px 2px rgba(0,0,0,0.18)` micro-shadow del thumb.
+5. **Pulse animado** del status indicator y live-dot — animación de box-shadow expanding.
+
+#### Iconografía (refina "stroke 1.5")
+
+- **Stroke width 1.6** en todos los iconos Lucide (mockup script: `lucide.createIcons({ attrs: { 'stroke-width': 1.6 } })`).
+- Tamaños: `18px` en sidebar, `16px` en h-btn del topbar, `14px` en h-cta y filas, `13px` en KPI labels, `12–11px` en pills/badges.
+
+#### Tokens nuevos (no estaban antes)
+
+Añadidos tras el audit de los mockups:
+
+```
+ink-650  #4a5c66   border-strong en dark mode
+ink-850  #2A3D49   surface (cards) en dark mode
+teal-100 #DDEFEC   fondo de hover/pill teal sutil
+chrome-bg / fg / muted / faint    overlays de sidebar y header dark
+```
+
+Las paletas teal y bone se redujeron a sus niveles realmente usados: teal en `50/100/500/700`, bone en `50/100`. Lo demás eran inventos del scaffold inicial que no aparecen en ningún mockup.
+
+#### Componentes confirmados como canon
+
+Las 38 entradas de `Widgets.html` son la **biblioteca canónica**. Cualquier nuevo componente debe construirse con estos primitives o argumentarse explícitamente por qué no encaja:
+
+- Botones (5 variantes × 4 tamaños)
+- Inputs (default · con icono · error · disabled · textarea · select)
+- Checkbox, radio (round box variant)
+- Switch
+- Segmented control
+- Tags / chips
+- Badges (default · solid · 4 semánticos · con dot)
+- Avatar (sm/md/lg · square · stack · status)
+- Alerts (5 variantes)
+- Tabla (header mono caps, num tabular)
+- Tabs (border-bottom 2px teal)
+- Pagination (32px min-width, ink-900 active)
+- Tooltip bubble (ink-900)
+- Empty state (Fraunces italic title + ico round)
+- Skeleton (gradient shimmer)
+- Toast = alert con max-width 380px
+- KPI cell (label mono · value Fraunces · delta mono)
+- Bar / Progress ring
+- Class row, activity item, pend row, teach row, level row
+- CEFR meter (6 bars), Unit progress (12 bars)
+- Question card (label-as-radio teal-tinted)
+
+#### CTA primario — patrón refinado
+
+El brief original decía `bg-teal-500 → hover bg-teal-600 → active teal-700`. **El mockup usa otro patrón en form-grade:**
+
+- **Form-grade primary** (login, modales): `bg-ink-900 text-bone` → hover salta a teal-500. El hover-to-teal es la firma de marca: el botón "florece" al teal en lugar de oscurecerse.
+- **Toolbar/header CTA** (Nueva clase, etc.): `bg-teal-500` → hover `bg-teal-700`. Más discreto, ya marca contexto.
+- **Dark mode form-grade**: `bg-bone` → hover teal.
+
+Aplicar form-grade cuando es la acción principal del flujo. Aplicar toolbar/header cuando convive con otros CTAs en el mismo viewport.
+
+#### Scope deprecado del scaffold
+
+- `.roles` selector de 4 roles del login (Login.html:250-272) — descartado. No se usa, lo borramos del proyecto.
+- `bone-200/300/400/500` y `ink-300/B2B8BC` del Tailwind original — no existen en mockups, se descartan.
+- `--teal-100` originalmente declarado pero no usado: ahora sí lo usamos para fondos de pill teal.
+

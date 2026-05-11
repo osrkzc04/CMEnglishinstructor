@@ -1,0 +1,63 @@
+# Repositorio
+.git
+.gitignore
+.gitattributes
+
+# Builds y dependencias generadas localmente
+node_modules
+.next
+out
+dist
+build
+
+# Storage local (no entra al build context — se monta como volumen)
+storage
+storage-*
+
+# Tests / coverage
+coverage
+.nyc_output
+playwright-report
+test-results
+
+# IDE / OS
+.vscode
+.idea
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+
+# Variables de entorno locales (Dokploy las pasa por panel)
+.env
+.env.local
+.env.development
+.env.development.local
+.env.test
+.env.test.local
+.env.production
+.env.production.local
+
+# Logs y temporales
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.cache
+.turbo
+
+# Docker propio (no se incluye en su mismo build context)
+Dockerfile
+.dockerignore
+docker-compose*.yml
+
+# Documentación y design files que no aportan al runtime
+docs
+design-mockups
+README.md
+CHANGELOG.md
+
+# Claude / asistentes locales
+.claude
+CLAUDE.md

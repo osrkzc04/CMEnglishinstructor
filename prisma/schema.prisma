@@ -46,6 +46,10 @@ model User {
   studentProfile     StudentProfile?
   teacherApplication TeacherApplication?
 
+  // Materiales
+  createdMaterialFolders MaterialFolder[] @relation("FolderCreator")
+  uploadedMaterialFiles  MaterialFile[]   @relation("FileUploader")
+
   // Auth.js support
   accounts Account[]
   sessions Session[]
@@ -108,27 +112,33 @@ model VerificationToken {
 // ----- Postulación de docentes -----
 
 model TeacherApplication {
-  id              String            @id @default(cuid())
-  userId          String?           @unique
-  firstName       String
-  lastName        String
-  email           String
-  phone           String
-  document        String
-  bio             String?           @db.Text
-  cvStorageKey    String?
-  status          ApplicationStatus @default(PENDING)
-  reviewedBy      String?
-  reviewedAt      DateTime?
-  rejectionReason String?           @db.Text
-  createdAt       DateTime          @default(now())
+  id                String            @id @default(cuid())
+  userId            String?           @unique
+  firstName         String
+  lastName          String
+  email             String
+  phone             String
+  document          String
+  bio               String?           @db.Text
+  cvStorageKey      String?
+  status            ApplicationStatus @default(PENDING)
+  reviewedBy        String?
+  reviewedAt        DateTime?
+  rejectionReason   String?           @db.Text
+  // Solo se setea cuando la postulación llega por el form público; el alta
+  // manual desde admin lo deja null porque ahí el consentimiento se recoge
+  // por fuera del sistema.
+  consentAcceptedAt DateTime?
+  createdAt         DateTime          @default(now())
 
-  user                 User?                      @relation(fields: [userId], references: [id])
+  user                 User?                     @relation(fields: [userId], references: [id])
   appliedLevels        TeacherApplicationLevel[]
   proposedAvailability ApplicationAvailability[]
 
   @@index([status])
   @@index([email])
+  // Listado paginado del admin: orden por createdAt desc filtrado por status.
+  @@index([status, createdAt])
 }
 
 enum ApplicationStatus {
@@ -166,12 +176,13 @@ model TeacherProfile {
   bio        String?  @db.Text
   isActive   Boolean  @default(true)
 
-  user            User                     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  teachableLevels TeacherLevel[]
-  availability    TeacherAvailability[]
-  unavailability  TeacherUnavailability[]
-  classSessions   ClassSession[]
-  payrollPeriods  PayrollPeriod[]
+  user               User                    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  teachableLevels    TeacherLevel[]
+  availability       TeacherAvailability[]
+  unavailability     TeacherUnavailability[]
+  classSessions      ClassSession[]
+  payrollPeriods     PayrollPeriod[]
+  teacherAssignments TeacherAssignment[]
 
   @@index([isActive])
 }
@@ -276,14 +287,17 @@ model Course {
   name          String
   description   String?  @db.Text
   baseHours     Int
-  classDuration Int      @default(45)
+  // Duración por clase en minutos. Default 60 — cambiable per-Course aquí
+  // o globalmente vía AppSetting `class_default_duration_minutes` (ese
+  // setting es el que la UI de configuración expone; cambia el valor por
+  // defecto para cursos nuevos sin tocar los existentes).
+  classDuration Int      @default(60)
   pricePerHour  Decimal  @db.Decimal(10, 2)
   isActive      Boolean  @default(true)
   createdAt     DateTime @default(now())
 
-  language    Language   @relation(fields: [languageId], references: [id])
-  programs    Program[]
-  materials   Material[]
+  language Language  @relation(fields: [languageId], references: [id])
+  programs Program[]
 
   @@index([languageId, isActive])
 }
@@ -310,23 +324,32 @@ model Program {
 
 enum ProgramStructure {
   SEQUENTIAL // Time Zones 1→2→3→4 (progresivo)
-  MODULAR    // Specialization: módulos independientes
-  SINGLE     // Kids: un solo nivel implícito
+  MODULAR // Specialization: módulos independientes
+  SINGLE // Kids: un solo nivel implícito
 }
 
 model ProgramLevel {
   id                String  @id @default(cuid())
   programId         String
-  code              String  // "1", "Elementary", "Presenting"
+  code              String // "1", "Elementary", "Presenting"
   name              String
   order             Int
   cefrLevelCode     String? // mapeo opcional a CEFR (ayuda al coordinador tras prueba de ubicación)
   hasPlatformAccess Boolean @default(true)
   hasPdfMaterial    Boolean @default(true)
+  // Horas totales contratadas en este nivel. Fuente de verdad del saldo
+  // del estudiante: `Enrollment.consumedHours` se compara contra esto para
+  // mostrar el avance. Decimal porque a veces hay fraccionales.
+  totalHours        Decimal @default(48) @db.Decimal(6, 2)
+  // Soft-delete: el catálogo nunca borra niveles con historia (matrículas,
+  // aulas, sesiones). Desactivar los esconde de los pickers sin perder
+  // registros pasados.
+  isActive          Boolean @default(true)
 
   program             Program              @relation(fields: [programId], references: [id], onDelete: Cascade)
   enrollments         Enrollment[]
-  materials           Material[]
+  classGroups         ClassGroup[]
+  materialFolders     MaterialFolder[]
   programBundleLevels ProgramBundleLevel[]
 
   @@unique([programId, code])
@@ -359,30 +382,99 @@ model ProgramBundleLevel {
   @@id([bundleId, levelId])
 }
 
-// ----- Matrículas -----
+// ----- Matrículas y Aulas -----
 
+// Aula = unidad operativa que agrupa estudiantes del mismo `ProgramLevel`,
+// con un patrón semanal de slots y un docente asignado. Una clase 1-a-1 es
+// un aula con `enrollments.length === 1` — no hay caso especial.
+//
+// El docente del aula puede rotar (cerrar `TeacherAssignment` vigente con
+// `endDate=ayer` y abrir otra). Coordinación se autoregula la capacidad —
+// no hay límite duro modelado.
+model ClassGroup {
+  id             String           @id @default(cuid())
+  // Nombre auto-generado al crear ("TZ2 · Mar-Jue 18h"), editable.
+  name           String
+  programLevelId String
+  modality       Modality
+  status         ClassGroupStatus @default(ACTIVE)
+  notes          String?          @db.Text
+  // Defaults heredados a cada `ClassSession` al materializar — la sesión
+  // puede sobrescribirlos puntualmente. El email de asignación al docente
+  // y a los estudiantes los incluye según `modality`.
+  defaultMeetingUrl String?
+  defaultLocation   String?
+  createdAt      DateTime         @default(now())
+  closedAt       DateTime?
+
+  programLevel       ProgramLevel        @relation(fields: [programLevelId], references: [id])
+  slots              ClassGroupSlot[]
+  enrollments        Enrollment[]
+  teacherAssignments TeacherAssignment[]
+  classSessions      ClassSession[]
+
+  @@index([programLevelId, status])
+  @@index([status])
+  // Listado del admin: aulas ordenadas por createdAt desc dentro de status.
+  @@index([status, createdAt])
+}
+
+enum ClassGroupStatus {
+  ACTIVE
+  COMPLETED
+  CANCELLED
+}
+
+// Patrón semanal recurrente del aula. `durationMinutes` se snapshotea de
+// `Course.classDuration` al crear el aula para que un cambio futuro de
+// configuración no altere aulas existentes.
+model ClassGroupSlot {
+  id              String @id @default(cuid())
+  classGroupId    String
+  dayOfWeek       Int // 0=Domingo … 6=Sábado, hora local de Guayaquil
+  startTime       String // "HH:mm"
+  durationMinutes Int
+
+  classGroup ClassGroup @relation(fields: [classGroupId], references: [id], onDelete: Cascade)
+
+  @@index([classGroupId])
+  @@index([dayOfWeek, startTime])
+}
+
+// Matrícula = compromiso del estudiante a tomar clases en un nivel concreto.
+// NO tiene fecha de inicio formal ni horas contratadas: la academia maneja
+// la facturación por fuera del sistema. La matrícula puede crearse antes de
+// asignarse a un aula (`classGroupId` null) — en ese estado el alumno está
+// "en espera de aula".
 model Enrollment {
   id              String           @id @default(cuid())
   studentId       String
   programLevelId  String
+  classGroupId    String?
   modality        Modality
-  contractedHours Int
-  consumedHours   Decimal          @default(0) @db.Decimal(6, 2)
-  startDate       DateTime
-  endDate         DateTime?
   status          EnrollmentStatus @default(ACTIVE)
   notes           String?          @db.Text
   placementTestId String?          @unique
+  // Horas dictadas y contabilizadas — se actualiza al cerrar `ClassSession`
+  // sumando `ClassParticipant.hoursCounted` en la misma transacción. Es un
+  // denormalizado que evita re-sumar todo el histórico para mostrar el saldo.
+  consumedHours   Decimal          @default(0) @db.Decimal(8, 2)
   createdAt       DateTime         @default(now())
+  closedAt        DateTime? // se setea al pasar a COMPLETED o CANCELLED
 
   student        StudentProfile     @relation(fields: [studentId], references: [userId])
   programLevel   ProgramLevel       @relation(fields: [programLevelId], references: [id])
+  classGroup     ClassGroup?        @relation(fields: [classGroupId], references: [id])
   placementTest  TestSession?       @relation(fields: [placementTestId], references: [id])
   participations ClassParticipant[]
-  extraHours     ExtraHours[]
 
   @@index([studentId, status])
   @@index([programLevelId])
+  @@index([classGroupId])
+  // Conteo de alumnos activos por aula (TeacherDashboard, listados de aula).
+  @@index([classGroupId, status])
+  // Distribución por nivel para los dashboards (status + groupBy programLevelId).
+  @@index([status, programLevelId])
 }
 
 enum Modality {
@@ -398,23 +490,34 @@ enum EnrollmentStatus {
   CANCELLED
 }
 
-model ExtraHours {
-  id           String   @id @default(cuid())
-  enrollmentId String
-  hours        Int
-  reason       String?  @db.Text
-  approvedBy   String
-  createdAt    DateTime @default(now())
+// Asignación temporal de un docente a un aula. La rotación se modela
+// cerrando la asignación vigente (set `endDate`) y creando otra. Aplica a
+// todos los estudiantes del aula a la vez.
+model TeacherAssignment {
+  id           String    @id @default(cuid())
+  classGroupId String
+  teacherId    String
+  startDate    DateTime  @db.Date
+  endDate      DateTime? @db.Date // null = vigente / abierta
+  createdAt    DateTime  @default(now())
 
-  enrollment Enrollment @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
+  classGroup ClassGroup     @relation(fields: [classGroupId], references: [id], onDelete: Cascade)
+  teacher    TeacherProfile @relation(fields: [teacherId], references: [userId])
 
-  @@index([enrollmentId])
+  @@index([classGroupId, startDate])
+  @@index([teacherId, startDate])
+  // "Asignación vigente" — endDate = null se consulta en casi todos los
+  // dashboards. Estos compuestos ayudan al planner; el partial index agregado
+  // en raw SQL en la misma migración termina de cerrar el caso WHERE endDate IS NULL.
+  @@index([teacherId, endDate])
+  @@index([classGroupId, endDate])
 }
 
 // ----- Sesiones de clase -----
 
 model ClassSession {
   id             String        @id @default(cuid())
+  classGroupId   String
   teacherId      String
   scheduledStart DateTime
   scheduledEnd   DateTime
@@ -425,16 +528,24 @@ model ClassSession {
   location       String?
   status         SessionStatus @default(SCHEDULED)
   cancelledAt    DateTime?
+  cancelledBy    SessionCancelledBy?
   cancelReason   String?       @db.Text
   createdAt      DateTime      @default(now())
 
+  classGroup   ClassGroup         @relation(fields: [classGroupId], references: [id], onDelete: Cascade)
   teacher      TeacherProfile     @relation(fields: [teacherId], references: [userId])
   participants ClassParticipant[]
   log          ClassLog?
 
+  @@index([classGroupId, scheduledStart])
   @@index([teacherId, scheduledStart])
   @@index([scheduledStart])
   @@index([status])
+  // Auto-close: WHERE status='SCHEDULED' AND scheduledEnd < cutoff. El partial
+  // index en SQL raw complementa este compuesto en producción.
+  @@index([status, scheduledEnd])
+  // Pendientes del docente y listados filtrados por status+rango.
+  @@index([teacherId, status, scheduledStart])
 }
 
 enum SessionStatus {
@@ -442,6 +553,11 @@ enum SessionStatus {
   COMPLETED
   CANCELLED
   NO_SHOW
+}
+
+enum SessionCancelledBy {
+  TEACHER
+  ADMIN
 }
 
 model ClassParticipant {
@@ -452,12 +568,20 @@ model ClassParticipant {
   hoursCounted Decimal          @default(0) @db.Decimal(4, 2)
   rateSnapshot Decimal?         @db.Decimal(10, 2)
   notes        String?          @db.Text
+  // Política de 24h: si el alumno avisa con ≥24h antes de `scheduledStart`,
+  // la hora no se le consume (queda para reponer). Si avisa con menos o no
+  // avisa y termina ABSENT, sí consume. `closeClassSession` calcula la
+  // ventana al cerrar.
+  noticedAbsenceAt DateTime?
+  absenceNote      String?     @db.Text
 
   session    ClassSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
   enrollment Enrollment   @relation(fields: [enrollmentId], references: [id])
 
   @@unique([sessionId, enrollmentId])
   @@index([enrollmentId])
+  // groupBy attendance per enrollment para el resumen de asistencia.
+  @@index([enrollmentId, attendance])
 }
 
 enum AttendanceStatus {
@@ -496,25 +620,53 @@ model Holiday {
 }
 
 // ----- Repositorio de materiales -----
+//
+// Estructura tipo Drive: cada `ProgramLevel` tiene su carpeta raíz (parentId
+// nulo, programLevelId apunta al nivel). Subcarpetas heredan el nivel del
+// root y referencian al padre vía parentId.
+//
+// Uniqueness por nombre dentro de un padre se valida a nivel de aplicación
+// (filtrando soft-deleted), no por constraint de DB — Postgres trata los
+// NULL como distintos en unique compuesto y complica el caso del root.
+//
+// `size` en BigInt porque Int de Postgres tope en ~2GB y se prevén ZIPs
+// >10GB (cursos completos).
 
-model Material {
-  id             String   @id @default(cuid())
-  programLevelId String?
-  courseId       String?
-  title          String
-  description    String?  @db.Text
-  storageKey     String
-  fileType       String
-  fileSize       Int?
-  isPublic       Boolean  @default(true)
-  uploadedBy     String
-  createdAt      DateTime @default(now())
+model MaterialFolder {
+  id             String    @id @default(cuid())
+  parentId       String?
+  name           String
+  programLevelId String
+  createdById    String
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  deletedAt      DateTime?
 
-  programLevel ProgramLevel? @relation(fields: [programLevelId], references: [id])
-  course       Course?       @relation(fields: [courseId], references: [id])
+  parent       MaterialFolder?  @relation("FolderTree", fields: [parentId], references: [id], onDelete: Restrict)
+  children     MaterialFolder[] @relation("FolderTree")
+  programLevel ProgramLevel     @relation(fields: [programLevelId], references: [id])
+  createdBy    User             @relation("FolderCreator", fields: [createdById], references: [id])
+  files        MaterialFile[]
 
-  @@index([programLevelId])
-  @@index([courseId])
+  @@index([parentId])
+  @@index([programLevelId, parentId])
+}
+
+model MaterialFile {
+  id           String    @id @default(cuid())
+  folderId     String
+  name         String
+  storageKey   String    @unique
+  size         BigInt
+  mimeType     String
+  uploadedById String
+  uploadedAt   DateTime  @default(now())
+  deletedAt    DateTime?
+
+  folder     MaterialFolder @relation(fields: [folderId], references: [id], onDelete: Cascade)
+  uploadedBy User           @relation("FileUploader", fields: [uploadedById], references: [id])
+
+  @@index([folderId])
 }
 
 // =============================================================================
@@ -534,7 +686,7 @@ model Question {
   createdAt  DateTime     @default(now())
   updatedAt  DateTime     @updatedAt
 
-  level       CefrLevel             @relation(fields: [levelId], references: [id])
+  level       CefrLevel            @relation(fields: [levelId], references: [id])
   options     QuestionOption[]
   fillAnswers QuestionFillAnswer[]
 
@@ -583,7 +735,7 @@ model TestTemplate {
   isActive         Boolean     @default(true)
   createdAt        DateTime    @default(now())
 
-  level        CefrLevel           @relation(fields: [levelId], references: [id])
+  level        CefrLevel?          @relation(fields: [levelId], references: [id])
   topicFilters TestTemplateTopic[]
   invites      InviteToken[]
   sessions     TestSession[]
@@ -650,7 +802,7 @@ model TestSession {
   finalScore    Int?
   reviewedBy    String?
   reviewedAt    DateTime?
-  reviewerNotes String?           @db.Text
+  reviewerNotes String?   @db.Text
 
   invite     InviteToken           @relation(fields: [inviteId], references: [id])
   template   TestTemplate          @relation(fields: [templateId], references: [id])
@@ -671,11 +823,11 @@ enum TestSessionStatus {
 }
 
 model TestSessionQuestion {
-  id         String       @id @default(cuid())
+  id         String  @id @default(cuid())
   sessionId  String
   order      Int
   questionId String?
-  
+
   // Snapshot inmutable de la pregunta al momento del sorteo
   promptSnapshot          String       @db.Text
   typeSnapshot            QuestionType
@@ -799,6 +951,8 @@ enum EmailType {
   CLASS_REMINDER
   CLASS_CANCELLED
   CLASS_RESCHEDULED
+  CLASS_GROUP_ASSIGNED_TEACHER
+  CLASS_GROUP_ASSIGNED_STUDENT
   ENROLLMENT_CONFIRMATION
   TEST_INVITATION
   TEST_RESULT_READY

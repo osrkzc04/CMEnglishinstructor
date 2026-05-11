@@ -1,6 +1,9 @@
 import "server-only"
 import path from "node:path"
 import fs from "node:fs/promises"
+import { createReadStream, createWriteStream } from "node:fs"
+import { Readable } from "node:stream"
+import { pipeline } from "node:stream/promises"
 import { env } from "@/lib/env"
 import type { StorageAdapter } from "./adapter"
 
@@ -31,6 +34,42 @@ export class LocalAdapter implements StorageAdapter {
     const buffer = data instanceof Blob ? Buffer.from(await data.arrayBuffer()) : Buffer.from(data)
     await fs.writeFile(fullPath, buffer)
     return { key, size: buffer.byteLength }
+  }
+
+  async uploadStream(
+    key: string,
+    input: Readable | ReadableStream<Uint8Array>,
+  ): Promise<{ key: string; size: number }> {
+    const fullPath = this.resolve(key)
+    await fs.mkdir(path.dirname(fullPath), { recursive: true })
+
+    // Convertir Web ReadableStream a Node Readable si hace falta — Next 15
+    // entrega `request.body` como ReadableStream.
+    const source =
+      input instanceof Readable
+        ? input
+        : Readable.fromWeb(input as unknown as import("node:stream/web").ReadableStream<Uint8Array>)
+
+    const sink = createWriteStream(fullPath)
+    let size = 0
+    source.on("data", (chunk: Buffer) => {
+      size += chunk.byteLength
+    })
+
+    try {
+      await pipeline(source, sink)
+    } catch (err) {
+      // Limpieza si la subida se cortó a la mitad — evita basura en disco.
+      await fs.unlink(fullPath).catch(() => {})
+      throw err
+    }
+    return { key, size }
+  }
+
+  async getReadStream(key: string): Promise<{ stream: Readable; size: number }> {
+    const fullPath = this.resolve(key)
+    const stat = await fs.stat(fullPath)
+    return { stream: createReadStream(fullPath), size: stat.size }
   }
 
   async getUrl(key: string): Promise<string> {

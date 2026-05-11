@@ -1,80 +1,115 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+@config "../../tailwind.config.ts";
 
 /* =============================================================================
  * CM English Instructor — Design Tokens
- * Paleta mapeada a CSS variables para shadcn/ui + Tailwind.
  *
- * Principios:
- *  - Light mode default: bone (#FAF8F5) como fondo, ink como foreground
- *  - Dark mode: ink (#233641) como fondo, bone como foreground
- *  - Teal es el único accent — úsalo solo para CTAs y estados activos
+ * Fuente de verdad: design-mockups/{Layout,Login,Dashboard,Widgets}.html
+ * Documentación:    docs/design-brief.md (sección "Aprobado contra mockups")
+ *
+ * Convenciones:
+ *  - Tokens shadcn (--background, --foreground, etc.) en HSL para utilities
+ *    `bg-background`, `text-foreground` y compañía.
+ *  - Tokens semánticos de mockup (--surface, --text-2/3/4, --border-strong)
+ *    también en HSL — utilities equivalentes en tailwind.config.ts.
+ *  - Tokens de chrome (--chrome-*) NO cambian con el tema: el sidebar y los
+ *    overlays oscuros de marca son siempre ink-900 sobre cualquier modo.
+ *  - Dimensiones de chassis (--sidebar-w, --header-h) viven aquí porque las
+ *    consume el grid del AppShell vía calc().
  * ============================================================================= */
 
 @layer base {
   :root {
-    /* Light mode — área de trabajo tipo papel editorial */
-    --background: 39 30% 97%;          /* bone #FAF8F5 */
-    --foreground: 203 29% 19%;         /* ink #233641 */
+    /* ── Shadcn semantic tokens (light) ───────────────────────────────── */
+    --background:           36 33% 97%;        /* bone #FAF8F5 */
+    --foreground:           202 30% 20%;       /* ink-900 #233641 */
 
-    --card: 0 0% 100%;                 /* white puro para tarjetas elevadas sobre bone */
-    --card-foreground: 203 29% 19%;
+    --card:                 0 0% 100%;         /* white puro */
+    --card-foreground:      202 30% 20%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 203 29% 19%;
+    --popover:              0 0% 100%;
+    --popover-foreground:   202 30% 20%;
 
-    --primary: 170 60% 39%;            /* teal #279F89 */
-    --primary-foreground: 0 0% 100%;
+    /* Primary forma-grado: ink-900 → hover teal (mockup form button) */
+    --primary:              202 30% 20%;       /* ink-900 */
+    --primary-foreground:   36 33% 97%;        /* bone */
 
-    --secondary: 40 17% 92%;           /* bone-200 */
-    --secondary-foreground: 203 29% 19%;
+    --secondary:            38 27% 94%;        /* bone-50 #F4F1EC */
+    --secondary-foreground: 202 30% 20%;
 
-    --muted: 40 17% 92%;
-    --muted-foreground: 203 10% 40%;   /* ink-500 */
+    --muted:                38 27% 94%;        /* bone-50 */
+    --muted-foreground:     204 8% 48%;        /* ink-400 mockup → ink #707C84 */
 
-    --accent: 170 42% 95%;             /* teal-50 — fondo de elementos acentuados */
-    --accent-foreground: 170 60% 30%;  /* teal-700 para texto sobre accent */
+    --accent:               170 36% 90%;       /* teal-100 #DDEFEC */
+    --accent-foreground:    172 53% 31%;       /* teal-700 #267A6F */
 
-    --destructive: 10 50% 47%;         /* warm danger, no rojo primario genérico */
-    --destructive-foreground: 0 0% 100%;
+    --destructive:          9 51% 47%;         /* danger #B44C3A */
+    --destructive-foreground: 36 33% 97%;
 
-    --border: 203 15% 88%;             /* borde sutil, 0.5-1px */
-    --input: 203 15% 88%;
-    --ring: 170 60% 39%;               /* focus ring en teal */
+    --border:               200 8% 92%;        /* ink-100 #EAECED */
+    --border-strong:        203 7% 78%;        /* ink-200 #C4C9CC */
+    --input:                200 8% 92%;
+    --ring:                 170 60% 39%;       /* teal-500 #279F89 */
 
-    --radius: 0.5rem;                  /* 8px — editorial, no infantil */
+    /* ── Mockup-native tokens (light) ─────────────────────────────────── */
+    --surface:              0 0% 100%;          /* card / panel bg */
+    --surface-alt:          38 27% 94%;         /* bone-50 (hovered rows) */
+    --text-2:               201 12% 38%;        /* mockup --text-2 (ink #55646C) */
+    --text-3:               204 8% 48%;         /* mockup --text-3 (ink #707C84) */
+    --text-4:               200 7% 59%;         /* mockup --text-4 (ink #8F999E) */
+
+    /* ── Chrome (sidebar y overlays oscuros — NO cambian con el tema) ─── */
+    --chrome-bg:            202 30% 20%;        /* ink-900 fijo */
+    --chrome-fg:            36 33% 97%;         /* bone fijo */
+    --chrome-muted:         rgba(244, 241, 236, 0.6);
+    --chrome-faint:         rgba(244, 241, 236, 0.12);
+
+    /* ── Chassis ──────────────────────────────────────────────────────── */
+    --sidebar-w:            248px;
+    --sidebar-w-collapsed:  64px;
+    --header-h:             60px;
+
+    --radius:               0.5rem;             /* 8px — base de cards */
   }
 
   .dark {
-    /* Dark mode — inspirado en la tarjeta de presentación */
-    --background: 203 29% 19%;         /* ink #233641 */
-    --foreground: 39 30% 97%;          /* bone */
+    /* ── Shadcn semantic tokens (dark) ────────────────────────────────── */
+    --background:           202 30% 20%;        /* ink-900 */
+    --foreground:           38 27% 94%;         /* bone-50 */
 
-    --card: 203 28% 22%;               /* ink-800 */
-    --card-foreground: 39 30% 97%;
+    --card:                 203 27% 23%;        /* ink-850 #2A3D49 (nuevo) */
+    --card-foreground:      38 27% 94%;
 
-    --popover: 203 28% 22%;
-    --popover-foreground: 39 30% 97%;
+    --popover:              203 27% 23%;
+    --popover-foreground:   38 27% 94%;
 
-    --primary: 170 60% 45%;            /* teal ligeramente más claro en dark */
-    --primary-foreground: 203 29% 12%;
+    /* Primary inverte en dark: bone sobre ink-900, hover salta a teal */
+    --primary:              36 33% 97%;
+    --primary-foreground:   202 30% 20%;
 
-    --secondary: 203 20% 27%;          /* ink-700 */
-    --secondary-foreground: 39 30% 97%;
+    --secondary:            202 29% 25%;        /* ink-700 #2d4451 */
+    --secondary-foreground: 38 27% 94%;
 
-    --muted: 203 20% 27%;
-    --muted-foreground: 203 10% 70%;
+    --muted:                202 29% 25%;
+    --muted-foreground:     200 7% 59%;         /* ink-300 nuevo */
 
-    --accent: 170 45% 22%;             /* teal-900 como fondo de accent en dark */
-    --accent-foreground: 170 50% 75%;
+    --accent:               172 45% 22%;        /* teal oscuro */
+    --accent-foreground:    170 36% 80%;
 
-    --destructive: 10 55% 52%;
-    --destructive-foreground: 0 0% 100%;
+    --destructive:          9 55% 52%;
+    --destructive-foreground: 36 33% 97%;
 
-    --border: 203 18% 28%;
-    --input: 203 18% 28%;
-    --ring: 170 60% 45%;
+    --border:               201 17% 30%;        /* ink-600 #3E4F58 */
+    --border-strong:        201 16% 35%;        /* ink-650 #4a5c66 (nuevo) */
+    --input:                201 17% 30%;
+    --ring:                 170 60% 45%;
+
+    /* ── Mockup-native tokens (dark) ──────────────────────────────────── */
+    --surface:              203 27% 23%;        /* ink-850 */
+    --surface-alt:          202 29% 25%;        /* ink-700 */
+    --text-2:               203 7% 78%;         /* ink-200 */
+    --text-3:               200 7% 59%;         /* ink-300 */
+    --text-4:               204 8% 48%;         /* ink-400 */
   }
 }
 
@@ -82,30 +117,216 @@
   * {
     @apply border-border;
   }
+  html, body {
+    @apply h-full;
+  }
+
+  /* ── Smooth scroll para anchors del landing ─────────────────────────────
+   * Los anchors entre secciones (#programas, #nosotros, etc.) se animan
+   * con un easing nativo. Detrás de `prefers-reduced-motion: no-preference`
+   * para que quienes tengan movimiento reducido reciban el salto inmediato.
+   *
+   * `scroll-margin-top` desplaza el destino del anchor 76px hacia abajo
+   * para que la sección no aterrice tapada por el topbar sticky (60px
+   * expandido / 48px scrolled). 76 = 60 + 16 buffer respiratorio. */
+  @media (prefers-reduced-motion: no-preference) {
+    html {
+      scroll-behavior: smooth;
+    }
+  }
+  section[id] {
+    scroll-margin-top: 76px;
+  }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-sans antialiased;
+    font-size: 15px;            /* mockup body base */
+    line-height: 1.6;
     font-feature-settings: "rlig" 1, "calt" 1, "ss01" 1;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    transition: background-color 250ms ease, color 250ms ease;
   }
 
-  /* Tipografía editorial: display usa serif, cuerpo usa sans */
-  .font-display {
+  /* ── Tipografía editorial ──────────────────────────────────────────── */
+  .font-display,
+  .font-serif {
     font-family: var(--font-fraunces), Georgia, serif;
     font-optical-sizing: auto;
-    font-variation-settings: "opsz" 144;
   }
 
-  /* Selección con acento de marca */
+  /* Numéricos tabulares por defecto en .font-mono — el mockup lo usa para
+   * todos los números, contadores, hours, percentages, etc. */
+  .font-mono {
+    font-feature-settings: "tnum";
+  }
+
+  /* ── Selección con acento de marca ────────────────────────────────── */
   ::selection {
-    @apply bg-teal-500/20 text-ink-900;
+    background-color: hsl(170 60% 39% / 0.2);
+    color: hsl(202 30% 20%);
   }
   .dark ::selection {
-    @apply bg-teal-500/30 text-bone;
+    background-color: hsl(170 60% 45% / 0.3);
+    color: hsl(36 33% 97%);
   }
 
-  /* Focus visible uniforme en toda la app */
+  /* ── Focus visible global (patrón mockup) ──────────────────────────────
+   *  Doble box-shadow: gap del bg + halo teal. Reproduce exactamente
+   *  Login.html:309 y Widgets.html:730. */
   :focus-visible {
-    @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
+    outline: none;
+    box-shadow:
+      0 0 0 2px hsl(var(--background)),
+      0 0 0 4px color-mix(in oklab, hsl(var(--ring)) 35%, transparent);
+  }
+  /* Inputs y botones que tienen su propio borde — no sumar shadow extra
+   * del browser sobre el ring custom. */
+  :focus { outline: none; }
+}
+
+/* =============================================================================
+ * Patrones reutilizables que son demasiado específicos para Tailwind utilities
+ * pero aparecen en múltiples componentes. Mantenerlos pequeños y nombrados.
+ * ============================================================================= */
+
+@layer components {
+  /* Indicador activo del sidebar — barra teal 2px a left:-10px sobre
+   * el bg semitransparente. Replica Layout.html:255-261. */
+  .sidebar-active-bar {
+    content: "";
+    position: absolute;
+    left: -10px;
+    top: 8px;
+    bottom: 8px;
+    width: 2px;
+    background-color: theme("colors.teal.500");
+    border-radius: 0 2px 2px 0;
+  }
+
+  /* Grid milimetrado del aside del login — Login.html:86-94. */
+  .login-grid-bg {
+    background-image:
+      linear-gradient(to right, rgba(244, 241, 236, 0.04) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(244, 241, 236, 0.04) 1px, transparent 1px);
+    background-size: 32px 32px;
+  }
+  .login-glow {
+    background: radial-gradient(80% 60% at 30% 30%, rgba(39, 159, 137, 0.08), transparent 70%);
+  }
+
+  /* Variante de grid para fondos bone (landing hero). Mismo patrón pero con
+   * trazo ink en lugar de bone, y celda más grande para no competir con la
+   * tipografía editorial. */
+  .hero-grid-bg {
+    background-image:
+      linear-gradient(to right, rgba(35, 54, 65, 0.045) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(35, 54, 65, 0.045) 1px, transparent 1px);
+    background-size: 48px 48px;
+  }
+  .dark .hero-grid-bg {
+    background-image:
+      linear-gradient(to right, rgba(244, 241, 236, 0.04) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(244, 241, 236, 0.04) 1px, transparent 1px);
+  }
+
+  /* Glow radial teal sobre fondo bone — equivalente al login-glow pero con
+   * más diámetro (cubre el hero completo sin tile). */
+  .hero-glow-teal {
+    background: radial-gradient(60% 50% at 18% 22%, rgba(39, 159, 137, 0.12), transparent 70%);
+  }
+  .hero-glow-ink {
+    background: radial-gradient(50% 50% at 90% 80%, rgba(35, 54, 65, 0.06), transparent 70%);
+  }
+  .dark .hero-glow-teal {
+    background: radial-gradient(60% 50% at 18% 22%, rgba(39, 159, 137, 0.18), transparent 70%);
+  }
+  .dark .hero-glow-ink {
+    background: radial-gradient(50% 50% at 90% 80%, rgba(244, 241, 236, 0.04), transparent 70%);
+  }
+
+  /* Stagger entry de hero. Cada elemento define `--rise-delay` inline y la
+   * animación se aplica con fill-mode `both` para que el estado inicial
+   * (translate + opacity 0) se aplique antes del primer frame. */
+  .rise {
+    animation: rise 800ms cubic-bezier(0.16, 1, 0.3, 1) both;
+    animation-delay: var(--rise-delay, 0ms);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .rise {
+      animation: none;
+    }
+  }
+
+  /* Skeleton shimmer — usa la animación shimmer del config + gradient móvil. */
+  .skel-bg {
+    background: linear-gradient(
+      90deg,
+      hsl(var(--surface-alt)),
+      hsl(var(--background)),
+      hsl(var(--surface-alt))
+    );
+    background-size: 200% 100%;
+  }
+
+  /* Live-dot teal con pulse animation. Para .class-row.live y similares. */
+  .live-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background-color: theme("colors.teal.500");
+    box-shadow: 0 0 0 0 color-mix(in oklab, theme("colors.teal.500") 50%, transparent);
+    animation: pulse-live 1.6s ease-out infinite;
+  }
+
+  /* ─── Liquid blobs ──────────────────────────────────────────────────────
+   * Capa de fondo orgánica con movimiento muy lento — la usa la card
+   * "¿Enseñas inglés o español?" del landing para diferenciarse del fondo
+   * milimétrico del closer y del aside del login. Cada blob es un círculo
+   * borroso que va y vuelve por una trayectoria distinta; juntos producen
+   * un efecto tipo "lava lamp" sutil sobre el ink-900.
+   *
+   * Animaciones largas (18-26s) para que el movimiento sea perceptible
+   * pero no demande atención. Respeta `prefers-reduced-motion` —
+   * desactiva el desplazamiento manteniendo los blobs estáticos. */
+  .liquid-blob {
+    position: absolute;
+    border-radius: 9999px;
+    filter: blur(56px);
+    will-change: transform;
+    pointer-events: none;
+    opacity: 0.85;
+  }
+  .liquid-blob-teal {
+    background: radial-gradient(circle at center, rgba(39, 159, 137, 0.7), rgba(39, 159, 137, 0) 70%);
+    animation: liquid-drift-1 22s ease-in-out infinite;
+  }
+  .liquid-blob-bone {
+    background: radial-gradient(circle at center, rgba(244, 241, 236, 0.42), rgba(244, 241, 236, 0) 70%);
+    animation: liquid-drift-2 18s ease-in-out infinite;
+  }
+  .liquid-blob-deep {
+    background: radial-gradient(circle at center, rgba(38, 122, 111, 0.55), rgba(38, 122, 111, 0) 70%);
+    animation: liquid-drift-3 26s ease-in-out infinite;
+  }
+
+  @keyframes liquid-drift-1 {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    50%      { transform: translate(40px, -28px) scale(1.08); }
+  }
+  @keyframes liquid-drift-2 {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    50%      { transform: translate(-50px, 36px) scale(0.94); }
+  }
+  @keyframes liquid-drift-3 {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    50%      { transform: translate(28px, 44px) scale(1.05); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .liquid-blob-teal,
+    .liquid-blob-bone,
+    .liquid-blob-deep {
+      animation: none;
+    }
   }
 }

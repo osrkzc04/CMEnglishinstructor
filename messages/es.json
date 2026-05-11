@@ -1,0 +1,9 @@
+{
+  "_meta": {
+    "locale": "es",
+    "note": "Catálogo de copy del landing en español (Ecuador). Las claves se llenan en el Paso 2; este archivo arranca con keys mínimas para verificar el wiring del Paso 1."
+  },
+  "_smoke": {
+    "ping": "Hola desde el catálogo en español"
+  }
+}

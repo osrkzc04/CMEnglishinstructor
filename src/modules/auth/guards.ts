@@ -2,11 +2,16 @@ import "server-only"
 import { auth } from "@/lib/auth"
 import { redirect } from "next/navigation"
 import type { Role } from "@prisma/client"
+import { prisma } from "@/lib/prisma"
 
 /**
- * Helpers de autorización para usar en Server Components, Server Actions y
- * Route Handlers. Centralizan la lógica de "quién puede hacer qué" para que
- * NUNCA aparezca `if (session.user.role !== 'X')` inline en el código.
+ * Helpers de autorización para Server Components, Server Actions y Route
+ * Handlers. Centralizan la lógica de "quién puede hacer qué" para que nunca
+ * aparezca `if (session.user.role !== 'X')` inline.
+ *
+ * Nota sobre JWT: `requireAuth` re-valida `User.status` contra DB en cada
+ * llamada porque las sesiones son JWT (stateless) — sin esto, un usuario
+ * desactivado seguiría navegando hasta que su token expire.
  */
 
 export class UnauthorizedError extends Error {
@@ -23,44 +28,43 @@ export class ForbiddenError extends Error {
   }
 }
 
-/**
- * Asegura que hay sesión y devuelve el usuario.
- * Si no hay sesión, redirige a /login (en RSC) o lanza UnauthorizedError.
- */
-export async function requireAuth(opts?: { redirectTo?: string }) {
+export async function requireAuth(opts?: { redirectTo?: "throw" }) {
   const session = await auth()
-  if (!session?.user) {
+  if (!session?.user?.id) {
     if (opts?.redirectTo === "throw") throw new UnauthorizedError()
     redirect("/login")
   }
-  return session.user
+
+  const dbUser = await prisma.user.findUnique({
+    where: { id: session.user.id },
+    select: { status: true, role: true },
+  })
+
+  if (!dbUser || dbUser.status !== "ACTIVE") {
+    if (opts?.redirectTo === "throw") throw new UnauthorizedError()
+    redirect("/login?reason=inactive")
+  }
+
+  // El rol en DB es la fuente de verdad — el JWT puede estar desfasado si
+  // alguna vez se permite cambiar rol post-emisión.
+  return { ...session.user, role: dbUser.role } as typeof session.user
 }
 
-/**
- * Asegura que el usuario autenticado tiene uno de los roles permitidos.
- * Si no, lanza ForbiddenError.
- */
 export async function requireRole(allowed: Role[]) {
   const user = await requireAuth()
-  // @ts-expect-error — sesión extendida con role
   if (!user.role || !allowed.includes(user.role)) {
     throw new ForbiddenError()
   }
   return user
 }
 
-/**
- * Asegura que el usuario es propietario del recurso (ej: estudiante de una
- * matrícula, docente de una sesión). Director y coordinador siempre pasan.
- */
 export async function requireOwnership(opts: {
   ownerId: string
   bypassRoles?: Role[]
 }) {
   const user = await requireAuth()
   const bypass = opts.bypassRoles ?? (["DIRECTOR", "COORDINATOR"] as Role[])
-  // @ts-expect-error — sesión extendida con role
-  if (bypass.includes(user.role)) return user
+  if (user.role && bypass.includes(user.role)) return user
   if (user.id === opts.ownerId) return user
   throw new ForbiddenError("No eres propietario de este recurso")
 }

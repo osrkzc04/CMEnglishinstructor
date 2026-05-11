@@ -9,12 +9,32 @@ import { z } from "zod"
  * directamente — Next.js las inyecta. NO usar este módulo desde Client Components.
  */
 
+// Detectamos la fase de build de Next (`next build`) para relajar los checks
+// estrictos. Durante "Collecting page data", Next evalúa los route handlers
+// que terminan importando este módulo — sin AUTH_SECRET/DATABASE_URL reales
+// el build fallaría. En runtime las vars vienen del orquestador (Dokploy) y
+// el schema vuelve a su modo estricto.
+//
+// Esto también evita meter placeholders en el Dockerfile que dispararían
+// la alerta "SecretsUsedInArgOrEnv" de scanners como Hadolint/Snyk/Trivy.
+const isBuildPhase =
+  process.env.NEXT_PHASE === "phase-production-build" ||
+  process.env.NEXT_BUILD === "1"
+
 const ServerEnvSchema = z.object({
   NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
-  DATABASE_URL: z.string().url(),
+  DATABASE_URL: isBuildPhase
+    ? z.string().url().default("postgresql://build:build@localhost:5432/build")
+    : z.string().url(),
 
-  AUTH_SECRET: z.string().min(32, "AUTH_SECRET debe tener al menos 32 caracteres"),
-  AUTH_URL: z.string().url(),
+  AUTH_SECRET: isBuildPhase
+    ? z
+        .string()
+        .default("build_time_placeholder_secret_at_least_32_characters_long")
+    : z.string().min(32, "AUTH_SECRET debe tener al menos 32 caracteres"),
+  AUTH_URL: isBuildPhase
+    ? z.string().url().default("http://localhost:3000")
+    : z.string().url(),
 
   STORAGE_DRIVER: z.enum(["local", "r2"]).default("local"),
   LOCAL_STORAGE_PATH: z.string().default("./storage"),
@@ -26,14 +46,32 @@ const ServerEnvSchema = z.object({
   R2_BUCKET: z.string().optional(),
   R2_PUBLIC_URL: z.string().url().optional(),
 
-  EMAIL_PROVIDER: z.enum(["console", "resend"]).default("console"),
-  RESEND_API_KEY: z.string().optional(),
-  EMAIL_FROM: z.string().default("CM English Instructor <no-reply@cmenglishinstructor.com>"),
+  EMAIL_PROVIDER: z.enum(["console", "smtp"]).default("console"),
+  SMTP_HOST: z.string().optional(),
+  SMTP_PORT: z.coerce.number().int().min(1).max(65535).default(587),
+  SMTP_USER: z.string().optional(),
+  SMTP_PASSWORD: z.string().optional(),
+  SMTP_SECURE: z
+    .string()
+    .optional()
+    .transform((v) => v === "true"),
+  EMAIL_FROM: z
+    .string()
+    .default("CM English Instructor <no-reply@cmenglishinstructor.com>")
+    .refine((v) => /@/.test(v), {
+      message:
+        "EMAIL_FROM debe incluir un email — formato 'Nombre <correo@dominio>' (Gmail rechaza headers sin email por RFC 5322)",
+    }),
   EMAIL_REPLY_TO: z.string().optional(),
 
   DEFAULT_TIMEZONE: z.string().default("America/Guayaquil"),
 
   CRON_SECRET: z.string().optional(),
+
+  // Cloudflare Turnstile — captcha del form público de postulaciones.
+  // Si no se setean, la verificación se omite (útil en dev) y queda solo
+  // el rate-limit por IP/email.
+  TURNSTILE_SECRET_KEY: z.string().optional(),
 
   DEMO_MODE: z
     .string()
@@ -62,6 +100,12 @@ if (env.STORAGE_DRIVER === "r2") {
   }
 }
 
-if (env.EMAIL_PROVIDER === "resend" && !env.RESEND_API_KEY && !env.DEMO_MODE) {
-  throw new Error("EMAIL_PROVIDER=resend requiere RESEND_API_KEY (o activar DEMO_MODE=true)")
+if (env.EMAIL_PROVIDER === "smtp" && !env.DEMO_MODE) {
+  const smtpRequired = ["SMTP_HOST", "SMTP_USER", "SMTP_PASSWORD"] as const
+  const missing = smtpRequired.filter((k) => !env[k])
+  if (missing.length > 0) {
+    throw new Error(
+      `EMAIL_PROVIDER=smtp requiere: ${missing.join(", ")} (o activar DEMO_MODE=true)`,
+    )
+  }
 }

@@ -2,6 +2,7 @@ import "server-only"
 import { env } from "@/lib/env"
 import type { EmailProvider } from "./provider"
 import { ConsoleProvider } from "./console-provider"
+import { SmtpProvider } from "./smtp-provider"
 
 let instance: EmailProvider | null = null
 
@@ -21,11 +22,20 @@ export function emailProvider(): EmailProvider {
     case "console":
       instance = new ConsoleProvider()
       return instance
-    case "resend":
-      // TODO: implementar ResendProvider cuando se conecte a Resend.
-      // import { Resend } from 'resend'
-      // class ResendProvider implements EmailProvider { ... }
-      throw new Error("Resend provider no implementado todavía. Usar 'console' o activar DEMO_MODE.")
+    case "smtp":
+      if (!env.SMTP_HOST || !env.SMTP_USER || !env.SMTP_PASSWORD) {
+        throw new Error(
+          "EMAIL_PROVIDER=smtp requiere SMTP_HOST, SMTP_USER y SMTP_PASSWORD",
+        )
+      }
+      instance = new SmtpProvider({
+        host: env.SMTP_HOST,
+        port: env.SMTP_PORT,
+        user: env.SMTP_USER,
+        password: env.SMTP_PASSWORD,
+        secure: env.SMTP_SECURE,
+      })
+      return instance
     default:
       throw new Error(`EMAIL_PROVIDER desconocido: ${env.EMAIL_PROVIDER}`)
   }

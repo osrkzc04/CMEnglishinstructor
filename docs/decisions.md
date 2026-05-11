@@ -218,6 +218,33 @@
 
 ---
 
+## ADR-015 — Aula (`ClassGroup`) como ciudadano de primera clase
+
+**Fecha**: 2026-05-06
+**Estado**: Aceptado (revoca la decisión previa "sin entidad Group separada")
+**Contexto**: El modelo original tenía `EnrollmentSlot` y `TeacherAssignment.enrollmentId` por cada matrícula. Una clase grupal era un conjunto de matrículas que coordinación "agrupaba mentalmente" porque tenían los mismos slots y el mismo docente. Esto generaba dolor:
+- Crear una clase grupal requería duplicar slots a mano en cada matrícula.
+- Cambiar el docente del grupo requería N updates de `TeacherAssignment`.
+- "¿Qué grupos hay activos?" no era una query directa — había que inferirlos por solapamiento de slots y docente.
+- La coordinación piensa en aulas (ej. "TZ2 · Mar-Jue 18h con Carolina, 4 alumnos"), no en matrículas individuales.
+
+**Decisión**: Introducir `ClassGroup` como entidad. Mover `slots` y `teacherAssignments` del `Enrollment` al `ClassGroup`. Una clase 1-a-1 es un aula con `enrollments.length === 1` — el modelo no tiene caso especial.
+
+Reglas duras:
+- No mezclar niveles: todas las matrículas de un aula referencian el mismo `ProgramLevel`.
+- Aulas vacías permitidas (placeholder para planificar cohortes).
+- Sin capacidad máxima en el modelo — coordinación autoregula.
+- Nombre auto-generado al crear (`"TZ2 · Mar-Jue 18h"`), editable.
+
+**Consecuencias**:
+- Eliminado: `EnrollmentSlot`, `TeacherAssignment.enrollmentId`, módulo `teacher-assignments`, flow viejo de "alta de estudiante con asignación inmediata", página `/admin/estudiantes/[id]/asignar-docente`.
+- Agregado: `ClassGroup`, `ClassGroupSlot`, `ClassGroupStatus`, `Enrollment.classGroupId?`, `TeacherAssignment.classGroupId`, `ClassSession.classGroupId`.
+- El flow nuevo de inscripción: crear estudiante → matrícula al `ProgramLevel` → asignar a aula existente o crear nueva.
+- Cambiar docente del aula es un solo update; las clases futuras se re-materializan a partir del aula, no de cada matrícula.
+- Snapshots por sesión (`ClassParticipant.rateSnapshot`) siguen siendo la fuente de verdad para payroll — nada cambia ahí.
+
+---
+
 ## Plantilla para nuevas ADR
 
 ```markdown

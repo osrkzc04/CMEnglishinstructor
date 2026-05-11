@@ -1,0 +1,103 @@
+# =============================================================================
+# ⚠️  ESTE COMPOSE ES SOLO PARA TESTING LOCAL DEL DOCKERFILE.
+# =============================================================================
+# Levanta `app` + `db` (Postgres) en tu máquina para verificar que la imagen
+# Docker corre bien antes de pushear a Dokploy.
+#
+# En Dokploy NO se usa este archivo: la app se despliega solo con el
+# `Dockerfile` y la base de datos vive como recurso aparte de Dokploy
+# (sección Databases > PostgreSQL). Ver `docs/deployment.md`.
+#
+# Uso local:
+#   1) Copiar `.env.example` a `.env` y completar al menos AUTH_SECRET,
+#      CRON_SECRET y SUPER_ADMIN_EMAIL/PASSWORD.
+#   2) `docker compose up --build`
+#   3) Visitar http://localhost:3000
+# =============================================================================
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: cm-english-instructor:latest
+    restart: unless-stopped
+    ports:
+      - "${APP_PORT:-3000}:3000"
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgresql://${POSTGRES_USER:-cmuser}:${POSTGRES_PASSWORD:-cmpassword}@db:5432/${POSTGRES_DB:-cmenglish}
+      AUTH_URL: ${AUTH_URL:-http://localhost:3000}
+      AUTH_SECRET: ${AUTH_SECRET}
+      NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL:-http://localhost:3000}
+      DEFAULT_TIMEZONE: ${DEFAULT_TIMEZONE:-America/Guayaquil}
+
+      # Bootstrap del super admin
+      SUPER_ADMIN_EMAIL: ${SUPER_ADMIN_EMAIL}
+      SUPER_ADMIN_PASSWORD: ${SUPER_ADMIN_PASSWORD}
+      SUPER_ADMIN_FIRST_NAME: ${SUPER_ADMIN_FIRST_NAME:-Director}
+      SUPER_ADMIN_LAST_NAME: ${SUPER_ADMIN_LAST_NAME:-Principal}
+      SUPER_ADMIN_DOCUMENT: ${SUPER_ADMIN_DOCUMENT:-}
+      SUPER_ADMIN_PHONE: ${SUPER_ADMIN_PHONE:-}
+
+      # Storage
+      STORAGE_DRIVER: ${STORAGE_DRIVER:-local}
+      LOCAL_STORAGE_PATH: /app/storage
+
+      # Email (opcional — por defecto, consola)
+      EMAIL_PROVIDER: ${EMAIL_PROVIDER:-console}
+      SMTP_HOST: ${SMTP_HOST:-}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+      SMTP_SECURE: ${SMTP_SECURE:-false}
+      EMAIL_FROM: ${EMAIL_FROM:-}
+      EMAIL_REPLY_TO: ${EMAIL_REPLY_TO:-}
+
+      # Cron
+      CRON_SECRET: ${CRON_SECRET}
+
+      # Turnstile (opcional)
+      NEXT_PUBLIC_TURNSTILE_SITE_KEY: ${NEXT_PUBLIC_TURNSTILE_SITE_KEY:-}
+      TURNSTILE_SECRET_KEY: ${TURNSTILE_SECRET_KEY:-}
+
+      # Flags
+      DEMO_MODE: ${DEMO_MODE:-false}
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - app-storage:/app/storage
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 60s
+
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-cmuser}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-cmpassword}
+      POSTGRES_DB: ${POSTGRES_DB:-cmenglish}
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-cmuser} -d ${POSTGRES_DB:-cmenglish}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    # Si querés exponer la DB al host para conectarte con pgAdmin desde fuera,
+    # descomentá la siguiente sección. En Dokploy lo normal es DEJARLA cerrada.
+    # ports:
+    #   - "5432:5432"
+
+# Volúmenes nombrados → persisten entre re-deploys de Dokploy.
+volumes:
+  app-storage:
+    driver: local
+  db-data:
+    driver: local
