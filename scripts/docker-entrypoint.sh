@@ -21,7 +21,7 @@ echo " cwd:     $(pwd)"
 echo " user:    $(id -u):$(id -g)"
 echo "════════════════════════════════════════════════════════════════"
 
-REQUIRED_VARS="DATABASE_URL AUTH_SECRET AUTH_URL"
+REQUIRED_VARS="DATABASE_URL AUTH_SECRET AUTH_URL SUPER_ADMIN_EMAIL SUPER_ADMIN_PASSWORD"
 MISSING=""
 for v in $REQUIRED_VARS; do
   eval "val=\${$v:-}"

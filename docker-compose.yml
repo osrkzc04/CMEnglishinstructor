@@ -1,18 +1,38 @@
 # =============================================================================
-# ⚠️  ESTE COMPOSE ES SOLO PARA TESTING LOCAL DEL DOCKERFILE.
+# CM English Instructor — Compose para Dokploy (Compose Application mode)
+# y también para pruebas locales.
 # =============================================================================
-# Levanta `app` + `db` (Postgres) en tu máquina para verificar que la imagen
-# Docker corre bien antes de pushear a Dokploy.
+# Servicios:
+#   - app: imagen construida desde el Dockerfile. Corre migraciones, seed y
+#          `next start` en cada arranque (ver scripts/docker-entrypoint.sh).
+#   - db:  Postgres 16 con volumen persistente `db-data`.
 #
-# En Dokploy NO se usa este archivo: la app se despliega solo con el
-# `Dockerfile` y la base de datos vive como recurso aparte de Dokploy
-# (sección Databases > PostgreSQL). Ver `docs/deployment.md`.
+# Volúmenes persistentes:
+#   - app-storage → /app/storage (CVs, materiales, avatares)
+#   - db-data     → /var/lib/postgresql/data (datos de la base)
 #
-# Uso local:
-#   1) Copiar `.env.example` a `.env` y completar al menos AUTH_SECRET,
-#      CRON_SECRET y SUPER_ADMIN_EMAIL/PASSWORD.
-#   2) `docker compose up --build`
-#   3) Visitar http://localhost:3000
+# Variables de entorno:
+#   Las inyecta Dokploy desde el panel (sección Environment). En local podés
+#   crear un `.env` en la raíz con los mismos nombres. NO definas
+#   `DATABASE_URL` — el compose la arma a partir de POSTGRES_USER /
+#   POSTGRES_PASSWORD / POSTGRES_DB y la pasa al service `app`.
+#
+# Variables mínimas a configurar en Dokploy:
+#   POSTGRES_USER          (ej. cmuser)
+#   POSTGRES_PASSWORD      (fuerte, mínimo 16 chars)
+#   POSTGRES_DB            (ej. cmenglish)
+#   AUTH_SECRET            (openssl rand -base64 32)
+#   AUTH_URL               (https://tu-dominio.com sin trailing slash)
+#   NEXT_PUBLIC_APP_URL    (https://tu-dominio.com)
+#   CRON_SECRET            (openssl rand -hex 32)
+#   SUPER_ADMIN_EMAIL      (email del director inicial)
+#   SUPER_ADMIN_PASSWORD   (contraseña fuerte para el primer login)
+#
+# Variables opcionales:
+#   SUPER_ADMIN_FIRST_NAME / SUPER_ADMIN_LAST_NAME / SUPER_ADMIN_DOCUMENT / SUPER_ADMIN_PHONE
+#   SMTP_HOST / SMTP_USER / SMTP_PASSWORD / SMTP_SECURE / EMAIL_FROM / EMAIL_REPLY_TO
+#   NEXT_PUBLIC_TURNSTILE_SITE_KEY / TURNSTILE_SECRET_KEY
+#   DEMO_MODE (true|false)
 # =============================================================================
 
 services:
