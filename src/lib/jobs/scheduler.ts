@@ -22,7 +22,11 @@ import "server-only"
  * con `Authorization: Bearer $CRON_SECRET`.
  */
 
-const RETRY_INTERVAL_MS = 15 * 60 * 1000 // 15 min
+// Procesa la cola de emails (QUEUED + FAILED). El primer intento de cada
+// email es asíncrono ahora — `deliverEmail` solo encola y dispara un
+// setImmediate. Este intervalo es el fallback periódico por si ese trigger
+// falla o si el proceso se reinició con emails sin enviar.
+const RETRY_INTERVAL_MS = 5 * 60 * 1000 // 5 min
 const MATERIALIZE_INTERVAL_MS = 7 * 24 * 60 * 60 * 1000 // 7 días
 const AUTO_CLOSE_INTERVAL_MS = 5 * 60 * 1000 // 5 min
 

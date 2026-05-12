@@ -1,7 +1,6 @@
 import "server-only"
 import { EmailType, EmailStatus } from "@prisma/client"
 import { prisma } from "@/lib/prisma"
-import { emailProvider } from "@/lib/email"
 import { env } from "@/lib/env"
 import { renderEmail } from "@/lib/email/template"
 import { createUserToken } from "./tokens"
@@ -30,12 +29,25 @@ type DeliverArgs = {
 }
 
 /**
- * Persiste el envío en `EmailNotification` antes de despachar para que el
- * retry job pueda reintentarlo si falla. El HTML completo va a
- * `templateData.html` para no tener que reconstruirlo en el reintento.
+ * Persiste el email en `EmailNotification` con status `QUEUED` y devuelve
+ * inmediatamente. El envío real lo hace el job de fondo (`retryFailedEmails`,
+ * que procesa tanto QUEUED como FAILED) en su próxima corrida.
+ *
+ * Adicionalmente disparamos `setImmediate(...)` con un trigger fire-and-forget
+ * al queue processor — esto reduce la latencia de envío de "hasta N minutos"
+ * al "casi inmediato" mientras el proceso Node siga vivo, sin bloquear el
+ * server action que llamó.
+ *
+ * Por qué no esperamos al SMTP acá:
+ *   - El SMTP puede tardar 5-30s o quedarse colgado. Si el action lo espera,
+ *     un proxy intermedio (Apache/Plesk, default 60s) tira 504 al cliente.
+ *   - El cliente percibe latencia alta y a veces ve el error aunque la fila
+ *     ya se haya creado en DB.
+ *   - Encolando en DB primero y enviando en background, el action responde
+ *     en <100ms y el email sale en segundos vía el job.
  */
 async function deliverEmail(args: DeliverArgs): Promise<{ ok: boolean }> {
-  const notif = await prisma.emailNotification.create({
+  await prisma.emailNotification.create({
     data: {
       to: args.to,
       subject: args.subject,
@@ -51,30 +63,19 @@ async function deliverEmail(args: DeliverArgs): Promise<{ ok: boolean }> {
     },
   })
 
-  try {
-    await emailProvider().send({
-      to: args.to,
-      subject: args.subject,
-      html: args.html,
-      from: env.EMAIL_FROM,
-      replyTo: env.EMAIL_REPLY_TO,
-    })
-    await prisma.emailNotification.update({
-      where: { id: notif.id },
-      data: { status: EmailStatus.SENT, sentAt: new Date(), attempts: 1 },
-    })
-    return { ok: true }
-  } catch (err) {
-    await prisma.emailNotification.update({
-      where: { id: notif.id },
-      data: {
-        status: EmailStatus.FAILED,
-        error: err instanceof Error ? err.message : String(err),
-        attempts: 1,
-      },
-    })
-    return { ok: false }
-  }
+  // Disparo asíncrono — no bloquea la respuesta del action. Si por alguna
+  // razón este intento falla o el proceso muere antes de que termine, el
+  // scheduler periódico levanta la fila en su próxima corrida (cada 5 min).
+  setImmediate(() => {
+    void import("./retryFailedEmails")
+      .then(({ retryFailedEmails }) => retryFailedEmails())
+      .catch((e) => {
+        // eslint-disable-next-line no-console
+        console.error("[email-queue] background flush error:", e)
+      })
+  })
+
+  return { ok: true }
 }
 
 // -----------------------------------------------------------------------------

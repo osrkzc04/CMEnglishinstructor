@@ -4,18 +4,27 @@ import { prisma } from "@/lib/prisma"
 import { emailProvider } from "@/lib/email"
 
 /**
- * Reintenta los `EmailNotification` que quedaron en `FAILED` con menos de
- * `MAX_ATTEMPTS` intentos. Pensado para correrse periódicamente (cron) ante
- * fallos transitorios del proveedor (timeouts, 5xx, rate limits).
+ * Despacha todos los `EmailNotification` pendientes:
  *
- * El HTML se persiste en `templateData.html` al primer intento, así que el
- * reintento no necesita reconstruir nada — solo despachar lo guardado. Los
- * registros sin HTML (formatos viejos previos a esta política) se marcan
- * como `CANCELLED` para que no queden en la cola para siempre.
+ *   - `QUEUED`  → primer intento de envío (los crea `deliverEmail` y nunca
+ *                 los intenta sincronamente para no bloquear server actions).
+ *   - `FAILED`  → reintento si todavía está bajo `MAX_ATTEMPTS`, ante fallos
+ *                 transitorios del proveedor (timeouts, 5xx, rate limits).
+ *
+ * El HTML se persiste en `templateData.html` al crear la fila, así que el
+ * envío real no reconstruye nada — solo despacha lo guardado. Los registros
+ * sin HTML (formato viejo) se marcan como `CANCELLED` para que no queden en
+ * la cola para siempre.
+ *
+ * Concurrencia: un guard de proceso (`isProcessing`) evita que dos
+ * disparadores simultáneos del mismo Node procesen la cola en paralelo y
+ * envíen el mismo email dos veces.
  */
 
 const MAX_ATTEMPTS = 3
 const BATCH_SIZE = 50
+
+let isProcessing = false
 
 type StoredTemplate = {
   kind?: string
@@ -32,9 +41,21 @@ export type RetryResult = {
 }
 
 export async function retryFailedEmails(): Promise<RetryResult> {
+  if (isProcessing) {
+    return { attempted: 0, succeeded: 0, failed: 0, cancelled: 0 }
+  }
+  isProcessing = true
+  try {
+    return await runOnce()
+  } finally {
+    isProcessing = false
+  }
+}
+
+async function runOnce(): Promise<RetryResult> {
   const candidates = await prisma.emailNotification.findMany({
     where: {
-      status: EmailStatus.FAILED,
+      status: { in: [EmailStatus.QUEUED, EmailStatus.FAILED] },
       attempts: { lt: MAX_ATTEMPTS },
     },
     orderBy: { createdAt: "asc" },
@@ -100,13 +121,14 @@ export async function retryFailedEmails(): Promise<RetryResult> {
 }
 
 /**
- * Cuenta cuántos emails están pendientes de retry. Útil para el dashboard
- * admin si más adelante se quiere mostrar el estado de la cola.
+ * Cuenta cuántos emails están pendientes (encolados o con retry posible).
+ * Útil para el dashboard admin si más adelante se quiere mostrar el estado
+ * de la cola.
  */
 export async function countPendingRetries(): Promise<number> {
   return prisma.emailNotification.count({
     where: {
-      status: EmailStatus.FAILED,
+      status: { in: [EmailStatus.QUEUED, EmailStatus.FAILED] },
       attempts: { lt: MAX_ATTEMPTS },
     },
   })
