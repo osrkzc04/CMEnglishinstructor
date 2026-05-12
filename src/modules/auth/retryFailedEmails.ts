@@ -104,13 +104,17 @@ async function runOnce(): Promise<RetryResult> {
       })
       result.succeeded++
     } catch (err) {
+      const message = err instanceof Error ? err.message : String(err)
+      // eslint-disable-next-line no-console
+      console.error(
+        `[email-queue] FAIL id=${notif.id} to=${notif.to} subject="${notif.subject}" attempts=${notif.attempts + 1} err=${message}`,
+      )
       await prisma.emailNotification.update({
         where: { id: notif.id },
         data: {
+          status: EmailStatus.FAILED,
           attempts: { increment: 1 },
-          error: err instanceof Error ? err.message : String(err),
-          // status sigue en FAILED; si alcanza MAX_ATTEMPTS, deja de
-          // levantarse en la próxima corrida porque el `where` filtra.
+          error: message,
         },
       })
       result.failed++
