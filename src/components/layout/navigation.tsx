@@ -14,6 +14,7 @@ import {
   NotebookPen,
   School,
   Settings,
+  ShieldCheck,
   TrendingUp,
   UserCircle,
   Users,
@@ -122,6 +123,11 @@ export const adminNav: NavGroup[] = [
   {
     label: "Sistema",
     items: [
+      {
+        href: "/admin/usuarios" as Route,
+        label: "Usuarios",
+        icon: ShieldCheck,
+      },
       {
         href: "/admin/configuracion" as Route,
         label: "Configuración",
