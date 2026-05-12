@@ -42,14 +42,19 @@ services:
       dockerfile: Dockerfile
     image: cm-english-instructor:latest
     restart: unless-stopped
-    # NO publicar puertos al host en Dokploy: el reverse proxy (Traefik) enruta
-    # tráfico al contenedor vía la red interna usando el dominio configurado
-    # en el panel. Si dejás `ports:` activo y el host tiene algo en :3000,
-    # el deploy falla con "Bind for :::3000 failed: port is already allocated".
+    # Puerto del HOST → contenedor.
     #
-    # Para PRUEBAS LOCALES descomentá las dos líneas siguientes:
-    # ports:
-    #   - "${APP_PORT:-3000}:3000"
+    # En Dokploy el panel mismo corre en :3000, así que el default acá es
+    # :3001 para no colidir. Si querés otro valor seteá APP_PORT en el
+    # panel de Environment (ej. APP_PORT=8080).
+    #
+    # Si tenés un dominio configurado y certificado SSL activado, este
+    # mapping es opcional: Traefik enruta `tu-dominio.com` directo al
+    # contenedor por la red interna, sin pasar por el host port. Aún así
+    # publicar el puerto sirve para acceso directo (debug, health-check
+    # externo, etc.).
+    ports:
+      - "${APP_PORT:-3001}:3000"
     expose:
       - "3000"
     environment:
