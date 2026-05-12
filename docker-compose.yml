@@ -42,8 +42,16 @@ services:
       dockerfile: Dockerfile
     image: cm-english-instructor:latest
     restart: unless-stopped
-    ports:
-      - "${APP_PORT:-3000}:3000"
+    # NO publicar puertos al host en Dokploy: el reverse proxy (Traefik) enruta
+    # tráfico al contenedor vía la red interna usando el dominio configurado
+    # en el panel. Si dejás `ports:` activo y el host tiene algo en :3000,
+    # el deploy falla con "Bind for :::3000 failed: port is already allocated".
+    #
+    # Para PRUEBAS LOCALES descomentá las dos líneas siguientes:
+    # ports:
+    #   - "${APP_PORT:-3000}:3000"
+    expose:
+      - "3000"
     environment:
       NODE_ENV: production
       DATABASE_URL: postgresql://${POSTGRES_USER:-cmuser}:${POSTGRES_PASSWORD:-cmpassword}@db:5432/${POSTGRES_DB:-cmenglish}
