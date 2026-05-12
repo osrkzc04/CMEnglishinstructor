@@ -56,10 +56,7 @@ export default async function UsuariosPage({
         email: user.email ?? "",
         roleLabel: roleLabel(user.role!),
       }}
-      breadcrumbs={[
-        { label: "Admin", href: "/admin/dashboard" as Route },
-        { label: "Usuarios" },
-      ]}
+      breadcrumbs={[{ label: "Admin", href: "/admin/dashboard" as Route }, { label: "Usuarios" }]}
     >
       <header className="mb-6">
         <p className="text-text-3 mb-2 font-mono text-[12px] tracking-[0.08em] uppercase">

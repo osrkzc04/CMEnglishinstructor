@@ -127,7 +127,11 @@ export function UsuariosTable({
                       type="button"
                       aria-label={isActive ? "Desactivar usuario" : "Activar usuario"}
                       title={
-                        isSelf ? "No puedes desactivar tu propia cuenta" : isActive ? "Desactivar" : "Activar"
+                        isSelf
+                          ? "No puedes desactivar tu propia cuenta"
+                          : isActive
+                            ? "Desactivar"
+                            : "Activar"
                       }
                       onClick={() => toggleStatus(row)}
                       disabled={isPending || isSelf}

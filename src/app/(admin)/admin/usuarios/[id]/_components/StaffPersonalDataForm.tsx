@@ -145,9 +145,7 @@ export function StaffPersonalDataForm({ userId, initialValues, isSelf }: Props) 
             <option value={UserStatus.INACTIVE}>Inactivo</option>
           </select>
           {isSelf && (
-            <p className="text-text-3 mt-1 text-[12px]">
-              No puedes desactivar tu propia cuenta.
-            </p>
+            <p className="text-text-3 mt-1 text-[12px]">No puedes desactivar tu propia cuenta.</p>
           )}
         </Field>
       </div>

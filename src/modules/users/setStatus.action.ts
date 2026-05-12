@@ -27,10 +27,7 @@ const InputSchema = z.object({
  * Solo DIRECTOR puede ejecutar — la coordinación no debe poder sacar a un
  * director del sistema.
  */
-export async function setStaffStatus(input: {
-  id: string
-  status: UserStatus
-}): Promise<Result> {
+export async function setStaffStatus(input: { id: string; status: UserStatus }): Promise<Result> {
   await requireRole(["DIRECTOR"])
 
   const parsed = InputSchema.safeParse(input)
