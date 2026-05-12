@@ -123,10 +123,13 @@ services:
       timeout: 5s
       retries: 5
       start_period: 10s
-    # Si querés exponer la DB al host para conectarte con pgAdmin desde fuera,
-    # descomentá la siguiente sección. En Dokploy lo normal es DEJARLA cerrada.
-    # ports:
-    #   - "5432:5432"
+    # Postgres expuesto al host para conexión remota (pgAdmin / DBeaver).
+    # El servidor está en DMZ y solo se accede por VPN, así que no hace
+    # falta whitelist por IP. Default 15432 para no chocar con un posible
+    # Postgres del host en :5432; podés sobreescribirlo con DB_EXTERNAL_PORT
+    # en el panel de Dokploy.
+    ports:
+      - "${DB_EXTERNAL_PORT:-15432}:5432"
 
 # Volúmenes nombrados → persisten entre re-deploys de Dokploy.
 volumes:
