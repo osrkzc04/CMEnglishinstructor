@@ -27,6 +27,7 @@
 
 import { PrismaClient } from "@prisma/client"
 import { seedCatalog } from "./seed/catalog"
+import { seedPlacementTemplate } from "./seed/placement-template"
 import { seedSettings } from "./seed/settings"
 import { readSuperAdminFromEnv, seedSuperAdmin } from "./seed/super-admin"
 
@@ -48,6 +49,11 @@ async function main() {
   // 3. Settings.
   await seedSettings(prisma, directorId)
   console.log("  ✓ Configuración global")
+
+  // 4. Plantilla de placement (estructural, no demo — sin ella /admin/pruebas
+  //    no puede invitar candidatos). Idempotente.
+  await seedPlacementTemplate(prisma)
+  console.log("  ✓ Plantilla de placement test")
 
   console.log("✅ Seed de producción completo")
 }

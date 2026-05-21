@@ -15,12 +15,12 @@ import {
   PrismaClient,
   Role,
   QuestionType,
-  TestPurpose,
   ApplicationStatus,
   UserStatus,
 } from "@prisma/client"
 import { hash } from "bcryptjs"
 import { seedCatalog } from "./seed/catalog"
+import { seedPlacementTemplate } from "./seed/placement-template"
 import { seedSettings } from "./seed/settings"
 import { seedSuperAdmin } from "./seed/super-admin"
 
@@ -172,57 +172,11 @@ async function main() {
   }
 
   // -------------------------------------------------------------------------
-  // 5. Plantilla de prueba de ubicación adaptativa (6 secciones A1→C2) — DEMO
-  //
-  // Solo se crea si no hay placement templates aún (idempotente). Cuando el
-  // banco real esté cargado (≥50 preguntas por nivel), coordinación puede
-  // editar `samplePoolSize` / `questionCount` desde la UI. La cantidad total
-  // de preguntas que ve el candidato es la suma de `questionCount` de todas
-  // las secciones que llegue a desbloquear.
+  // 5. Plantilla de prueba de ubicación adaptativa (6 secciones A1→C2).
+  //    Idempotente. Compartido con seed.production.ts.
   // -------------------------------------------------------------------------
-  const existingPlacement = await prisma.testTemplate.count({
-    where: { purpose: TestPurpose.PLACEMENT },
-  })
-  if (existingPlacement === 0) {
-    const placementSectionLevels: { code: string; order: number }[] = [
-      { code: "A1", order: 1 },
-      { code: "A2", order: 2 },
-      { code: "B1", order: 3 },
-      { code: "B2", order: 4 },
-      { code: "C1", order: 5 },
-      { code: "C2", order: 6 },
-    ]
-
-    const enLevelByCode = new Map(enLevels.map((l) => [l.code, l]))
-    const sectionsCreate = placementSectionLevels.map(({ code, order }) => {
-      const level = enLevelByCode.get(code)
-      if (!level) throw new Error(`CEFR level ${code} no encontrado para placement seed`)
-      return {
-        levelId: level.id,
-        order,
-        samplePoolSize: 50,
-        questionCount: 20,
-        passingPercent: 90,
-      }
-    })
-
-    await prisma.testTemplate.create({
-      data: {
-        name: "Placement test general — Inglés",
-        purpose: TestPurpose.PLACEMENT,
-        languageId: english.id,
-        // `questionCount` de la plantilla es la suma de las secciones — se
-        // mantiene como denormalizado informativo. El motor adaptativo lee
-        // desde `sections`, no desde acá.
-        questionCount: 120,
-        timeLimitMinutes: 60,
-        instructions:
-          "Responde todas las preguntas de cada bloque. El examen avanza automáticamente cuando completas un bloque. No se puede volver atrás a bloques anteriores.",
-        sections: { create: sectionsCreate },
-      },
-    })
-    console.log("  ✓ Plantilla de placement test (6 secciones A1→C2)")
-  }
+  await seedPlacementTemplate(prisma)
+  console.log("  ✓ Plantilla de placement test (6 secciones A1→C2)")
 
   // -------------------------------------------------------------------------
   // 6. Postulaciones demo + estudiantes demo + docentes adicionales
