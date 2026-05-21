@@ -98,6 +98,12 @@ export function QuestionForm({ mode, level, initial, cancelHref }: Props) {
   const [savedOk, setSavedOk] = useState(false)
   const [isPending, startTransition] = useTransition()
 
+  // Sólo poblamos el array del tipo activo. Si dejamos un answer vacío
+  // mientras editamos una MC (o una option vacía mientras editamos un
+  // FILL_IN), el resolver Zod valida el array completo y revienta con
+  // "Respuesta requerida" / "Texto requerido" aunque esa sección ni
+  // siquiera se renderice en pantalla. Al cambiar de tipo, los `useEffect`
+  // de abajo poblan el array del nuevo tipo con sus defaults.
   const defaultValues: FormShape =
     mode === "edit" && initial
       ? {
@@ -108,16 +114,20 @@ export function QuestionForm({ mode, level, initial, cancelHref }: Props) {
           topic: initial.topic ?? undefined,
           points: initial.points,
           options:
-            initial.options.length > 0
-              ? initial.options.map((o) => ({ text: o.text, isCorrect: o.isCorrect }))
-              : emptyMcOptions,
+            initial.type === QuestionType.MULTIPLE_CHOICE
+              ? initial.options.length > 0
+                ? initial.options.map((o) => ({ text: o.text, isCorrect: o.isCorrect }))
+                : emptyMcOptions
+              : [],
           acceptedAnswers:
-            initial.acceptedAnswers.length > 0
-              ? initial.acceptedAnswers.map((a) => ({
-                  answer: a.answer,
-                  caseSensitive: a.caseSensitive,
-                }))
-              : emptyFillAnswers,
+            initial.type === QuestionType.FILL_IN
+              ? initial.acceptedAnswers.length > 0
+                ? initial.acceptedAnswers.map((a) => ({
+                    answer: a.answer,
+                    caseSensitive: a.caseSensitive,
+                  }))
+                : emptyFillAnswers
+              : [],
         }
       : {
           levelId: level.id,
@@ -126,7 +136,7 @@ export function QuestionForm({ mode, level, initial, cancelHref }: Props) {
           topic: undefined,
           points: 1,
           options: emptyMcOptions,
-          acceptedAnswers: emptyFillAnswers,
+          acceptedAnswers: [],
         }
 
   const schema = mode === "edit" ? UpdateQuestionSchema : NewQuestionSchema
@@ -146,6 +156,20 @@ export function QuestionForm({ mode, level, initial, cancelHref }: Props) {
 
   const optionsArray = useFieldArray({ control, name: "options" })
   const answersArray = useFieldArray({ control, name: "acceptedAnswers" })
+
+  // Al cambiar de tipo, vaciamos el array del tipo viejo (para que no
+  // dispare validaciones residuales) y poblamos el del nuevo con sus
+  // defaults si estaba vacío.
+  const switchType = (next: QuestionType) => {
+    setValue("type", next, { shouldDirty: true })
+    if (next === QuestionType.MULTIPLE_CHOICE) {
+      answersArray.replace([])
+      if (optionsArray.fields.length === 0) optionsArray.replace(emptyMcOptions)
+    } else {
+      optionsArray.replace([])
+      if (answersArray.fields.length === 0) answersArray.replace(emptyFillAnswers)
+    }
+  }
 
   const onSubmit = handleSubmit(
     (data) => {
@@ -269,14 +293,14 @@ export function QuestionForm({ mode, level, initial, cancelHref }: Props) {
             label="Opción múltiple"
             hint="El candidato elige una entre varias alternativas."
             checked={watchedType === QuestionType.MULTIPLE_CHOICE}
-            onSelect={() => setValue("type", QuestionType.MULTIPLE_CHOICE, { shouldDirty: true })}
+            onSelect={() => switchType(QuestionType.MULTIPLE_CHOICE)}
           />
           <TypeChoice
             value={QuestionType.FILL_IN}
             label="Completar"
             hint="El candidato escribe la respuesta. Se compara contra una lista de aceptadas."
             checked={watchedType === QuestionType.FILL_IN}
-            onSelect={() => setValue("type", QuestionType.FILL_IN, { shouldDirty: true })}
+            onSelect={() => switchType(QuestionType.FILL_IN)}
           />
         </div>
       </Section>
