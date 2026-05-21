@@ -5,7 +5,15 @@ import { useRouter } from "next/navigation"
 import type { Route } from "next"
 import { Controller, useFieldArray, useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { AlertTriangle, ArrowRight, History, Loader2, Plus, Trash2 } from "lucide-react"
+import {
+  AlertTriangle,
+  ArrowRight,
+  CheckCircle2,
+  History,
+  Loader2,
+  Plus,
+  Trash2,
+} from "lucide-react"
 import { QuestionType } from "@prisma/client"
 
 import { Alert } from "@/components/ui/alert"
@@ -86,6 +94,8 @@ const emptyFillAnswers: { answer: string; caseSensitive: boolean }[] = [
 export function QuestionForm({ mode, level, initial, cancelHref }: Props) {
   const router = useRouter()
   const [serverError, setServerError] = useState<string | null>(null)
+  const [validationErrors, setValidationErrors] = useState<string[] | null>(null)
+  const [savedOk, setSavedOk] = useState(false)
   const [isPending, startTransition] = useTransition()
 
   const defaultValues: FormShape =
@@ -137,20 +147,55 @@ export function QuestionForm({ mode, level, initial, cancelHref }: Props) {
   const optionsArray = useFieldArray({ control, name: "options" })
   const answersArray = useFieldArray({ control, name: "acceptedAnswers" })
 
-  const onSubmit = handleSubmit((data) => {
-    setServerError(null)
-    startTransition(async () => {
-      const response =
-        mode === "edit"
-          ? await updateQuestion(data as UpdateQuestionInput)
-          : await createQuestion(data as NewQuestionInput)
-      if (!response.success) {
-        setServerError(response.error)
-        return
+  const onSubmit = handleSubmit(
+    (data) => {
+      setServerError(null)
+      setValidationErrors(null)
+      setSavedOk(false)
+      startTransition(async () => {
+        try {
+          const response =
+            mode === "edit"
+              ? await updateQuestion(data as UpdateQuestionInput)
+              : await createQuestion(data as NewQuestionInput)
+          if (!response.success) {
+            setServerError(response.error)
+            return
+          }
+          // Confirmación breve antes de navegar — así el usuario sabe que
+          // efectivamente se guardó, no solo que el botón hizo algo.
+          setSavedOk(true)
+          router.refresh()
+          setTimeout(() => router.push(cancelHref), 600)
+        } catch (err) {
+          // Caída de red, sesión vencida, excepción no manejada en la action…
+          // cualquier cosa que no devuelva la estructura esperada cae acá.
+          const msg = err instanceof Error ? err.message : "Error desconocido"
+          setServerError(`No se pudo contactar al servidor. ${msg}`)
+        }
+      })
+    },
+    (formErrors) => {
+      // Bloqueo por validación cliente. RHF llega aquí cuando algún campo no
+      // pasa el resolver Zod — recolectamos los mensajes para que el usuario
+      // vea exactamente qué falló (algunos campos no tienen su propio slot
+      // visible en el form).
+      const collected: string[] = []
+      const walk = (node: unknown, path: string) => {
+        if (!node || typeof node !== "object") return
+        const obj = node as Record<string, unknown>
+        if (typeof obj.message === "string" && obj.message.length > 0) {
+          collected.push(path ? `${path}: ${obj.message}` : obj.message)
+          return
+        }
+        for (const [k, v] of Object.entries(obj)) {
+          walk(v, path ? `${path}.${k}` : k)
+        }
       }
-      router.push(cancelHref)
-    })
-  })
+      walk(formErrors, "")
+      setValidationErrors(collected.length > 0 ? collected : ["No se identificaron campos."])
+    },
+  )
 
   return (
     <form onSubmit={onSubmit} noValidate className="space-y-5">
@@ -162,6 +207,30 @@ export function QuestionForm({ mode, level, initial, cancelHref }: Props) {
           description={serverError}
           onDismiss={() => setServerError(null)}
         />
+      )}
+
+      {savedOk && (
+        <Alert
+          variant="teal"
+          icon={<CheckCircle2 size={16} strokeWidth={1.6} />}
+          title="Cambios guardados"
+          description="Volviendo al listado…"
+        />
+      )}
+
+      {validationErrors && validationErrors.length > 0 && (
+        <Alert
+          variant="danger"
+          icon={<AlertTriangle size={16} strokeWidth={1.6} />}
+          title="Revisa los campos antes de guardar"
+          onDismiss={() => setValidationErrors(null)}
+        >
+          <ul className="text-text-2 mt-1 list-disc space-y-0.5 pl-4 text-[12.5px]">
+            {validationErrors.map((msg, i) => (
+              <li key={i}>{msg}</li>
+            ))}
+          </ul>
+        </Alert>
       )}
 
       {mode === "edit" && initial?.hasBeenUsed && (
