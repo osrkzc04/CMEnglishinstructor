@@ -50,7 +50,7 @@ const PromptSchema = z
   .string()
   .trim()
   .min(5, "El enunciado es muy corto")
-  .max(2000, "Máximo 2000 caracteres")
+  .max(8000, "Máximo 8000 caracteres")
 
 const TopicSchema = z
   .string()
