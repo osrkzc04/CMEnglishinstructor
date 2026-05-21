@@ -1,5 +1,6 @@
 import { Badge } from "@/components/ui/badge"
 import { EmptyState } from "@/components/ui/empty-state"
+import { stripMarkdown } from "@/components/ui/rich-prompt"
 import {
   Table,
   TableBody,
@@ -84,7 +85,7 @@ export function PreguntasTable({
                     "text-foreground line-clamp-2 max-w-[520px] text-[13.5px] leading-[1.5]",
                   )}
                 >
-                  {q.prompt}
+                  {stripMarkdown(q.prompt)}
                 </p>
               </TableCell>
               <TableCell>

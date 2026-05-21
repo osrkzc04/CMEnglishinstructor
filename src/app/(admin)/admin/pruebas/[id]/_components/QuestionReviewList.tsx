@@ -1,4 +1,5 @@
 import { Check, CircleHelp, Flag, Minus, X } from "lucide-react"
+import { RichPrompt } from "@/components/ui/rich-prompt"
 import { cn } from "@/lib/utils"
 import type { ReviewDetail, ReviewQuestion } from "@/modules/tests/sessions/review-queries"
 
@@ -61,7 +62,10 @@ function QuestionRow({ q, numberInBlock }: { q: ReviewQuestion; numberInBlock: n
           <p className="text-text-3 font-mono text-[11px] tracking-[0.08em] uppercase">
             Pregunta {q.order} · #{numberInBlock} del bloque
           </p>
-          <p className="text-foreground mt-1 font-serif text-[16px] leading-[1.45]">{q.prompt}</p>
+          <RichPrompt
+            content={q.prompt}
+            className="text-foreground mt-1 font-serif text-[16px]"
+          />
         </div>
         <div className="flex items-center gap-2">
           {q.markedForReview && (

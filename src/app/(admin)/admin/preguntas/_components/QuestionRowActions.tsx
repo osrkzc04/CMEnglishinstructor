@@ -16,6 +16,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
+import { stripMarkdown } from "@/components/ui/rich-prompt"
 import { setQuestionActive } from "@/modules/questions/setActive.action"
 
 /**
@@ -59,7 +60,9 @@ export function QuestionRowActions({
     })
   }
 
-  const truncatedPrompt = prompt.length > 90 ? `${prompt.slice(0, 90)}…` : prompt
+  const plainPrompt = stripMarkdown(prompt)
+  const truncatedPrompt =
+    plainPrompt.length > 90 ? `${plainPrompt.slice(0, 90)}…` : plainPrompt
 
   return (
     <div className="flex items-center justify-end gap-1.5">

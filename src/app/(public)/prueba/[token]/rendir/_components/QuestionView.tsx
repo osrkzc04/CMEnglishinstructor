@@ -1,6 +1,7 @@
 "use client"
 
 import { Flag } from "lucide-react"
+import { RichPrompt } from "@/components/ui/rich-prompt"
 import { cn } from "@/lib/utils"
 
 /**
@@ -66,9 +67,11 @@ export function QuestionView({
         </button>
       </div>
 
-      <p className="text-foreground font-serif text-[18px] leading-[1.55] tracking-[-0.005em] sm:text-[20px]">
-        {prompt}
-      </p>
+      <RichPrompt
+        content={prompt}
+        className="text-foreground font-serif text-[18px] tracking-[-0.005em] sm:text-[20px]"
+      />
+
 
       {type === "MULTIPLE_CHOICE" && options && (
         <ul className="mt-6 space-y-2">

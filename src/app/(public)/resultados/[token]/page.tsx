@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 import { Check, Clock, Minus, X } from "lucide-react"
 
 import { BrandMark, BrandWordmark } from "@/components/layout/BrandMark"
+import { RichPrompt } from "@/components/ui/rich-prompt"
 import { cn } from "@/lib/utils"
 import {
   getResultsByToken,
@@ -176,7 +177,10 @@ function QuestionRow({ q, displayNumber }: { q: ResultsQuestion; displayNumber: 
           <p className="text-text-3 font-mono text-[11px] tracking-[0.08em] uppercase">
             Pregunta {displayNumber}
           </p>
-          <p className="text-foreground mt-1 font-serif text-[16px] leading-[1.45]">{q.prompt}</p>
+          <RichPrompt
+            content={q.prompt}
+            className="text-foreground mt-1 font-serif text-[16px]"
+          />
         </div>
         <StatusPill status={status} />
       </header>

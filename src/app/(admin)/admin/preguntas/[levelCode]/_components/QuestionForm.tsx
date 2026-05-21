@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react"
 import { useRouter } from "next/navigation"
 import type { Route } from "next"
-import { useFieldArray, useForm } from "react-hook-form"
+import { Controller, useFieldArray, useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { AlertTriangle, ArrowRight, History, Loader2, Plus, Trash2 } from "lucide-react"
 import { QuestionType } from "@prisma/client"
@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/button"
 import { Checkbox, CheckLabel, Radio } from "@/components/ui/checkbox"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
+import { RichPromptEditor } from "@/components/ui/rich-prompt-editor"
 import { cn } from "@/lib/utils"
 import {
   NewQuestionSchema,
@@ -212,13 +212,23 @@ export function QuestionForm({ mode, level, initial, cancelHref }: Props) {
         </div>
       </Section>
 
-      <Section title="Enunciado">
+      <Section
+        title="Enunciado"
+        hint="Usa los botones de la barra (o Ctrl+B / Ctrl+I) para resaltar instrucción y texto de lectura. La vista previa muestra cómo lo verá el candidato."
+      >
         <Field id="prompt" label="Texto que ve el candidato" error={errors.prompt?.message}>
-          <Textarea
-            id="prompt"
-            rows={3}
-            placeholder="Ej. Choose the correct option to complete the sentence: She ___ a book."
-            {...register("prompt")}
+          <Controller
+            control={control}
+            name="prompt"
+            render={({ field }) => (
+              <RichPromptEditor
+                id="prompt"
+                value={field.value ?? ""}
+                onChange={field.onChange}
+                ariaInvalid={!!errors.prompt}
+                placeholder="Ej. **Read. Choose the correct option.**&#10;&#10;*When I was a child, I lived in the US...*&#10;&#10;What was the writer's favorite singer?"
+              />
+            )}
           />
         </Field>
         <Field id="topic" label="Tópico" optional error={errors.topic?.message}>
