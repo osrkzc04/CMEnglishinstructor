@@ -1,5 +1,5 @@
 // =============================================================================
-//  CM English Instructor — Prisma Schema
+//  CM Language Center — Prisma Schema
 // -----------------------------------------------------------------------------
 //  Fuente de verdad del modelo. Ver docs/data-model.md para el racional detrás
 //  de cada decisión. Ver docs/decisions.md para decisiones históricas.
@@ -270,11 +270,13 @@ model CefrLevel {
   name       String
   order      Int
 
-  language          Language                  @relation(fields: [languageId], references: [id])
-  questions         Question[]
-  testTemplates     TestTemplate[]
-  teacherLevels     TeacherLevel[]
-  applicationLevels TeacherApplicationLevel[]
+  language                    Language                   @relation(fields: [languageId], references: [id])
+  questions                   Question[]
+  testTemplates               TestTemplate[]
+  placementSections           TestTemplateSection[]
+  placementAssignedSkillEvals PlacementSkillEvaluation[]
+  teacherLevels               TeacherLevel[]
+  applicationLevels           TeacherApplicationLevel[]
 
   @@unique([languageId, code])
   @@index([languageId, order])
@@ -392,20 +394,20 @@ model ProgramBundleLevel {
 // `endDate=ayer` y abrir otra). Coordinación se autoregula la capacidad —
 // no hay límite duro modelado.
 model ClassGroup {
-  id             String           @id @default(cuid())
+  id                String           @id @default(cuid())
   // Nombre auto-generado al crear ("TZ2 · Mar-Jue 18h"), editable.
-  name           String
-  programLevelId String
-  modality       Modality
-  status         ClassGroupStatus @default(ACTIVE)
-  notes          String?          @db.Text
+  name              String
+  programLevelId    String
+  modality          Modality
+  status            ClassGroupStatus @default(ACTIVE)
+  notes             String?          @db.Text
   // Defaults heredados a cada `ClassSession` al materializar — la sesión
   // puede sobrescribirlos puntualmente. El email de asignación al docente
   // y a los estudiantes los incluye según `modality`.
   defaultMeetingUrl String?
   defaultLocation   String?
-  createdAt      DateTime         @default(now())
-  closedAt       DateTime?
+  createdAt         DateTime         @default(now())
+  closedAt          DateTime?
 
   programLevel       ProgramLevel        @relation(fields: [programLevelId], references: [id])
   slots              ClassGroupSlot[]
@@ -516,7 +518,7 @@ model TeacherAssignment {
 // ----- Sesiones de clase -----
 
 model ClassSession {
-  id             String        @id @default(cuid())
+  id             String              @id @default(cuid())
   classGroupId   String
   teacherId      String
   scheduledStart DateTime
@@ -526,11 +528,11 @@ model ClassSession {
   modality       Modality
   meetingUrl     String?
   location       String?
-  status         SessionStatus @default(SCHEDULED)
+  status         SessionStatus       @default(SCHEDULED)
   cancelledAt    DateTime?
   cancelledBy    SessionCancelledBy?
-  cancelReason   String?       @db.Text
-  createdAt      DateTime      @default(now())
+  cancelReason   String?             @db.Text
+  createdAt      DateTime            @default(now())
 
   classGroup   ClassGroup         @relation(fields: [classGroupId], references: [id], onDelete: Cascade)
   teacher      TeacherProfile     @relation(fields: [teacherId], references: [userId])
@@ -561,19 +563,19 @@ enum SessionCancelledBy {
 }
 
 model ClassParticipant {
-  id           String           @id @default(cuid())
-  sessionId    String
-  enrollmentId String
-  attendance   AttendanceStatus @default(PENDING)
-  hoursCounted Decimal          @default(0) @db.Decimal(4, 2)
-  rateSnapshot Decimal?         @db.Decimal(10, 2)
-  notes        String?          @db.Text
+  id               String           @id @default(cuid())
+  sessionId        String
+  enrollmentId     String
+  attendance       AttendanceStatus @default(PENDING)
+  hoursCounted     Decimal          @default(0) @db.Decimal(4, 2)
+  rateSnapshot     Decimal?         @db.Decimal(10, 2)
+  notes            String?          @db.Text
   // Política de 24h: si el alumno avisa con ≥24h antes de `scheduledStart`,
   // la hora no se le consume (queda para reponer). Si avisa con menos o no
   // avisa y termina ABSENT, sí consume. `closeClassSession` calcula la
   // ventana al cerrar.
   noticedAbsenceAt DateTime?
-  absenceNote      String?     @db.Text
+  absenceNote      String?          @db.Text
 
   session    ClassSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
   enrollment Enrollment   @relation(fields: [enrollmentId], references: [id])
@@ -603,20 +605,6 @@ model ClassLog {
   updatedAt     DateTime @updatedAt
 
   session ClassSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
-}
-
-// ----- Calendario institucional -----
-
-model Holiday {
-  id          String   @id @default(cuid())
-  date        DateTime @db.Date
-  name        String
-  description String?
-  createdBy   String
-  createdAt   DateTime @default(now())
-
-  @@unique([date, name])
-  @@index([date])
 }
 
 // ----- Repositorio de materiales -----
@@ -692,6 +680,8 @@ model Question {
 
   @@index([levelId, isActive])
   @@index([topic])
+  // Sorteo del placement por nivel: WHERE levelId=? AND isActive=true ORDER BY random()
+  @@index([levelId, isActive, topic])
 }
 
 enum QuestionType {
@@ -735,12 +725,37 @@ model TestTemplate {
   isActive         Boolean     @default(true)
   createdAt        DateTime    @default(now())
 
-  level        CefrLevel?          @relation(fields: [levelId], references: [id])
+  level        CefrLevel?            @relation(fields: [levelId], references: [id])
   topicFilters TestTemplateTopic[]
+  sections     TestTemplateSection[]
   invites      InviteToken[]
   sessions     TestSession[]
 
   @@index([purpose, isActive])
+}
+
+// Sección de un placement test adaptativo. Cada sección apunta a un `CefrLevel`
+// y define cuántas preguntas sortear y el umbral para avanzar a la siguiente.
+//
+// Pensado para PLACEMENT test con 6 secciones (A1→C2). La UX expone las
+// preguntas en orden secuencial sin revelar el nivel; el corte por umbral es
+// interno. Para CERTIFICATION se sigue usando `TestTemplateTopic` (preguntas
+// agrupadas por tópico, sin gating).
+model TestTemplateSection {
+  id             String @id @default(cuid())
+  templateId     String
+  levelId        String // FK a CefrLevel (A1, A2, B1, B2, C1, C2)
+  order          Int // 1 = primera sección que ve el candidato
+  samplePoolSize Int    @default(50) // tamaño del banco mínimo por sección
+  questionCount  Int    @default(20) // cuántas se sortean
+  passingPercent Int    @default(90) // umbral para desbloquear la siguiente
+
+  template TestTemplate @relation(fields: [templateId], references: [id], onDelete: Cascade)
+  level    CefrLevel    @relation(fields: [levelId], references: [id])
+
+  @@unique([templateId, order])
+  @@unique([templateId, levelId])
+  @@index([templateId])
 }
 
 enum TestPurpose {
@@ -796,6 +811,17 @@ model TestSession {
   submittedAt    DateTime?
   status         TestSessionStatus @default(IN_PROGRESS)
 
+  // Sección actualmente desbloqueada (1..N). Solo aplica a placement test
+  // adaptativo. Para CERTIFICATION queda en 1 y nunca avanza.
+  currentSectionOrder Int @default(1)
+
+  // Device lock — al primer POST /start el servidor setea una cookie httpOnly
+  // (cuyo hash queda acá) y guarda el fingerprint UA+IP/24. Los requests
+  // posteriores deben matchear ambos. Si alguno cambia (otro dispositivo,
+  // otra red) el endpoint corta con "evaluación ya iniciada en otro dispositivo".
+  deviceCookieHash  String?
+  deviceFingerprint String?
+
   autoScore     Int?
   maxAutoScore  Int?
   manualScore   Int?
@@ -804,14 +830,21 @@ model TestSession {
   reviewedAt    DateTime?
   reviewerNotes String?   @db.Text
 
-  invite     InviteToken           @relation(fields: [inviteId], references: [id])
-  template   TestTemplate          @relation(fields: [templateId], references: [id])
-  questions  TestSessionQuestion[]
-  events     TestSessionEvent[]
-  enrollment Enrollment?
+  // Token + ventana de 12 h post-revisión para que el candidato vea su examen.
+  // Se setea al marcar REVIEWED; el link viaja en el email TEST_RESULT_STUDENT.
+  resultsToken          String?   @unique
+  resultsTokenExpiresAt DateTime?
+
+  invite          InviteToken               @relation(fields: [inviteId], references: [id])
+  template        TestTemplate              @relation(fields: [templateId], references: [id])
+  questions       TestSessionQuestion[]
+  events          TestSessionEvent[]
+  enrollment      Enrollment?
+  skillEvaluation PlacementSkillEvaluation?
 
   @@index([status])
   @@index([candidateEmail])
+  @@index([resultsTokenExpiresAt])
 }
 
 enum TestSessionStatus {
@@ -835,9 +868,21 @@ model TestSessionQuestion {
   optionsSnapshot         Json?
   acceptedAnswersSnapshot Json?
 
+  // En placement test adaptativo: a qué sección pertenece la pregunta.
+  // `sectionOrder` matchea con `TestTemplateSection.order` (1..N) y permite
+  // calcular el avance sin volver a leer la plantilla. `cefrLevelCode` se
+  // denormaliza solo para que la pantalla admin/revisión muestre el nivel
+  // sin un join extra; null en certifications no-adaptativas.
+  cefrLevelCode String?
+  sectionOrder  Int?
+
   selectedOptionId String?
   textAnswer       String?   @db.Text
   answeredAt       DateTime?
+  // Flag que el candidato setea desde la UI para volver luego. Visual nomás —
+  // no afecta scoring ni el gate de la sección, pero el bloqueo de "Continuar"
+  // solo mira que la pregunta tenga respuesta (no que esté desmarcada).
+  markedForReview  Boolean   @default(false)
 
   isCorrect       Boolean?
   pointsAwarded   Int?
@@ -847,6 +892,8 @@ model TestSessionQuestion {
 
   @@unique([sessionId, order])
   @@index([sessionId])
+  // Avance por sección: filtrar las preguntas de la sección actual en /rendir.
+  @@index([sessionId, sectionOrder])
 }
 
 model TestSessionEvent {
@@ -869,6 +916,37 @@ enum TestEventType {
   PASTE_ATTEMPT
   SESSION_RESUMED
   QUESTION_VIEWED
+  SECTION_ADVANCED
+  SECTION_LOCKED
+  DEVICE_MISMATCH
+}
+
+// Evaluación cualitativa (Reading / Writing / Listening / Speaking) que
+// coordinación llena al revisar un placement test. Vive separada del auto-score
+// porque la nota final del candidato no es solo el resultado del examen — la
+// validación humana decide el nivel CEFR asignado. Se crea cuando se marca
+// REVIEWED, no antes.
+//
+// Escala: Decimal(5,2) admite cualquier rubrica razonable (0-10, 0-20, 0-100).
+// El rango concreto lo controla la UI según política interna.
+model PlacementSkillEvaluation {
+  id              String    @id @default(cuid())
+  sessionId       String    @unique
+  reading         Decimal?  @db.Decimal(5, 2)
+  writing         Decimal?  @db.Decimal(5, 2)
+  listening       Decimal?  @db.Decimal(5, 2)
+  speaking        Decimal?  @db.Decimal(5, 2)
+  assignedLevelId String?
+  reviewerNotes   String?   @db.Text
+  reviewedBy      String?
+  reviewedAt      DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  session       TestSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  assignedLevel CefrLevel?  @relation(fields: [assignedLevelId], references: [id])
+
+  @@index([assignedLevelId])
 }
 
 // =============================================================================
