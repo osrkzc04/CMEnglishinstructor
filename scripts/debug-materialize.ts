@@ -64,7 +64,6 @@ async function main() {
     console.log(`Dates in range: ${dates.length}`)
 
     let created = 0
-    let skippedHoliday = 0
     let skippedAlreadyExists = 0
     let skippedNoSlot = 0
 
@@ -115,7 +114,7 @@ async function main() {
     }
 
     console.log("\nResult:")
-    console.log({ created, skippedHoliday, skippedAlreadyExists, skippedNoSlot })
+    console.log({ created, skippedAlreadyExists, skippedNoSlot })
 
     const total = await p.classSession.count({
       where: { classGroupId: group.id },

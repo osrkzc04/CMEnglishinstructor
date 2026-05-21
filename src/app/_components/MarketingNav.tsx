@@ -124,7 +124,7 @@ export function MarketingNav() {
           <Link
             href="/"
             className="text-bone hover:text-bone flex items-center gap-2.5 transition-colors"
-            aria-label="CM English Instructor — inicio"
+            aria-label="CM Language Center — inicio"
           >
             <BrandMark className="text-bone" size={22} />
             <BrandWordmark className="text-bone" size="sm" />

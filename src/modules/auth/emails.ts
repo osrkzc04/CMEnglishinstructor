@@ -47,7 +47,7 @@ type DeliverArgs = {
  *     en <100ms y el email sale en segundos vía el job.
  */
 async function deliverEmail(args: DeliverArgs): Promise<{ ok: boolean }> {
-  await prisma.emailNotification.create({
+  const created = await prisma.emailNotification.create({
     data: {
       to: args.to,
       subject: args.subject,
@@ -61,17 +61,19 @@ async function deliverEmail(args: DeliverArgs): Promise<{ ok: boolean }> {
       status: EmailStatus.QUEUED,
       userId: args.userId,
     },
+    select: { id: true },
   })
 
-  // Disparo asíncrono — no bloquea la respuesta del action. Si por alguna
-  // razón este intento falla o el proceso muere antes de que termine, el
-  // scheduler periódico levanta la fila en su próxima corrida (cada 5 min).
+  // Flush dirigido: solo el email recién creado. El cron periódico sigue
+  // recogiendo rezagados (QUEUED/FAILED ajenos). Antes este setImmediate
+  // hacía `retryFailedEmails()` global y causaba envíos colaterales de otros
+  // emails al disparar cualquier alta (estudiante, prueba, etc.).
   setImmediate(() => {
     void import("./retryFailedEmails")
-      .then(({ retryFailedEmails }) => retryFailedEmails())
+      .then(({ sendNotificationById }) => sendNotificationById(created.id))
       .catch((e) => {
         // eslint-disable-next-line no-console
-        console.error("[email-queue] background flush error:", e)
+        console.error("[email-queue] background send error:", e)
       })
   })
 
@@ -105,7 +107,7 @@ export async function sendActivationEmail(args: {
     eyebrow: "Activación de cuenta",
     heading: `Hola, ${args.firstName}`,
     body: [
-      "Tu cuenta en CM English Instructor está lista. Para entrar por primera vez, define tu contraseña con el siguiente enlace.",
+      "Tu cuenta en CM Language Center está lista. Para entrar por primera vez, define tu contraseña con el siguiente enlace.",
     ],
     cta: { label: "Activar cuenta", url: buildActivationLink(args.token) },
     fineprint:
@@ -113,7 +115,7 @@ export async function sendActivationEmail(args: {
   })
   return deliverEmail({
     to: args.email,
-    subject: "Activa tu cuenta en CM English Instructor",
+    subject: "Activa tu cuenta en CM Language Center",
     html,
     userId: args.userId,
     kind: "activation",
@@ -164,7 +166,7 @@ export async function sendDeactivationEmail(args: {
     eyebrow: "Acceso desactivado",
     heading: `Hola, ${args.firstName}`,
     body: [
-      "Te avisamos que tu acceso a la plataforma de CM English Instructor fue desactivado. Mientras tu cuenta esté en este estado, no podrás iniciar sesión.",
+      "Te avisamos que tu acceso a la plataforma de CM Language Center fue desactivado. Mientras tu cuenta esté en este estado, no podrás iniciar sesión.",
       "Si crees que es un error o quieres retomar tus clases, escríbenos respondiendo a este correo y lo revisamos.",
     ],
     fineprint:

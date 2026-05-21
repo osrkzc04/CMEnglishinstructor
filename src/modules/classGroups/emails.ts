@@ -3,7 +3,7 @@ import { EmailStatus, EmailType, Modality } from "@prisma/client"
 import { prisma } from "@/lib/prisma"
 import { emailProvider } from "@/lib/email"
 import { env } from "@/lib/env"
-import { renderEmail } from "@/lib/email/template"
+import { EMAIL_COLORS, EMAIL_FONTS, renderEmail, type EmailBlock } from "@/lib/email/template"
 
 /**
  * Emails de asignación de aula. Se envían cuando coordinación cierra el
@@ -256,7 +256,7 @@ function buildHtml(args: SendArgs): string {
   const showLocation =
     snapshot.modality === Modality.PRESENCIAL || snapshot.modality === Modality.HIBRIDO
 
-  const scheduleBlock = formatScheduleHtml(snapshot.slots)
+  const scheduleBlock = renderScheduleBlock(snapshot.slots)
   const locationLine =
     showLocation && snapshot.defaultLocation
       ? `Ubicación: <strong>${escape(snapshot.defaultLocation)}</strong>`
@@ -267,48 +267,66 @@ function buildHtml(args: SendArgs): string {
     audience === "teacher" ? `${baseUrl}/docente/dashboard` : `${baseUrl}/estudiante/dashboard`
   const ctaLabel = audience === "teacher" ? "Abrir mi panel del docente" : "Ir a mi panel"
 
-  const body: string[] = []
+  const blocks: EmailBlock[] = []
+  const para = (html: string): EmailBlock => ({ kind: "p", html })
+  const raw = (html: string): EmailBlock => ({ kind: "raw", html })
 
   if (audience === "teacher") {
-    body.push(`Hola, ${escape(recipientName)}.`)
-    body.push(
-      `Coordinación te asignó al aula <strong>${escape(snapshot.classGroupName)}</strong> (${escape(snapshot.programLabel)}). Modalidad: <strong>${MODALITY_LABEL[snapshot.modality]}</strong>.`,
+    blocks.push(para(`Hola, ${escape(recipientName)}.`))
+    blocks.push(
+      para(
+        `Coordinación te asignó al aula <strong>${escape(snapshot.classGroupName)}</strong> (${escape(snapshot.programLabel)}). Modalidad: <strong>${MODALITY_LABEL[snapshot.modality]}</strong>.`,
+      ),
     )
-    body.push(`Horario semanal:<br>${scheduleBlock}`)
+    blocks.push(raw(scheduleBlock))
     if (classmateNames.length > 0) {
-      body.push(
-        classmateNames.length === 1
-          ? `Tu estudiante será <strong>${escape(classmateNames[0]!)}</strong>.`
-          : `Tus estudiantes serán: ${classmateNames.map((n) => `<strong>${escape(n)}</strong>`).join(", ")}.`,
+      blocks.push(
+        para(
+          classmateNames.length === 1
+            ? `Tu estudiante será <strong>${escape(classmateNames[0]!)}</strong>.`
+            : `Tus estudiantes serán: ${classmateNames.map((n) => `<strong>${escape(n)}</strong>`).join(", ")}.`,
+        ),
       )
     }
-    if (locationLine) body.push(locationLine)
+    if (locationLine) blocks.push(para(locationLine))
     if (showMeeting) {
-      body.push(
-        "Para las clases virtuales, carga el enlace de la videollamada desde tu panel — se aplica a todas las sesiones del aula y los alumnos lo verán al conectarse.",
+      blocks.push(
+        para(
+          "Para las clases virtuales, carga el enlace de la videollamada desde tu panel — se aplica a todas las sesiones del aula y los alumnos lo verán al conectarse.",
+        ),
       )
     }
-    body.push(
-      "Entra a tu panel para revisar el detalle del aula, los estudiantes asignados y los materiales del nivel.",
+    blocks.push(
+      para(
+        "Entra a tu panel para revisar el detalle del aula, los estudiantes asignados y los materiales del nivel.",
+      ),
     )
-    body.push("Cualquier ajuste, escríbenos.")
+    blocks.push(para("Cualquier ajuste, escríbenos."))
   } else {
-    body.push(`Hola, ${escape(recipientName)}.`)
-    body.push(
-      `Quedó armada tu aula <strong>${escape(snapshot.classGroupName)}</strong> (${escape(snapshot.programLabel)}). Vas a tomar clases con <strong>${escape(teacherName)}</strong>. Modalidad: <strong>${MODALITY_LABEL[snapshot.modality]}</strong>.`,
+    blocks.push(para(`Hola, ${escape(recipientName)}.`))
+    blocks.push(
+      para(
+        `Quedó armada tu aula <strong>${escape(snapshot.classGroupName)}</strong> (${escape(snapshot.programLabel)}). Vas a tomar clases con <strong>${escape(teacherName)}</strong>. Modalidad: <strong>${MODALITY_LABEL[snapshot.modality]}</strong>.`,
+      ),
     )
-    body.push(`Horario semanal:<br>${scheduleBlock}`)
-    if (locationLine) body.push(locationLine)
+    blocks.push(raw(scheduleBlock))
+    if (locationLine) blocks.push(para(locationLine))
     if (showMeeting) {
-      body.push(
-        `${escape(teacherName)} te compartirá el enlace para conectarte cuando esté armado. Lo vas a poder ver en tu panel del estudiante antes de cada clase.`,
+      blocks.push(
+        para(
+          `${escape(teacherName)} te ha compartido el enlace para conectarte a tus clases virtuales, el cual lo puedes encontrar dentro de tu plataforma, CM Language Center.`,
+        ),
       )
     }
-    body.push(
-      "Entra a tu panel para revisar el horario completo, los materiales del nivel y tu progreso.",
+    blocks.push(
+      para(
+        "Entra a tu panel para revisar el horario completo, los materiales del nivel y tu progreso.",
+      ),
     )
-    body.push(
-      "Si necesitas reprogramar o tienes alguna duda, responde este correo y coordinación te ayuda.",
+    blocks.push(
+      para(
+        "Si necesitas reprogramar o tienes alguna duda, responde este correo y coordinación te ayuda.",
+      ),
     )
   }
 
@@ -319,7 +337,7 @@ function buildHtml(args: SendArgs): string {
         : `Tu nueva aula con ${teacherName}`,
     eyebrow: audience === "teacher" ? "ASIGNACIÓN" : "TU AULA",
     heading: audience === "teacher" ? "Aula asignada" : "Empezamos pronto",
-    body,
+    blocks,
     cta: { label: ctaLabel, url: ctaUrl },
     fineprint:
       audience === "teacher"
@@ -328,16 +346,71 @@ function buildHtml(args: SendArgs): string {
   })
 }
 
-function formatScheduleHtml(
+/**
+ * Tabla "card" con el horario semanal. Cada fila tiene:
+ *   - Día en serif italic con un punto teal de acento (mismo ADN visual que
+ *     el wordmark del shell).
+ *   - Rango horario en mono, tabular-nums, con un guion fino como separador.
+ *   - Duración como meta-dato discreto.
+ *
+ * El header de la tarjeta usa una eyebrow uppercase en sans para diferenciar
+ * el bloque del cuerpo editorial. Bordes 1px y bg blanco para encajar con el
+ * card padre sin pelear con él.
+ *
+ * Renderizado en `<table>` por las mismas razones que el resto del shell:
+ * Outlook usa Word engine y `<div>` con border/padding se rompe.
+ */
+function renderScheduleBlock(
   slots: { dayOfWeek: number; startTime: string; durationMinutes: number }[],
 ): string {
-  if (slots.length === 0) return "<em>Por confirmar.</em>"
-  return slots
-    .map((s) => {
+  if (slots.length === 0) {
+    return `<p style="margin:0 0 20px 0;font-family:${EMAIL_FONTS.sans};font-size:14px;line-height:1.6;color:${EMAIL_COLORS.textMuted};font-style:italic;">
+      Horario por confirmar.
+    </p>`
+  }
+
+  const rows = slots
+    .map((s, i) => {
       const end = addMinutes(s.startTime, s.durationMinutes)
-      return `<span style="font-family:'SFMono-Regular',Menlo,Consolas,monospace;">${DAYS_ES_LONG[s.dayOfWeek]} · ${s.startTime} – ${end}</span>`
+      const borderTop = i === 0 ? "" : `border-top:1px solid ${EMAIL_COLORS.border};`
+      const durationLabel = formatDurationLabel(s.durationMinutes)
+      return `<tr>
+        <td style="padding:14px 20px;${borderTop}vertical-align:middle;">
+          <table role="presentation" cellpadding="0" cellspacing="0" border="0">
+            <tr>
+              <td style="padding-right:12px;font-size:0;line-height:0;vertical-align:middle;">
+                <span style="display:inline-block;width:6px;height:6px;background:${EMAIL_COLORS.teal};border-radius:50%;"></span>
+              </td>
+              <td style="vertical-align:middle;font-family:${EMAIL_FONTS.serif};font-style:italic;font-size:16px;line-height:1.2;color:${EMAIL_COLORS.ink};letter-spacing:-0.005em;">
+                ${DAYS_ES_LONG[s.dayOfWeek]}
+              </td>
+            </tr>
+          </table>
+        </td>
+        <td align="right" style="padding:14px 20px;${borderTop}vertical-align:middle;font-family:${EMAIL_FONTS.mono};font-size:13.5px;line-height:1.2;color:${EMAIL_COLORS.body};white-space:nowrap;">
+          <span style="color:${EMAIL_COLORS.ink};font-weight:500;">${s.startTime}</span><span style="color:${EMAIL_COLORS.textFaded};padding:0 8px;">–</span><span style="color:${EMAIL_COLORS.ink};font-weight:500;">${end}</span>
+          <span style="display:block;margin-top:3px;font-family:${EMAIL_FONTS.sans};font-size:11px;letter-spacing:0.04em;color:${EMAIL_COLORS.textFaded};">${durationLabel}</span>
+        </td>
+      </tr>`
     })
-    .join("<br>")
+    .join("")
+
+  return `<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="margin:4px 0 24px 0;border-collapse:separate;border-spacing:0;width:100%;background:${EMAIL_COLORS.white};border:1px solid ${EMAIL_COLORS.border};border-radius:12px;">
+    <tr>
+      <td colspan="2" style="padding:14px 20px 12px 20px;border-bottom:1px solid ${EMAIL_COLORS.border};background:${EMAIL_COLORS.bone};border-radius:12px 12px 0 0;font-family:${EMAIL_FONTS.sans};font-size:10.5px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:${EMAIL_COLORS.textMuted};">
+        Horario semanal · ${slots.length} ${slots.length === 1 ? "clase" : "clases"} por semana
+      </td>
+    </tr>
+    ${rows}
+  </table>`
+}
+
+function formatDurationLabel(minutes: number): string {
+  if (minutes < 60) return `${minutes} min`
+  if (minutes % 60 === 0) return `${minutes / 60} h`
+  const h = Math.floor(minutes / 60)
+  const m = minutes % 60
+  return `${h} h ${m} min`
 }
 
 function addMinutes(hhmm: string, minutes: number): string {

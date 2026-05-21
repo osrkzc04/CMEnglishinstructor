@@ -43,7 +43,7 @@ export function AppFooter() {
           Documentación
         </Link>
         <FooterDot />
-        <span>© {new Date().getFullYear()} CM English Instructor</span>
+        <span>© {new Date().getFullYear()} CM Language Center</span>
       </div>
     </footer>
   )

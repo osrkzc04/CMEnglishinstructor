@@ -18,7 +18,7 @@ export type SuperAdminSeed = {
  * adecuada.
  *
  * Devuelve el `id` del director — útil para enlazarlo como `updatedBy` /
- * `createdBy` en otros seeds (settings, holidays).
+ * `createdBy` en otros seeds (settings).
  */
 export async function seedSuperAdmin(prisma: PrismaClient, data: SuperAdminSeed): Promise<string> {
   const passwordHash = await hash(data.password, 10)

@@ -638,6 +638,7 @@ export type EligibleStudentCandidate = {
   enrollmentId: string
   studentId: string
   fullName: string
+  lastName: string
   email: string
   preferredSchedule: { dayOfWeek: number; startTime: string; endTime: string }[]
 }
@@ -682,6 +683,7 @@ export async function listEligibleStudentsForLevel(
     enrollmentId: r.id,
     studentId: r.studentId,
     fullName: `${r.student.user.firstName} ${r.student.user.lastName}`,
+    lastName: r.student.user.lastName,
     email: r.student.user.email,
     preferredSchedule: r.student.preferredSchedule,
   }))

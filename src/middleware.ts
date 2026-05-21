@@ -22,6 +22,7 @@ export default auth((req) => {
     "/recuperar",
     "/postular-docente",
     "/prueba",
+    "/resultados",
     "/api/auth",
     "/api/cron",
     "/api/test-sessions",

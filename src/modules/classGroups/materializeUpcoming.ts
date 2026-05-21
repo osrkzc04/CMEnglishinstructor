@@ -20,7 +20,7 @@ import { formatGuayaquilCalendarDate, materializeClassSessions } from "./materia
  *
  * Idempotencia: `materializeClassSessions` no recrea sesiones existentes
  * (clave `(classGroupId, scheduledStart)` única en práctica). Saltea
- * feriados y bloques de `TeacherUnavailability`.
+ * bloques de `TeacherUnavailability`.
  *
  * Errores: si una sola aula falla (ej. perdió al docente entre el filtro
  * y la materialización), se registra en `errors[]` y el job sigue con el
@@ -73,8 +73,7 @@ export async function materializeUpcomingForAllActive(): Promise<MaterializeUpco
         summary.errors.push({ classGroupId: g.id, reason: outcome.kind })
       } else {
         summary.totalCreated += outcome.created
-        summary.totalSkipped +=
-          outcome.skippedAlreadyExists + outcome.skippedHoliday + outcome.skippedUnavailable
+        summary.totalSkipped += outcome.skippedAlreadyExists + outcome.skippedUnavailable
       }
     } catch (err) {
       summary.errors.push({

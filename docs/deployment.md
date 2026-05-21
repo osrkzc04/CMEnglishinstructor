@@ -1,6 +1,6 @@
 # Deployment — Dokploy
 
-Guía de despliegue para CM English Instructor en Dokploy. Cubre:
+Guía de despliegue para CM Language Center en Dokploy. Cubre:
 
 - Variables de entorno requeridas
 - Cómo Dokploy levanta la aplicación
@@ -52,7 +52,7 @@ SMTP_PORT=587
 SMTP_USER=notificaciones@cmenglishinstructor.com
 SMTP_PASSWORD=(secret)
 SMTP_SECURE=false
-EMAIL_FROM="CM English Instructor <notificaciones@cmenglishinstructor.com>"
+EMAIL_FROM="CM Language Center <notificaciones@cmenglishinstructor.com>"
 EMAIL_REPLY_TO=coordinacion@cmenglishinstructor.com
 ```
 

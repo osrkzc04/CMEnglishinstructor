@@ -103,6 +103,11 @@ export const adminNav: NavGroup[] = [
         label: "Pruebas",
         icon: ClipboardCheck,
       },
+      {
+        href: "/admin/preguntas" as Route,
+        label: "Banco de preguntas",
+        icon: NotebookPen,
+      },
     ],
   },
   {

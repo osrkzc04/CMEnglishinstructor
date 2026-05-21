@@ -15,7 +15,7 @@ import { MarketingTeacherCta } from "./_components/MarketingTeacherCta"
 import { MarketingFooter } from "./_components/MarketingFooter"
 
 export const metadata: Metadata = {
-  title: "CM English Instructor — Inglés y español con propósito",
+  title: "CM Language Center — Inglés y español con propósito",
   description:
     "Academia dirigida por Carolina Monsalve, Certified English & Spanish Instructor. Programas a medida para ejecutivos, empresas, adultos, adolescentes y niños. Modalidad virtual, presencial e híbrida.",
 }

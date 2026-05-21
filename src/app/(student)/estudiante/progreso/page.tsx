@@ -210,7 +210,7 @@ function ProgressHeader({ subtitle }: { subtitle?: string }) {
         </h1>
         <p className="text-text-2 mt-2.5 max-w-[620px] text-[14.5px]">
           {subtitle ??
-            "Tu recorrido completo en CM English Instructor: horas dictadas, asistencia y registro de cada clase."}
+            "Tu recorrido completo en CM Language Center: horas dictadas, asistencia y registro de cada clase."}
         </p>
       </div>
     </header>

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # =============================================================================
-#  CM English Instructor — Bootstrap script
+#  CM Language Center — Bootstrap script
 # -----------------------------------------------------------------------------
 #  Instala deps y las skills oficiales recomendadas para Claude Code.
 #  Las skills custom del dominio ya viven en .claude/skills/ y se descubren

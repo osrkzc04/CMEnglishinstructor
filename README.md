@@ -1,6 +1,6 @@
-# CM English Instructor
+# CM Language Center
 
-Plataforma de gestión académica para **Carolina Monsalve — CM English Instructor**. Inscripciones, pruebas de ubicación/certificación, gestión de docentes, dictado de clases virtuales/presenciales, bitácoras, facturación.
+Plataforma de gestión académica para **Carolina Monsalve — CM Language Center**. Inscripciones, pruebas de ubicación/certificación, gestión de docentes, dictado de clases virtuales/presenciales, bitácoras, facturación.
 
 > _Helping Everyone Communicate_
 

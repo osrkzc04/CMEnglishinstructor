@@ -26,13 +26,16 @@ function applyThemeClass(resolved: "light" | "dark") {
 }
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setThemeState] = useState<Theme>("system")
+  // Default global: claro. Solo bajamos a oscuro si el usuario lo eligió
+  // explícitamente (stored === 'dark' o 'system' con OS oscuro). Mantiene
+  // el script anti-FOUC (`ThemeScript`) y el provider consistentes.
+  const [theme, setThemeState] = useState<Theme>("light")
   const [resolved, setResolved] = useState<"light" | "dark">("light")
 
   useEffect(() => {
     const stored = window.localStorage.getItem(STORAGE_KEY) as Theme | null
     const initial: Theme =
-      stored === "light" || stored === "dark" || stored === "system" ? stored : "system"
+      stored === "light" || stored === "dark" || stored === "system" ? stored : "light"
     setThemeState(initial)
   }, [])
 

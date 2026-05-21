@@ -32,12 +32,6 @@ import { EmptyState } from "@/components/ui/empty-state"
 
 const DAYS_SHORT_ES = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"]
 
-const MODALITY_LABEL: Record<string, string> = {
-  VIRTUAL: "Virtual",
-  PRESENCIAL: "Presencial",
-  HIBRIDO: "Híbrida",
-}
-
 export default async function StudentDashboardPage() {
   const user = await getSessionUser()
   if (!user) return null
@@ -72,11 +66,11 @@ export default async function StudentDashboardPage() {
           </p>
           <h1 className="font-serif text-[40px] leading-[1.15] font-normal tracking-[-0.02em]">
             Hola{firstName ? `, ${firstName}` : ""}
-            <span className="text-text-2 font-light italic"> — qué gusto verte.</span>
+            <span className="text-text-2 font-light italic">
+              {" "}
+              — Bienvenido a CM Language Center.
+            </span>
           </h1>
-          <p className="text-text-2 mt-2.5 max-w-[560px] text-[15px]">
-            {buildSubtitle(dashboard, primary)}
-          </p>
         </div>
         {meta && (
           <div className="text-text-3 text-right font-mono text-[12.5px] leading-[1.7] tracking-[0.04em]">
@@ -391,32 +385,6 @@ function buildHeaderMeta(
   return null
 }
 
-function buildSubtitle(
-  dashboard: StudentDashboard,
-  primary: StudentDashboard["enrollments"][number] | null,
-): string {
-  if (!primary) {
-    return "Cuando coordinación publique tu matrícula vas a ver acá tu programa, agenda y materiales."
-  }
-  const parts: string[] = []
-  if (dashboard.todaySessionCount > 0) {
-    parts.push(
-      `${dashboard.todaySessionCount} ${dashboard.todaySessionCount === 1 ? "clase hoy" : "clases hoy"}`,
-    )
-  } else if (dashboard.nextClass) {
-    parts.push(`próxima clase ${formatNextClassShort(dashboard.nextClass.scheduledStart)}`)
-  }
-  if (dashboard.attendance.registered > 0) {
-    const attended = dashboard.attendance.present + dashboard.attendance.late
-    const pct = Math.round((attended / dashboard.attendance.registered) * 100)
-    parts.push(`${pct}% de asistencia`)
-  }
-  parts.push(
-    `${primary.consumedHours.toFixed(1)} de ${primary.totalHours} h del ${MODALITY_LABEL[primary.modality]?.toLowerCase() ?? primary.modality} ${primary.levelName}`,
-  )
-  return capitalize(parts.join(" · ")) + "."
-}
-
 function buildAttendanceDelta(
   counts: StudentDashboard["attendance"],
   pct: number | null,
@@ -444,13 +412,9 @@ function buildNextClassDelta(nextClass: NonNullable<StudentDashboard["nextClass"
     nextClass.scheduledStart.getTime() <= Date.now() &&
     Date.now() < nextClass.scheduledEnd.getTime()
   if (isLive) return { text: "En curso ahora", variant: "up" }
-  const ms = nextClass.scheduledStart.getTime() - Date.now()
-  const minutes = Math.round(ms / 60_000)
-  if (minutes < 60) return { text: `Empieza en ${minutes} min`, variant: "warn" }
-  const hours = Math.round(minutes / 60)
-  if (hours < 24) return { text: `Empieza en ${hours} h` }
-  const days = Math.round(hours / 24)
-  return { text: `Empieza en ${days} ${days === 1 ? "día" : "días"}` }
+  // Mostramos fecha + hora absolutas en lugar del relativo "Empieza en X h".
+  // Ej. "Mar 21 nov · 08:00" — más útil para planificar el resto del día.
+  return { text: formatNextClassFull(nextClass.scheduledStart) }
 }
 
 // -----------------------------------------------------------------------------
@@ -497,24 +461,12 @@ const nextClassFullFormatter = new Intl.DateTimeFormat("es-EC", {
   timeZone: "America/Guayaquil",
 })
 
-const nextClassShortFormatter = new Intl.DateTimeFormat("es-EC", {
-  weekday: "short",
-  hour: "2-digit",
-  minute: "2-digit",
-  hour12: false,
-  timeZone: "America/Guayaquil",
-})
-
 function formatNextClassValue(start: Date): string {
   return nextClassValueFormatter.format(start)
 }
 
 function formatNextClassFull(start: Date): string {
   return nextClassFullFormatter.format(start).replace(/\./g, "")
-}
-
-function formatNextClassShort(start: Date): string {
-  return nextClassShortFormatter.format(start).replace(/\./g, "")
 }
 
 const relativeShortFormatter = new Intl.DateTimeFormat("es-EC", {

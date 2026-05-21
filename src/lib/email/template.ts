@@ -24,7 +24,7 @@
  * o ilustraciones.
  */
 
-const COLORS = {
+export const EMAIL_COLORS = {
   ink: "#233641",
   inkInverse: "#FAF8F5",
   body: "#3E4F58",
@@ -36,9 +36,24 @@ const COLORS = {
   white: "#FFFFFF",
 } as const
 
-const FONT_SERIF = "Georgia, 'Times New Roman', serif"
-const FONT_SANS = "-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif"
-const FONT_MONO = "'SFMono-Regular', Menlo, Consolas, monospace"
+export const EMAIL_FONTS = {
+  serif: "Georgia, 'Times New Roman', serif",
+  sans: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif",
+  mono: "'SFMono-Regular', Menlo, Consolas, monospace",
+} as const
+
+// Aliases internos para no tocar las plantillas existentes.
+const COLORS = EMAIL_COLORS
+const FONT_SERIF = EMAIL_FONTS.serif
+const FONT_SANS = EMAIL_FONTS.sans
+const FONT_MONO = EMAIL_FONTS.mono
+
+/**
+ * Bloque mixto del body. Permite intercalar HTML arbitrario (tablas, cards,
+ * separadores) entre párrafos sin romper el shell. Usar `kind: "raw"` solo
+ * para HTML que viene de fuentes internas — no llega a escapado.
+ */
+export type EmailBlock = { kind: "p"; html: string } | { kind: "raw"; html: string }
 
 export type EmailRenderOpts = {
   /** Texto oculto que aparece en la preview del inbox. Recomendado. */
@@ -47,8 +62,19 @@ export type EmailRenderOpts = {
   eyebrow?: string
   /** Heading principal en serif. Usar saludos cortos: "Hola, Oscar". */
   heading: string
-  /** Párrafos del body, en orden. Cada elemento es un `<p>`. */
-  body: string[]
+  /**
+   * Párrafos del body, en orden. Cada elemento es un `<p>`. Conserva
+   * compatibilidad con los emails más simples; si necesitas un bloque
+   * arbitrario (ej. tabla de horario) usá `blocks` en su lugar.
+   */
+  body?: string[]
+  /**
+   * Bloques heterogéneos. Si se pasa, sustituye a `body`. Cada bloque puede
+   * ser un párrafo (`kind: "p"`) — equivalente a una entrada de `body[]` —
+   * o HTML crudo (`kind: "raw"`) que se inserta tal cual entre los
+   * elementos del card. Útil para tablas que no caben dentro de un `<p>`.
+   */
+  blocks?: EmailBlock[]
   /** Botón principal. Si se omite, no se renderiza ni el fallback de URL. */
   cta?: { label: string; url: string }
   /**
@@ -59,7 +85,7 @@ export type EmailRenderOpts = {
 }
 
 export function renderEmail(opts: EmailRenderOpts): string {
-  const { preheader, eyebrow, heading, body, cta, fineprint } = opts
+  const { preheader, eyebrow, heading, body, blocks, cta, fineprint } = opts
 
   return `<!DOCTYPE html>
 <html lang="es" xmlns="http://www.w3.org/1999/xhtml">
@@ -77,7 +103,7 @@ ${preheader ? renderPreheader(preheader) : ""}
     <td align="center" style="padding:48px 16px;">
       <table role="presentation" width="560" cellpadding="0" cellspacing="0" border="0" style="max-width:560px;width:100%;">
         ${renderHeader()}
-        ${renderCard({ eyebrow, heading, body, cta, fineprint })}
+        ${renderCard({ eyebrow, heading, body, blocks, cta, fineprint })}
         ${renderFooter()}
       </table>
     </td>
@@ -119,22 +145,37 @@ function renderHeader(): string {
 function renderCard(opts: {
   eyebrow?: string
   heading: string
-  body: string[]
+  body?: string[]
+  blocks?: EmailBlock[]
   cta?: { label: string; url: string }
   fineprint?: string
 }): string {
-  const { eyebrow, heading, body, cta, fineprint } = opts
+  const { eyebrow, heading, body, blocks, cta, fineprint } = opts
+
+  // `blocks` gana si está presente. Si no, caemos a `body` (compat con
+  // emails simples). Si ninguno se pasa, el card queda sin cuerpo.
+  const bodyHtml = blocks
+    ? blocks.map(renderBlock).join("\n    ")
+    : body
+      ? body.map(renderParagraph).join("\n    ")
+      : ""
+
   return `<tr>
   <td style="background:${COLORS.white};border:1px solid ${COLORS.border};border-radius:14px;padding:44px 40px;">
     ${eyebrow ? renderEyebrow(eyebrow) : ""}
     <h1 style="margin:0 0 20px 0;font-family:${FONT_SERIF};font-size:28px;font-weight:400;line-height:1.2;letter-spacing:-0.015em;color:${COLORS.ink};">
       ${escapeHtml(heading)}
     </h1>
-    ${body.map(renderParagraph).join("\n    ")}
+    ${bodyHtml}
     ${cta ? renderCta(cta) : ""}
     ${fineprint ? renderFineprint(fineprint) : ""}
   </td>
 </tr>`
+}
+
+function renderBlock(block: EmailBlock): string {
+  if (block.kind === "p") return renderParagraph(block.html)
+  return block.html
 }
 
 function renderEyebrow(text: string): string {
@@ -180,7 +221,7 @@ function renderFooter(): string {
   return `<tr>
   <td style="padding:32px 12px 0 12px;text-align:center;">
     <p style="margin:0 0 6px 0;font-family:${FONT_SERIF};font-style:italic;font-size:13.5px;color:${COLORS.body};letter-spacing:-0.005em;">
-      CM English Instructor
+      CM Language Center
     </p>
     <p style="margin:0 0 14px 0;font-family:${FONT_SANS};font-size:12px;line-height:1.55;color:${COLORS.textFaded};">
       Instrucción de inglés y español para empresas, ejecutivos, adolescentes y niños

@@ -125,6 +125,76 @@ async function runOnce(): Promise<RetryResult> {
 }
 
 /**
+ * Despacha UN solo `EmailNotification` por id — variante de `retryFailedEmails`
+ * pensada para el flush "fire-and-forget" inmediato post-creación.
+ *
+ * Por qué existe: `deliverEmail` solía disparar `retryFailedEmails()` completo
+ * en cada send, lo que tenía el efecto colateral de re-enviar correos viejos
+ * con status FAILED para destinatarios distintos. Ese flush global queda como
+ * red de seguridad del cron periódico — el `setImmediate` post-creación ya
+ * solo se ocupa del email recién encolado.
+ *
+ * Si la fila ya no está QUEUED (caso raro: el cron la atrapó en milisegundos),
+ * salta sin tocar. Errores actualizan a FAILED para que el cron reintente.
+ */
+export async function sendNotificationById(notificationId: string): Promise<void> {
+  const notif = await prisma.emailNotification.findUnique({
+    where: { id: notificationId },
+  })
+  if (!notif) return
+  if (notif.status !== EmailStatus.QUEUED && notif.status !== EmailStatus.FAILED) {
+    return
+  }
+  if (notif.attempts >= MAX_ATTEMPTS) return
+
+  const tpl = (notif.templateData ?? {}) as StoredTemplate
+  if (!tpl.html) {
+    await prisma.emailNotification.update({
+      where: { id: notif.id },
+      data: {
+        status: EmailStatus.CANCELLED,
+        error: "templateData.html ausente — no se puede reintentar",
+      },
+    })
+    return
+  }
+
+  try {
+    await emailProvider().send({
+      to: notif.to,
+      cc: notif.cc ?? undefined,
+      subject: notif.subject,
+      html: tpl.html,
+      from: tpl.from,
+      replyTo: tpl.replyTo ?? undefined,
+    })
+    await prisma.emailNotification.update({
+      where: { id: notif.id },
+      data: {
+        status: EmailStatus.SENT,
+        sentAt: new Date(),
+        attempts: { increment: 1 },
+        error: null,
+      },
+    })
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err)
+    // eslint-disable-next-line no-console
+    console.error(
+      `[email-queue] FAIL id=${notif.id} to=${notif.to} subject="${notif.subject}" attempts=${notif.attempts + 1} err=${message}`,
+    )
+    await prisma.emailNotification.update({
+      where: { id: notif.id },
+      data: {
+        status: EmailStatus.FAILED,
+        attempts: { increment: 1 },
+        error: message,
+      },
+    })
+  }
+}
+
+/**
  * Cuenta cuántos emails están pendientes (encolados o con retry posible).
  * Útil para el dashboard admin si más adelante se quiere mostrar el estado
  * de la cola.

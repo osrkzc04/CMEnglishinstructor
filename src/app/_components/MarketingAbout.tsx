@@ -55,7 +55,7 @@ export function MarketingAbout() {
           <Reveal delay={120}>
             <div className="text-text-2 mt-8 space-y-5 text-[17px] leading-[1.7]">
               <p>
-                <span className="text-foreground font-medium">CM English Instructor</span> acompaña
+                <span className="text-foreground font-medium">CM Language Center</span> acompaña
                 a personas y equipos a comunicarse con seguridad en inglés y español. Trabajamos con
                 currículos publicados por editoriales reconocidas, docentes certificados y un
                 acompañamiento cercano que prioriza el avance real del estudiante por sobre el ritmo

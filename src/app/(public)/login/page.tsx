@@ -63,7 +63,7 @@ function EditorialAside() {
         <div className="text-bone/50 flex items-end justify-between font-mono text-[11px] tracking-[0.06em] uppercase">
           <div className="flex flex-col gap-1">
             <span>v 1.0 · Plataforma académica</span>
-            <span>© {new Date().getFullYear()} CM English Instructor</span>
+            <span>© {new Date().getFullYear()} CM Language Center</span>
           </div>
           <a
             href="mailto:soporte@​cmenglishinstructor.com"

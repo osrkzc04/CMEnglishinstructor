@@ -7,7 +7,6 @@
  *   - Idiomas + niveles CEFR
  *   - Catálogo académico (Course / Program / ProgramLevel)
  *   - Configuración global (AppSetting)
- *   - Feriados del año
  *   - Super administrador (DIRECTOR) tomado de variables de entorno
  *
  * NO inserta datos demo (usuarios de ejemplo, postulaciones, estudiantes
@@ -29,7 +28,6 @@
 import { PrismaClient } from "@prisma/client"
 import { seedCatalog } from "./seed/catalog"
 import { seedSettings } from "./seed/settings"
-import { seedHolidays } from "./seed/holidays"
 import { readSuperAdminFromEnv, seedSuperAdmin } from "./seed/super-admin"
 
 const prisma = new PrismaClient()
@@ -43,15 +41,13 @@ async function main() {
   await seedCatalog(prisma)
   console.log("  ✓ Catálogo + CEFR")
 
-  // 2. Super admin a continuación (proveerá el auditing de los settings/holidays).
+  // 2. Super admin a continuación (proveerá el auditing de los settings).
   const directorId = await seedSuperAdmin(prisma, adminData)
   console.log(`  ✓ Super admin (${adminData.email})`)
 
-  // 3. Settings + feriados.
+  // 3. Settings.
   await seedSettings(prisma, directorId)
   console.log("  ✓ Configuración global")
-  await seedHolidays(prisma, directorId)
-  console.log("  ✓ Feriados")
 
   console.log("✅ Seed de producción completo")
 }

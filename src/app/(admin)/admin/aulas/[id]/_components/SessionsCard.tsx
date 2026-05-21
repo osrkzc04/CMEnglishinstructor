@@ -160,12 +160,11 @@ function ScheduleDialog({
         setError(result.error)
         return
       }
-      const { created, skippedHoliday, skippedUnavailable, skippedAlreadyExists } = result.counters
+      const { created, skippedUnavailable, skippedAlreadyExists } = result.counters
       setInfo(
         `Programadas ${created}. ` +
           [
             skippedAlreadyExists > 0 && `${skippedAlreadyExists} ya existían`,
-            skippedHoliday > 0 && `${skippedHoliday} caen en feriado`,
             skippedUnavailable > 0 &&
               `${skippedUnavailable} se saltearon por unavailability del docente`,
           ]
@@ -182,8 +181,8 @@ function ScheduleDialog({
         <DialogHeader>
           <DialogTitle>Programar sesiones</DialogTitle>
           <DialogDescription>
-            Genera las clases del rango respetando feriados y la unavailability del docente. Es
-            idempotente: las sesiones ya creadas no se duplican.
+            Genera las clases del rango respetando la unavailability del docente. Es idempotente:
+            las sesiones ya creadas no se duplican.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit}>

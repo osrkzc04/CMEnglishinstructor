@@ -64,7 +64,7 @@ export default async function AdminDashboardPage() {
           </p>
           <h1 className="font-serif text-[40px] leading-[1.15] font-normal tracking-[-0.02em]">
             Buen día, {firstName}
-            <span className="text-text-2 font-light italic"> — acá está hoy.</span>
+            <span className="text-text-2 font-light italic"> — Bienvenido a CM Language Center.</span>
           </h1>
           <p className="text-text-2 mt-2.5 max-w-[560px] text-[15px]">{buildSubtitle(dashboard)}</p>
         </div>

@@ -23,7 +23,7 @@ async function main() {
         eyebrow: "Activación de cuenta",
         heading: "Hola, Oscar",
         body: [
-          "Tu cuenta en CM English Instructor está lista. Para entrar por primera vez, define tu contraseña con el siguiente enlace.",
+          "Tu cuenta en CM Language Center está lista. Para entrar por primera vez, define tu contraseña con el siguiente enlace.",
         ],
         cta: {
           label: "Activar cuenta",
@@ -57,7 +57,7 @@ async function main() {
         eyebrow: "Acceso desactivado",
         heading: "Hola, Oscar",
         body: [
-          "Te avisamos que tu acceso a la plataforma de CM English Instructor fue desactivado. Mientras tu cuenta esté en este estado, no podrás iniciar sesión.",
+          "Te avisamos que tu acceso a la plataforma de CM Language Center fue desactivado. Mientras tu cuenta esté en este estado, no podrás iniciar sesión.",
           "Si crees que es un error o quieres retomar tus clases, escríbenos respondiendo a este correo y lo revisamos.",
         ],
         fineprint:
@@ -71,7 +71,7 @@ async function main() {
         eyebrow: "Postulación recibida",
         heading: "Hola, Oscar",
         body: [
-          "Recibimos tu postulación para sumarte como instructor en CM English Instructor. Gracias por tomarte el tiempo de contarnos sobre tu experiencia.",
+          "Recibimos tu postulación para sumarte como instructor en CM Language Center. Gracias por tomarte el tiempo de contarnos sobre tu experiencia.",
           "Vamos a revisarla con calma y, si tu perfil coincide con lo que estamos buscando, te escribimos para coordinar una entrevista. El proceso suele tomarnos entre 5 y 10 días hábiles.",
         ],
         fineprint:

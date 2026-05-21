@@ -198,7 +198,7 @@ function InstructorCard() {
       <div className="relative aspect-[5/6] overflow-hidden">
         <Image
           src={INSTRUCTOR_PHOTO_SRC}
-          alt="Carolina Monsalve, directora académica de CM English Instructor"
+          alt="Carolina Monsalve, directora académica de CM Language Center"
           fill
           sizes="(min-width: 1024px) 540px, 100vw"
           className="object-cover object-top [filter:grayscale(0.85)_contrast(1.05)_brightness(0.98)]"

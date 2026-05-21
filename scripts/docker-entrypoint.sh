@@ -5,8 +5,8 @@
 # Secuencia en cada arranque:
 #   1) Aplica migraciones pendientes (`prisma migrate deploy`).
 #   2) Corre el seed de producción (`prisma/seed.production.ts`) — idempotente:
-#      verifica catálogo, settings, holidays y super admin. Si todo existe, los
-#      saltea sin tocar nada.
+#      verifica catálogo, settings y super admin. Si todo existe, los saltea
+#      sin tocar nada.
 #   3) Arranca Next.js en modo producción.
 #
 # Falla rápido si algo crítico no está: DATABASE_URL inválida, SUPER_ADMIN_*
@@ -15,7 +15,7 @@
 set -eu
 
 echo "════════════════════════════════════════════════════════════════"
-echo " CM English Instructor — boot"
+echo " CM Language Center — boot"
 echo " node:    $(node --version 2>/dev/null || echo '?')"
 echo " cwd:     $(pwd)"
 echo " user:    $(id -u):$(id -g)"

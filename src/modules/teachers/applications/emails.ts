@@ -81,7 +81,7 @@ export async function sendApplicationReceivedEmail(args: {
     eyebrow: "Postulación recibida",
     heading: `Hola, ${args.firstName}`,
     body: [
-      "Recibimos tu postulación para sumarte como instructor en CM English Instructor. Gracias por tomarte el tiempo de contarnos sobre tu experiencia.",
+      "Recibimos tu postulación para sumarte como instructor en CM Language Center. Gracias por tomarte el tiempo de contarnos sobre tu experiencia.",
       "Vamos a revisarla con calma y, si tu perfil coincide con lo que estamos buscando, te escribimos para coordinar una entrevista. El proceso suele tomarnos entre 5 y 10 días hábiles.",
     ],
     fineprint:

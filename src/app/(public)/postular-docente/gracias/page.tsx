@@ -4,7 +4,7 @@ import { CheckCircle2 } from "lucide-react"
 import { BrandMark } from "@/components/layout/BrandMark"
 
 export const metadata: Metadata = {
-  title: "Postulación enviada — CM English Instructor",
+  title: "Postulación enviada — CM Language Center",
   robots: { index: false, follow: false },
 }
 

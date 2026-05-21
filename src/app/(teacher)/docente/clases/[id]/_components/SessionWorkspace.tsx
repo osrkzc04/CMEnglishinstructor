@@ -552,7 +552,7 @@ function CancelDialog({
               rows={3}
               value={reason}
               onChange={(e) => setReason(e.target.value)}
-              placeholder="Ej. Feriado no marcado en sistema / docente con licencia médica."
+              placeholder="Ej. Feriado local del alumno / docente con licencia médica."
               disabled={busy}
             />
           </div>

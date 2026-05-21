@@ -5,9 +5,9 @@ import { BrandMark } from "@/components/layout/BrandMark"
 import { PublicApplicationForm } from "./_components/PublicApplicationForm"
 
 export const metadata: Metadata = {
-  title: "Postula como instructor — CM English Instructor",
+  title: "Postula como instructor — CM Language Center",
   description:
-    "Si quieres sumarte como instructor de inglés o español en CM English Instructor, completa el formulario y nos pondremos en contacto contigo.",
+    "Si quieres sumarte como instructor de inglés o español en CM Language Center, completa el formulario y nos pondremos en contacto contigo.",
 }
 
 export default async function PostularDocentePage() {

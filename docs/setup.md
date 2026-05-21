@@ -1,4 +1,4 @@
-# Guía de setup — CM English Instructor
+# Guía de setup — CM Language Center
 
 > Guía para que un humano (o un agente de Claude Code) pueda clonar el repo y
 > dejar el proyecto corriendo localmente. También incluye los pasos para

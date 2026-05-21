@@ -195,7 +195,7 @@ export function ContactForm({ turnstileSiteKey }: Props) {
             )}
           />
           <span className="text-text-2">
-            Acepto que CM English Instructor use mis datos para responder esta consulta.
+            Acepto que CM Language Center use mis datos para responder esta consulta.
           </span>
         </CheckLabel>
         {errors.consentAccepted && (

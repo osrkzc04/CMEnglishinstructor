@@ -1,4 +1,4 @@
-# CM English Instructor — Design Brief
+# CM Language Center — Design Brief
 
 > Documento de dirección visual para el producto. Antes de escribir cualquier
 > componente, consultar este archivo. Si el diseño propuesto no calza con estos
@@ -350,7 +350,7 @@ Los mockups HTML aprobados son **la fuente de verdad final** del sistema visual.
 
 - **Default Fraunces: weight 400.** Italic disponible en 300 y 400. Weight 500 reservado solo para énfasis dentro de body (`<em>` decorativo en activity items).
 - **Default Geist: weight 400.** 500 disponible para acciones/labels.
-- **Italic serif** es la voz editorial: usada en breadcrumb actual (`.here`), en `<em>` dentro de h1 ("— acá está hoy."), y en titles de empty state.
+- **Italic serif** es la voz editorial: usada en breadcrumb actual (`.here`), en `<em>` dentro de h1 ("— Bienvenido a CM Language Center."), y en titles de empty state.
 - **Italic teal** específica: solo en la quote del aside del login (`<em>everyone</em>`).
 
 #### Escala tipográfica (deroga la tabla anterior)

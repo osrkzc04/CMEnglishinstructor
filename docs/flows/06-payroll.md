@@ -205,7 +205,7 @@ Genera PDF con:
 - Tabla de clases (fecha, estudiante, duración, tarifa, monto).
 - Total de horas, total de monto.
 - Estado (CLOSED o PAID con fecha).
-- Logo y datos de la institución (Carolina Monsalve, CM English Instructor).
+- Logo y datos de la institución (Carolina Monsalve, CM Language Center).
 
 Usar `@react-pdf/renderer` o similar. El PDF se genera on-demand, no se almacena.
 

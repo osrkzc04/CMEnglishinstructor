@@ -33,7 +33,7 @@ export function MarketingFooter() {
             <Link
               href="/"
               className="text-foreground inline-flex items-center gap-2.5"
-              aria-label="CM English Instructor — inicio"
+              aria-label="CM Language Center — inicio"
             >
               <BrandMark className="text-foreground" size={22} />
               <BrandWordmark className="text-foreground" size="sm" />
@@ -88,7 +88,7 @@ export function MarketingFooter() {
 
       <div className="border-border border-t">
         <div className="text-text-3 mx-auto flex w-full max-w-[1180px] flex-wrap items-center justify-between gap-3 px-6 py-5 font-mono text-[11px] tracking-[0.06em] uppercase">
-          <span>© {year} CM English Instructor</span>
+          <span>© {year} CM Language Center</span>
           <span className="hidden sm:inline">Quito · Ecuador</span>
           <span>cmenglishinstructor.com</span>
         </div>

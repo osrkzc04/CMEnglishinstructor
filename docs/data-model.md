@@ -1,4 +1,4 @@
-# CM English Instructor — Modelo de datos
+# CM Language Center — Modelo de datos
 
 > Documentación del esquema Prisma. Cuando se proponga cualquier cambio al
 > modelo, **actualizar este archivo primero**, luego implementar. Sin esto,

@@ -52,7 +52,7 @@ const ServerEnvSchema = z.object({
     .transform((v) => v === "true"),
   EMAIL_FROM: z
     .string()
-    .default("CM English Instructor <no-reply@cmenglishinstructor.com>")
+    .default("CM Language Center <no-reply@cmenglishinstructor.com>")
     .refine((v) => /@/.test(v), {
       message:
         "EMAIL_FROM debe incluir un email — formato 'Nombre <correo@dominio>' (Gmail rechaza headers sin email por RFC 5322)",

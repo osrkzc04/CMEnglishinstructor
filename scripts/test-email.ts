@@ -25,7 +25,7 @@ async function main() {
   const user = process.env.SMTP_USER
   const password = process.env.SMTP_PASSWORD
   const secure = process.env.SMTP_SECURE === "true"
-  const from = process.env.EMAIL_FROM ?? "CM English Instructor <no-reply@cmenglishinstructor.com>"
+  const from = process.env.EMAIL_FROM ?? "CM Language Center <no-reply@cmenglishinstructor.com>"
   const replyTo = process.env.EMAIL_REPLY_TO
 
   if (!host || !user || !password) {
@@ -78,7 +78,7 @@ async function main() {
             Prueba de envío
           </h1>
           <p style="font-size:14px;line-height:1.6;color:#3E4F58;margin:0 0 12px 0;">
-            Este es un correo de prueba enviado desde el SMTP del dominio configurado en CM English Instructor.
+            Este es un correo de prueba enviado desde el SMTP del dominio configurado en CM Language Center.
           </p>
           <p style="font-size:13px;line-height:1.6;color:#62737B;margin:0;">
             Si llegó, la configuración funciona. Hora del envío: ${new Date().toISOString()}
@@ -96,7 +96,7 @@ async function main() {
       from,
       replyTo,
       to,
-      subject: "Prueba SMTP — CM English Instructor",
+      subject: "Prueba SMTP — CM Language Center",
       html,
     })
     console.log("\n✓ Enviado.")

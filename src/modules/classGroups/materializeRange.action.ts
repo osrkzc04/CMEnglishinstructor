@@ -31,7 +31,7 @@ const ERROR_MESSAGES = {
 /**
  * Programa las sesiones del aula en el rango solicitado. Idempotente —
  * si ya existían sesiones para esos días, se mantienen y se cuentan como
- * "ya existía". Saltea holidays y unavailability del docente vigente.
+ * "ya existía". Saltea unavailability del docente vigente.
  */
 export async function materializeRange(input: MaterializeRangeInput): Promise<Result> {
   await requireRole(["DIRECTOR", "COORDINATOR"])

@@ -149,6 +149,18 @@ export async function createClassGroup(input: NewClassGroupInput): Promise<Resul
     }
   }
 
+  // Si hay un solo estudiante, leemos su apellido para que el fallback de
+  // nombre use el patrón 1-a-1 ("TZ2.Pérez"). El cliente normalmente ya envía
+  // `data.name`; este branch solo aplica si quedara vacío.
+  let singleLastName: string | null = null
+  if (!data.name && data.enrollmentIds.length === 1) {
+    const lone = await prisma.enrollment.findUnique({
+      where: { id: data.enrollmentIds[0]! },
+      select: { student: { select: { user: { select: { lastName: true } } } } },
+    })
+    singleLastName = lone?.student.user.lastName ?? null
+  }
+
   const name =
     data.name ??
     generateClassGroupName({
@@ -156,6 +168,7 @@ export async function createClassGroup(input: NewClassGroupInput): Promise<Resul
       levelCode: programLevel.code,
       levelName: programLevel.name,
       slots: data.slots,
+      studentLastName: singleLastName,
     })
 
   const today = startOfTodayUTC()

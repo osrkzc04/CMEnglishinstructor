@@ -19,8 +19,11 @@ import { ClassGroupStatus, EnrollmentStatus, Prisma, SessionStatus } from "@pris
  * la action wrappea como mensaje al usuario.
  *
  * **Filtros aplicados:**
- *   - Saltea fechas marcadas como `Holiday`.
  *   - Saltea fechas dentro de `TeacherUnavailability` del docente vigente.
+ *
+ * No se aplican feriados: los estudiantes vienen de distintos países y no
+ * hay un calendario único que aplique. Si una fecha puntual no se debe
+ * dictar, se cancela la sesión específica desde la UI del aula.
  *
  * **Participantes.** Se crea una fila `ClassParticipant` por cada
  * `Enrollment` ACTIVE asociada al aula al momento de materializar. Si la
@@ -41,7 +44,6 @@ export type MaterializeArgs = {
 
 export type MaterializeResult = {
   created: number
-  skippedHoliday: number
   skippedUnavailable: number
   skippedAlreadyExists: number
 }
@@ -91,21 +93,15 @@ export async function materializeClassSessions(
   const teacherId = group.teacherAssignments[0]?.teacherId
   if (!teacherId) return { kind: "no_active_teacher" }
 
-  // Cargar holidays del rango y unavailability del docente. Se traen una
-  // sola vez y se cruzan en memoria — son colecciones chicas.
+  // Cargar unavailability del docente para el rango. Se trae una sola vez y
+  // se cruza en memoria — son colecciones chicas.
   const dates = eachGuayaquilDateInRange(args.fromDate, args.toDate)
   if (dates.length === 0) return blankResult()
 
   const rangeStartUtc = guayaquilDateToUtc(dates[0]!, "00:00")
   const rangeEndUtc = guayaquilDateToUtc(dates[dates.length - 1]!, "23:59")
 
-  const [holidays, unavailability, existingSessions] = await Promise.all([
-    tx.holiday.findMany({
-      where: {
-        date: { gte: rangeStartUtc, lte: rangeEndUtc },
-      },
-      select: { date: true },
-    }),
+  const [unavailability, existingSessions] = await Promise.all([
     tx.teacherUnavailability.findMany({
       where: {
         teacherId,
@@ -122,7 +118,6 @@ export async function materializeClassSessions(
     }),
   ])
 
-  const holidayDates = new Set(holidays.map((h) => formatGuayaquilCalendarDate(h.date)))
   const existingStarts = new Set(existingSessions.map((s) => s.scheduledStart.getTime()))
 
   const result: MaterializeResult = blankResult()
@@ -131,11 +126,6 @@ export async function materializeClassSessions(
     const dow = dayOfWeekForGuayaquilDate(dateStr)
     const slotsForDay = group.slots.filter((s) => s.dayOfWeek === dow)
     if (slotsForDay.length === 0) continue
-
-    if (holidayDates.has(dateStr)) {
-      result.skippedHoliday += slotsForDay.length
-      continue
-    }
 
     for (const slot of slotsForDay) {
       const scheduledStart = guayaquilDateToUtc(dateStr, slot.startTime)
@@ -243,7 +233,6 @@ function pad(n: number): string {
 function blankResult(): MaterializeResult {
   return {
     created: 0,
-    skippedHoliday: 0,
     skippedUnavailable: 0,
     skippedAlreadyExists: 0,
   }

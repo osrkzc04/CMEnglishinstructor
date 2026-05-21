@@ -2,7 +2,7 @@
   "name": "cm-english-instructor",
   "version": "0.1.0",
   "private": true,
-  "description": "Plataforma de gestión académica para CM English Instructor",
+  "description": "Plataforma de gestión académica para CM Language Center",
   "engines": {
     "node": ">=20.0.0",
     "pnpm": ">=9.0.0"
@@ -24,6 +24,7 @@
     "db:deploy": "prisma migrate deploy",
     "db:seed": "tsx prisma/seed.ts",
     "db:seed:prod": "tsx prisma/seed.production.ts",
+    "db:seed:dev-questions": "tsx prisma/seed/dev-questions.ts",
     "db:reset": "prisma migrate reset --force && pnpm db:seed",
     "db:studio": "prisma studio",
     "email:dev": "email dev --dir ./emails --port 3030",

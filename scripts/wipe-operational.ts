@@ -5,7 +5,7 @@
  * postulaciones y todo lo que les cuelga) preservando:
  *   - El usuario directora@cmenglish.test
  *   - Catálogo (idiomas, niveles CEFR, cursos, programas, niveles)
- *   - Settings y feriados
+ *   - Settings
  *   - Repositorio de materiales
  *   - Banco de preguntas y plantillas de prueba
  *   - Histórico de AuditLog

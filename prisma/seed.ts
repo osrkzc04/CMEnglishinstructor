@@ -1,9 +1,8 @@
 /**
- * CM English Instructor — Database seed (DEV / DEMO)
+ * CM Language Center — Database seed (DEV / DEMO)
  * ----------------------------------------------------------------------------
- * Popula catálogo, super admin, settings, feriados (reusable, vía helpers) y
- * además datos demo (usuarios por rol, postulaciones, estudiantes, banco
- * mínimo de preguntas, plantilla de prueba).
+ * Popula catálogo, super admin, settings y datos demo (usuarios por rol,
+ * postulaciones, estudiantes, banco mínimo de preguntas, plantilla de prueba).
  *
  * Para deploy de producción, ver `prisma/seed.production.ts` que omite los
  * datos demo y toma el super admin de variables de entorno.
@@ -23,7 +22,6 @@ import {
 import { hash } from "bcryptjs"
 import { seedCatalog } from "./seed/catalog"
 import { seedSettings } from "./seed/settings"
-import { seedHolidays } from "./seed/holidays"
 import { seedSuperAdmin } from "./seed/super-admin"
 
 const prisma = new PrismaClient()
@@ -51,12 +49,10 @@ async function main() {
   })
 
   // -------------------------------------------------------------------------
-  // 3. Settings + feriados (necesitan directorId para auditoría)
+  // 3. Settings (necesita directorId para auditoría)
   // -------------------------------------------------------------------------
   await seedSettings(prisma, directorId)
   console.log("  ✓ Configuración global")
-  await seedHolidays(prisma, directorId)
-  console.log("  ✓ Feriados")
 
   // =========================================================================
   // De acá en adelante: solo datos demo (NO ejecutar en producción)
@@ -176,23 +172,56 @@ async function main() {
   }
 
   // -------------------------------------------------------------------------
-  // 5. Plantilla de prueba de ubicación de ejemplo — DEMO
+  // 5. Plantilla de prueba de ubicación adaptativa (6 secciones A1→C2) — DEMO
+  //
+  // Solo se crea si no hay placement templates aún (idempotente). Cuando el
+  // banco real esté cargado (≥50 preguntas por nivel), coordinación puede
+  // editar `samplePoolSize` / `questionCount` desde la UI. La cantidad total
+  // de preguntas que ve el candidato es la suma de `questionCount` de todas
+  // las secciones que llegue a desbloquear.
   // -------------------------------------------------------------------------
-  const a2 = enLevels.find((l) => l.code === "A2")
-  if (a2 && (await prisma.testTemplate.count()) === 0) {
+  const existingPlacement = await prisma.testTemplate.count({
+    where: { purpose: TestPurpose.PLACEMENT },
+  })
+  if (existingPlacement === 0) {
+    const placementSectionLevels: { code: string; order: number }[] = [
+      { code: "A1", order: 1 },
+      { code: "A2", order: 2 },
+      { code: "B1", order: 3 },
+      { code: "B2", order: 4 },
+      { code: "C1", order: 5 },
+      { code: "C2", order: 6 },
+    ]
+
+    const enLevelByCode = new Map(enLevels.map((l) => [l.code, l]))
+    const sectionsCreate = placementSectionLevels.map(({ code, order }) => {
+      const level = enLevelByCode.get(code)
+      if (!level) throw new Error(`CEFR level ${code} no encontrado para placement seed`)
+      return {
+        levelId: level.id,
+        order,
+        samplePoolSize: 50,
+        questionCount: 20,
+        passingPercent: 90,
+      }
+    })
+
     await prisma.testTemplate.create({
       data: {
-        name: "Placement Test — English A2",
+        name: "Placement test general — Inglés",
         purpose: TestPurpose.PLACEMENT,
-        levelId: a2.id,
         languageId: english.id,
-        questionCount: 10,
-        timeLimitMinutes: 30,
+        // `questionCount` de la plantilla es la suma de las secciones — se
+        // mantiene como denormalizado informativo. El motor adaptativo lee
+        // desde `sections`, no desde acá.
+        questionCount: 120,
+        timeLimitMinutes: 60,
         instructions:
-          "Responde todas las preguntas. No puedes volver atrás una vez enviado el examen.",
+          "Responde todas las preguntas de cada bloque. El examen avanza automáticamente cuando completas un bloque. No se puede volver atrás a bloques anteriores.",
+        sections: { create: sectionsCreate },
       },
     })
-    console.log("  ✓ Plantilla de prueba de ubicación")
+    console.log("  ✓ Plantilla de placement test (6 secciones A1→C2)")
   }
 
   // -------------------------------------------------------------------------

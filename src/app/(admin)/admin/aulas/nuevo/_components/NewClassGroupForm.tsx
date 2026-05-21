@@ -160,16 +160,27 @@ export function NewClassGroupForm({ programLevels, weeklyMinHours, weeklyMaxHour
     })
   }, [candidates, watchedTeacherId, watchedEnrollmentIds])
 
-  // Sugerencia de nombre en vivo (igual que antes).
+  // Sugerencia de nombre en vivo.
+  //  - Si hay exactamente 1 estudiante seleccionado → "NivelAbreviado.Apellido"
+  //    (clase 1-a-1, no depende de los slots).
+  //  - Si hay 0 o 2+ estudiantes → patrón con días/horario (necesita slots).
   const suggestedName = useMemo(() => {
-    if (!selectedLevel || watchedSlots.length === 0) return ""
+    if (!selectedLevel) return ""
+    let singleLastName: string | null = null
+    if (watchedEnrollmentIds.length === 1 && candidates.kind === "ready") {
+      const enrollmentId = watchedEnrollmentIds[0]
+      const student = candidates.students.find((s) => s.enrollmentId === enrollmentId)
+      singleLastName = student?.lastName ?? null
+    }
+    if (!singleLastName && watchedSlots.length === 0) return ""
     return generateClassGroupName({
       programName: selectedLevel.programName,
       levelCode: selectedLevel.code,
       levelName: selectedLevel.name,
       slots: watchedSlots,
+      studentLastName: singleLastName,
     })
-  }, [selectedLevel, watchedSlots])
+  }, [selectedLevel, watchedSlots, watchedEnrollmentIds, candidates])
 
   if (suggestedName && !nameTouched && watchedName !== suggestedName) {
     setValue("name", suggestedName)

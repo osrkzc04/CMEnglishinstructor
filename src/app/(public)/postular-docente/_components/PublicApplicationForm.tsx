@@ -212,7 +212,7 @@ export function PublicApplicationForm({ levelGroups, turnstileSiteKey }: Props) 
               )}
             />
             <span className="text-text-2">
-              Acepto que CM English Instructor use mis datos personales para evaluar esta
+              Acepto que CM Language Center use mis datos personales para evaluar esta
               postulación y, si avanza, contactarme.
             </span>
           </CheckLabel>

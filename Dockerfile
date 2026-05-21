@@ -1,5 +1,5 @@
 # =============================================================================
-# CM English Instructor — Docker build
+# CM Language Center — Docker build
 # -----------------------------------------------------------------------------
 # Multi-stage diseñado para Dokploy. Tres etapas:
 #   1) deps    — instala todas las dependencias (incluye dev: prisma, tsx).

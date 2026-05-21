@@ -44,11 +44,11 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "CM English Instructor",
-    template: "%s · CM English Instructor",
+    default: "CM Language Center",
+    template: "%s · CM Language Center",
   },
   description:
-    "Plataforma académica de CM English Instructor. Inglés y español para empresas, ejecutivos, adolescentes y niños. Helping everyone communicate.",
+    "Plataforma académica de CM Language Center. Inglés y español para empresas, ejecutivos, adolescentes y niños. Helping everyone communicate.",
 }
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {

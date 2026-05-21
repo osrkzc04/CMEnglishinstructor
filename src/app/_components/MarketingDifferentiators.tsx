@@ -1,7 +1,7 @@
 import { Reveal } from "./Reveal"
 
 /**
- * Sección "Por qué CM English Instructor". Diferenciadores numerados estilo
+ * Sección "Por qué CM Language Center". Diferenciadores numerados estilo
  * editorial — cada uno con número grande Fraunces + título + bajada. Es el
  * "argumento de valor" que sigue a Programas/Modalidades antes de empujar
  * al CTA de contacto.
