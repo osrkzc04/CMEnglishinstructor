@@ -14,10 +14,12 @@ import {
   listTopicsForLanguage,
 } from "@/modules/questions/queries"
 import { QuestionListFiltersSchema, type QuestionStatusFilter } from "@/modules/questions/schemas"
+import { getWritingSectionForLevel } from "@/modules/tests/templates/queries"
 import { PreguntasPager } from "../_components/PreguntasPager"
 import { PreguntasTable } from "../_components/PreguntasTable"
 import { PreguntasToolbar } from "../_components/PreguntasToolbar"
 import { LevelHeader } from "./_components/LevelHeader"
+import { LevelWritingPrompt } from "./_components/LevelWritingPrompt"
 
 /**
  * `/admin/preguntas/[levelCode]` — vista de administración de un nivel CEFR.
@@ -33,7 +35,7 @@ import { LevelHeader } from "./_components/LevelHeader"
  * deshabilitadas para que el usuario vea dónde van a vivir.
  */
 
-export const metadata: Metadata = { title: "Banco · Nivel" }
+export const metadata: Metadata = { title: "Banco de evaluación · Nivel" }
 
 type RouteParams = { levelCode: string }
 type SearchParams = {
@@ -86,10 +88,11 @@ export default async function PreguntasLevelPage({
     page: sp.page,
   })
 
-  const [overview, list, topics] = await Promise.all([
+  const [overview, list, topics, writingSection] = await Promise.all([
     getLevelOverview(languageId),
     listQuestions(filters),
     listTopicsForLanguage(languageId),
+    getWritingSectionForLevel(languageId, level.id),
   ])
 
   const levelOverview = overview.find((o) => o.levelId === level.id)
@@ -105,7 +108,7 @@ export default async function PreguntasLevelPage({
       }}
       breadcrumbs={[
         { label: "Admin", href: "/admin/dashboard" as Route },
-        { label: "Banco de preguntas", href: "/admin/preguntas" as Route },
+        { label: "Banco de evaluación", href: "/admin/preguntas" as Route },
         { label: level.code },
       ]}
     >
@@ -131,6 +134,16 @@ export default async function PreguntasLevelPage({
           totalPages={list.totalPages}
           total={list.total}
           pageSize={list.pageSize}
+        />
+      )}
+
+      {writingSection && (
+        <LevelWritingPrompt
+          templateId={writingSection.templateId}
+          sectionId={writingSection.sectionId}
+          levelCode={level.code}
+          passingPercent={writingSection.passingPercent}
+          initialPrompt={writingSection.writingPrompt}
         />
       )}
     </AppShell>

@@ -49,6 +49,14 @@ export async function seedSettings(prisma: PrismaClient, updatedBy: string): Pro
       description: "Nivel de detalle visible al candidato: none | score_only | full.",
     },
     {
+      key: "placement_confirmation_threshold_percent",
+      value: "78",
+      type: SettingType.NUMBER,
+      category: "tests",
+      description:
+        "Porcentaje del puntaje total (sobre 400) requerido para confirmar el nivel que el candidato alcanzó en el examen adaptativo. Bajo el umbral, la recomendación baja un nivel.",
+    },
+    {
       key: "absence_counts_as_consumed",
       value: "false",
       type: SettingType.BOOLEAN,

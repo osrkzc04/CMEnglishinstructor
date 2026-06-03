@@ -126,6 +126,7 @@ export async function finalizeManualReview(input: ManualReviewInput): Promise<Ma
             speaking: toDecimal(data.speaking),
             assignedLevelId: data.assignedLevelId,
             reviewerNotes: data.reviewerNotes,
+            writingFeedback: data.writingFeedback,
             reviewedBy: currentUserId,
             reviewedAt: now,
           },
@@ -136,6 +137,7 @@ export async function finalizeManualReview(input: ManualReviewInput): Promise<Ma
             speaking: toDecimal(data.speaking),
             assignedLevelId: data.assignedLevelId,
             reviewerNotes: data.reviewerNotes,
+            writingFeedback: data.writingFeedback,
             reviewedBy: currentUserId,
             reviewedAt: now,
           },
@@ -175,6 +177,13 @@ export async function finalizeManualReview(input: ManualReviewInput): Promise<Ma
       candidateName: session.candidateName,
       resultsToken: newResultsToken,
       expiresAt: newResultsExpiresAt,
+      scores: {
+        reading: data.reading ?? null,
+        writing: data.writing ?? null,
+        listening: data.listening ?? null,
+        speaking: data.speaking ?? null,
+      },
+      writingFeedback: data.writingFeedback,
     })
     emailQueued = sendResult.ok
   }

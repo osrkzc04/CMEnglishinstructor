@@ -38,7 +38,7 @@ export function BrandMark({
 }
 
 /**
- * Wordmark "CM·English Instructor" en Fraunces italic con separador.
+ * Wordmark "CM·Language Center" en Fraunces italic con separador.
  * Usado al lado del BrandMark en el sidebar y en el aside del login.
  */
 export function BrandWordmark({
@@ -56,7 +56,7 @@ export function BrandWordmark({
         className,
       )}
     >
-      CM<span className="px-1 opacity-40">·</span>English Instructor
+      CM<span className="px-1 opacity-40">·</span>Language Center
     </span>
   )
 }

@@ -1,20 +1,21 @@
-import { Check, CircleHelp, Flag, Minus, X } from "lucide-react"
+import { Check, ChevronDown, CircleHelp, Flag, Minus, X } from "lucide-react"
 import { RichPrompt } from "@/components/ui/rich-prompt"
 import { cn } from "@/lib/utils"
 import type { ReviewDetail, ReviewQuestion } from "@/modules/tests/sessions/review-queries"
 
 /**
- * Lista server-rendered con las 120 preguntas y la respuesta del candidato.
- * Acá SÍ exponemos la opción correcta (la vista admin necesita verla). Los
- * estados:
+ * Lista server-rendered con las preguntas y la respuesta del candidato.
+ * Acá SÍ exponemos la opción correcta. Estados por pregunta:
  *
  *  - correct  → respuesta del candidato == correcta del banco
  *  - wrong    → respondió pero no coincide
  *  - blank    → no contestó (selectedOptionId / textAnswer null)
  *  - pending  → FILL_IN sin match en aceptadas → revisión humana
  *
- * Las preguntas se agrupan visualmente por bloque (sectionOrder + cefrLevelCode)
- * con un encabezado para que la directora navegue rápido.
+ * Cada bloque (sectionOrder + cefrLevelCode) es un `<details>` plegable con un
+ * resumen de aciertos en la cabecera. Se abren por defecto solo los que
+ * requieren atención (preguntas por revisar o marcadas), para que la columna
+ * no quede kilométrica y se llegue rápido al panel de la derecha.
  */
 
 const LETTERS = ["A", "B", "C", "D", "E", "F", "G", "H"] as const
@@ -27,28 +28,62 @@ export function QuestionReviewList({ questions }: Props) {
   const groups = groupBySection(questions)
 
   return (
-    <section className="space-y-8">
-      {groups.map((group) => (
-        <div key={group.key} className="space-y-3">
-          <div className="flex items-baseline justify-between gap-3">
-            <h3 className="text-foreground font-serif text-[18px] font-normal tracking-[-0.01em]">
-              Bloque {group.sectionOrder ?? "—"}{" "}
-              <span className="text-text-3 font-mono text-[12px] tracking-[0.02em] uppercase">
-                {group.cefrLevelCode ?? "Sin nivel"}
-              </span>
-            </h3>
-            <p className="text-text-3 font-mono text-[11.5px] tabular-nums">
-              {group.questions.length} preguntas
-            </p>
-          </div>
-          <ol className="space-y-3">
-            {group.questions.map((q, idx) => (
-              <QuestionRow key={q.id} q={q} numberInBlock={idx + 1} />
-            ))}
-          </ol>
-        </div>
-      ))}
+    <section className="space-y-4">
+      {groups.map((group, index) => {
+        const counts = countStatuses(group.questions)
+        const needsAttention = counts.pending > 0 || group.questions.some((q) => q.markedForReview)
+        // El primer bloque (orden ascendente) arranca desplegado; el resto
+        // solo si requiere atención.
+        const open = index === 0 || needsAttention
+
+        return (
+          <details
+            key={group.key}
+            open={open}
+            className="group border-border bg-surface rounded-xl border"
+          >
+            <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-5 py-4 [&::-webkit-details-marker]:hidden">
+              <div className="flex items-baseline gap-2">
+                <h3 className="text-foreground font-serif text-[18px] font-normal tracking-[-0.01em]">
+                  Bloque {group.sectionOrder ?? "—"}{" "}
+                  <span className="text-text-3 font-mono text-[12px] tracking-[0.02em] uppercase">
+                    {group.cefrLevelCode ?? "Sin nivel"}
+                  </span>
+                </h3>
+                <span className="text-text-3 font-mono text-[11.5px] tabular-nums">
+                  {group.questions.length}
+                </span>
+              </div>
+              <div className="flex items-center gap-3">
+                <CountSummary counts={counts} />
+                <ChevronDown
+                  size={16}
+                  strokeWidth={1.7}
+                  className="text-text-3 transition-transform group-open:rotate-180"
+                  aria-hidden
+                />
+              </div>
+            </summary>
+            <ol className="border-border space-y-3 border-t p-5">
+              {group.questions.map((q, idx) => (
+                <QuestionRow key={q.id} q={q} numberInBlock={idx + 1} />
+              ))}
+            </ol>
+          </details>
+        )
+      })}
     </section>
+  )
+}
+
+function CountSummary({ counts }: { counts: StatusCounts }) {
+  return (
+    <span className="flex items-center gap-2 font-mono text-[11.5px] tabular-nums">
+      {counts.correct > 0 && <span className="text-teal-500">{counts.correct} ✓</span>}
+      {counts.wrong > 0 && <span className="text-danger">{counts.wrong} ✕</span>}
+      {counts.pending > 0 && <span className="text-warning">{counts.pending} revisar</span>}
+      {counts.blank > 0 && <span className="text-text-3">{counts.blank} en blanco</span>}
+    </span>
   )
 }
 
@@ -56,7 +91,7 @@ function QuestionRow({ q, numberInBlock }: { q: ReviewQuestion; numberInBlock: n
   const status = deriveStatus(q)
 
   return (
-    <li className="border-border bg-surface rounded-xl border p-5">
+    <li className="border-border bg-surface-alt rounded-lg border p-4">
       <header className="mb-3 flex flex-wrap items-start justify-between gap-3">
         <div>
           <p className="text-text-3 font-mono text-[11px] tracking-[0.08em] uppercase">
@@ -122,7 +157,7 @@ function QuestionRow({ q, numberInBlock }: { q: ReviewQuestion; numberInBlock: n
 
       {q.type === "FILL_IN" && (
         <div className="space-y-2">
-          <div className="border-border bg-surface-alt rounded-md border px-3 py-2">
+          <div className="border-border bg-surface rounded-md border px-3 py-2">
             <p className="text-text-3 font-mono text-[11px] tracking-[0.08em] uppercase">
               Respuesta del candidato
             </p>
@@ -163,6 +198,14 @@ function QuestionRow({ q, numberInBlock }: { q: ReviewQuestion; numberInBlock: n
 }
 
 type Status = "correct" | "wrong" | "blank" | "pending"
+
+type StatusCounts = { correct: number; wrong: number; blank: number; pending: number }
+
+function countStatuses(questions: ReviewQuestion[]): StatusCounts {
+  const counts: StatusCounts = { correct: 0, wrong: 0, blank: 0, pending: 0 }
+  for (const q of questions) counts[deriveStatus(q)] += 1
+  return counts
+}
 
 function StatusPill({ status }: { status: Status }) {
   const map: Record<Status, { label: string; icon: React.ReactNode; className: string }> = {

@@ -1,9 +1,9 @@
 "use client"
 
-import { useState, useTransition } from "react"
+import { useMemo, useState, useTransition } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { AlertTriangle, ArrowRight, Check, Copy, Loader2 } from "lucide-react"
+import { AlertTriangle, ArrowRight, Check, Copy, Loader2, Sparkles } from "lucide-react"
 
 import { Alert } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
@@ -16,13 +16,26 @@ import {
   ManualReviewInputSchema,
   type ManualReviewInput,
 } from "@/modules/tests/grading/schemas"
-
-type CefrLevel = { id: string; code: string; name: string; order: number }
+import {
+  PLACEMENT_SKILL_MAX,
+  PLACEMENT_TOTAL_MAX,
+  recommendPlacementLevel,
+  type CefrLevelLite,
+  type PlacementSectionSummary,
+} from "@/modules/tests/grading/level-recommendation"
 
 type Props = {
   sessionId: string
   isReviewed: boolean
-  cefrLevels: CefrLevel[]
+  cefrLevels: CefrLevelLite[]
+  // Resumen del adaptativo: qué bloques superó el candidato. Manda la
+  // recomendación junto con el total.
+  sectionSummaries: PlacementSectionSummary[]
+  // Umbral global (%) para confirmar el nivel alcanzado.
+  thresholdPercent: number
+  // Puntaje sugerido para Reading/Grammar a partir de los aciertos
+  // auto-calificados (sobre 100). Se usa como valor inicial editable.
+  autoReadingSuggested: number | null
   initial: {
     reading: number | null
     writing: number | null
@@ -30,6 +43,7 @@ type Props = {
     speaking: number | null
     assignedLevelId: string | null
     reviewerNotes: string | null
+    writingFeedback: string | null
   }
   resultsLink: string | null
   resultsExpiresAt: Date | null
@@ -44,10 +58,19 @@ const expiresFormatter = new Intl.DateTimeFormat("es-EC", {
   timeZone: "America/Guayaquil",
 })
 
+function clampScore(raw: unknown): number {
+  const n = typeof raw === "number" ? raw : Number(raw)
+  if (!Number.isFinite(n)) return 0
+  return Math.min(PLACEMENT_SKILL_MAX, Math.max(0, n))
+}
+
 export function ReviewForm({
   sessionId,
   isReviewed,
   cefrLevels,
+  sectionSummaries,
+  thresholdPercent,
+  autoReadingSuggested,
   initial,
   resultsLink,
   resultsExpiresAt,
@@ -65,22 +88,47 @@ export function ReviewForm({
   const [copied, setCopied] = useState(false)
   const [isPending, startTransition] = useTransition()
 
+  // Reading/Grammar se precarga con el valor ya guardado o, en su defecto,
+  // con la sugerencia de los aciertos. Queda editable: coordinación puede
+  // sobrescribirlo.
+  const readingDefault = initial.reading ?? autoReadingSuggested ?? undefined
+
   const {
     register,
     handleSubmit,
+    watch,
+    setValue,
     formState: { errors, isDirty },
   } = useForm<ManualReviewInput>({
     resolver: zodResolver(ManualReviewInputSchema),
     defaultValues: {
       sessionId,
-      reading: initial.reading ?? undefined,
+      reading: readingDefault,
       writing: initial.writing ?? undefined,
       listening: initial.listening ?? undefined,
       speaking: initial.speaking ?? undefined,
       assignedLevelId: initial.assignedLevelId ?? undefined,
       reviewerNotes: initial.reviewerNotes ?? undefined,
+      writingFeedback: initial.writingFeedback ?? undefined,
     },
   })
+
+  const watched = watch(["reading", "writing", "listening", "speaking"])
+  const total = useMemo(
+    () => watched.reduce((sum: number, v) => sum + clampScore(v), 0),
+    [watched],
+  )
+  const recommendation = useMemo(
+    () =>
+      recommendPlacementLevel({
+        sectionSummaries,
+        total,
+        thresholdPercent,
+        cefrLevels,
+      }),
+    [sectionSummaries, total, thresholdPercent, cefrLevels],
+  )
+  const recommended = recommendation.recommendedLevel
 
   const onSubmit = handleSubmit((data) => {
     setServerError(null)
@@ -125,11 +173,20 @@ export function ReviewForm({
 
       <div>
         <p className="text-text-3 mb-3 text-[13px] leading-[1.5]">
-          Califica cada habilidad sobre 100. Si todavía no tienes una nota, puedes dejarla en blanco
-          y volver más tarde.
+          Cada habilidad va sobre {PLACEMENT_SKILL_MAX}. El total se calcula sobre{" "}
+          {PLACEMENT_TOTAL_MAX}.
         </p>
         <div className="grid gap-4 sm:grid-cols-2">
-          <Field id="reading" label="Reading" error={errors.reading?.message}>
+          <Field
+            id="reading"
+            label="Reading / Grammar"
+            error={errors.reading?.message}
+            hint={
+              autoReadingSuggested !== null
+                ? `Sugerido ${autoReadingSuggested}/100 según aciertos · editable`
+                : undefined
+            }
+          >
             <Input
               id="reading"
               type="number"
@@ -170,15 +227,76 @@ export function ReviewForm({
             />
           </Field>
         </div>
+
+        <div className="border-border mt-4 flex items-center justify-between rounded-lg border bg-surface-alt px-4 py-3">
+          <span className="text-text-3 font-mono text-[11px] tracking-[0.08em] uppercase">
+            Total
+          </span>
+          <span className="text-foreground font-mono text-[18px] tabular-nums">
+            {total} <span className="text-text-3 text-[13px]">/ {PLACEMENT_TOTAL_MAX}</span>
+          </span>
+        </div>
       </div>
+
+      <Field
+        id="writingFeedback"
+        label="Retroalimentación del Writing"
+        optional
+        hint="La ve el candidato en su resultado y en el correo."
+        error={errors.writingFeedback?.message}
+      >
+        <Textarea
+          id="writingFeedback"
+          rows={3}
+          placeholder="Comentario sobre la redacción: estructura, gramática, vocabulario…"
+          {...register("writingFeedback")}
+        />
+      </Field>
 
       <Field
         id="assignedLevelId"
         label="Nivel asignado"
         optional
-        hint="Nivel CEFR sugerido al candidato. Queda interno: no aparece en el correo de resultados."
+        hint="Uso interno: no aparece en el correo de resultados."
         error={errors.assignedLevelId?.message}
       >
+        <div className="mb-2 flex flex-wrap items-center gap-2">
+          <span
+            className={`inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-[12px] ${
+              recommendation.isBelowThreshold
+                ? "border-warning/40 bg-warning/[0.06] text-warning"
+                : "border-border bg-surface-alt text-text-2"
+            }`}
+          >
+            <Sparkles
+              size={12}
+              strokeWidth={1.7}
+              className={recommendation.isBelowThreshold ? "text-warning" : "text-teal-500"}
+            />
+            {recommended ? (
+              <>
+                Sugerido: <span className="text-foreground font-medium">{recommended.code}</span> ·{" "}
+                {recommended.name}
+              </>
+            ) : recommendation.reachedCode === null ? (
+              "No superó ningún bloque — coordinación decide"
+            ) : (
+              `Por debajo del umbral en ${recommendation.reachedCode}, sin nivel inferior`
+            )}
+          </span>
+          <span className="text-text-3 font-mono text-[11.5px] tabular-nums">
+            {recommendation.totalPercent}% · umbral {recommendation.thresholdPercent}%
+          </span>
+          {recommended && (
+            <button
+              type="button"
+              onClick={() => setValue("assignedLevelId", recommended.id, { shouldDirty: true })}
+              className="text-teal-500 hover:text-teal-600 text-[12px] underline underline-offset-2"
+            >
+              Usar sugerencia
+            </button>
+          )}
+        </div>
         <Select id="assignedLevelId" {...register("assignedLevelId")}>
           <option value="">— Sin asignar —</option>
           {cefrLevels.map((l) => (
@@ -193,13 +311,13 @@ export function ReviewForm({
         id="reviewerNotes"
         label="Observaciones para el candidato"
         optional
-        hint="Lo que escribas acá aparece en la pantalla de resultado. Mantén el tono cercano y constructivo."
+        hint="Aparece en la pantalla de resultado del candidato."
         error={errors.reviewerNotes?.message}
       >
         <Textarea
           id="reviewerNotes"
           rows={4}
-          placeholder="Comentarios sobre fortalezas, áreas a reforzar, recomendación de programa…"
+          placeholder="Fortalezas, áreas a reforzar, recomendación…"
           {...register("reviewerNotes")}
         />
       </Field>
@@ -207,8 +325,8 @@ export function ReviewForm({
       <div className="border-border flex flex-wrap items-center justify-between gap-3 border-t pt-5">
         <p className="text-text-3 text-[12.5px]">
           {isReviewed
-            ? "La evaluación ya fue entregada. Si actualizas, el candidato no recibe un correo nuevo — el enlace sigue siendo el mismo."
-            : "Al guardar, se enviará un correo al candidato con el enlace para ver su resultado (validez 12 h)."}
+            ? "Ya entregada. Al actualizar no se reenvía correo; el enlace no cambia."
+            : "Al guardar se envía el correo con el enlace de resultado (vence en 12 h)."}
         </p>
         <Button
           type="submit"
@@ -243,8 +361,8 @@ export function ReviewForm({
             </p>
             <p className="text-foreground mt-1 text-[13.5px] leading-[1.5]">
               {feedback.emailQueued
-                ? "Enviamos el correo al candidato. Si no llega, puedes compartir el enlace por otra vía."
-                : "El enlace ya está disponible para el candidato. Puedes copiarlo y enviarlo manualmente si lo necesitas."}
+                ? "Enviamos el correo. Si no llega, comparte el enlace manualmente."
+                : "El enlace está disponible. Cópialo y compártelo si lo necesitas."}
             </p>
           </div>
           <div className="border-border bg-surface flex items-start gap-3 rounded-md border p-3">

@@ -750,6 +750,13 @@ model TestTemplateSection {
   questionCount  Int    @default(20) // cuántas se sortean
   passingPercent Int    @default(90) // umbral para desbloquear la siguiente
 
+  // Consigna de writing que se le presenta al candidato cuando esta sección
+  // es la última que alcanzó. La instrucción depende del nivel y se edita
+  // dentro de la página del nivel en el banco de evaluación
+  // (`/admin/preguntas/[levelCode]`). Si queda null, la UI muestra un
+  // fallback genérico ("Describe tu experiencia ...").
+  writingPrompt String? @db.Text
+
   template TestTemplate @relation(fields: [templateId], references: [id], onDelete: Cascade)
   level    CefrLevel    @relation(fields: [levelId], references: [id])
 
@@ -835,6 +842,20 @@ model TestSession {
   resultsToken          String?   @unique
   resultsTokenExpiresAt DateTime?
 
+  // Writing del placement adaptativo. Solo se llena cuando la sesión transita
+  // por PENDING_WRITING — se snapshotea el prompt vigente para preservar la
+  // consigna aunque coordinación luego la edite en la plantilla.
+  //
+  // writingLevelCode: CEFR del nivel donde se rindió el writing (último
+  //   bloque que vio el candidato, sea por fallo o por completar todo).
+  // writingPromptSnapshot: consigna mostrada al candidato.
+  // writingResponse: texto que escribió.
+  // writingSubmittedAt: timestamp de envío.
+  writingLevelCode      String?
+  writingPromptSnapshot String?   @db.Text
+  writingResponse       String?   @db.Text
+  writingSubmittedAt    DateTime?
+
   invite          InviteToken               @relation(fields: [inviteId], references: [id])
   template        TestTemplate              @relation(fields: [templateId], references: [id])
   questions       TestSessionQuestion[]
@@ -849,6 +870,10 @@ model TestSession {
 
 enum TestSessionStatus {
   IN_PROGRESS
+  // Terminó la parte de opción múltiple y le toca el writing. La sesión
+  // sigue accesible para el candidato pero ya no se editan respuestas de
+  // las preguntas — solo se acepta el envío del writing.
+  PENDING_WRITING
   SUBMITTED
   TIMED_OUT
   REVIEWED
@@ -919,6 +944,12 @@ enum TestEventType {
   SECTION_ADVANCED
   SECTION_LOCKED
   DEVICE_MISMATCH
+  // Sampling no encontró ninguna pregunta de reading (topic ILIKE 'reading')
+  // para el nivel. La sección se completó con no-readings; coordinación
+  // debe cargar al menos 1 reading por nivel para el flujo correcto.
+  MISSING_READING
+  // El candidato envió la consigna de writing del nivel donde se quedó.
+  WRITING_SUBMITTED
 }
 
 // Evaluación cualitativa (Reading / Writing / Listening / Speaking) que
@@ -938,6 +969,10 @@ model PlacementSkillEvaluation {
   speaking        Decimal?  @db.Decimal(5, 2)
   assignedLevelId String?
   reviewerNotes   String?   @db.Text
+  // Retroalimentación específica del writing, visible para el candidato en la
+  // pantalla de resultado y el correo. Distinta de reviewerNotes (observación
+  // general).
+  writingFeedback String?   @db.Text
   reviewedBy      String?
   reviewedAt      DateTime?
   createdAt       DateTime  @default(now())

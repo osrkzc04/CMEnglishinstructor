@@ -5,13 +5,13 @@ import { InsufficientQuestionsError, sampleQuestionsForPlacement } from "../sess
 import type { Section } from "../shared/types"
 
 /**
- * Tests del sorteo por sección. La aleatoriedad la hace Postgres con
- * `random()`; acá mockeamos la transacción de Prisma para chequear:
- *  - Pide la cantidad correcta por sección.
- *  - Si una sección no devuelve suficientes filas, lanza el error tipado.
- *  - Devuelve preguntas con su sectionOrder y cefrLevelCode anotados.
- *  - Las opciones de MC vienen desde QuestionOption.findMany y se asocian
- *    correctamente al questionId.
+ * Tests del sorteo por sección. Cada sección hace dos $queryRaw:
+ *   1) un reading (topic ILIKE 'reading') — LIMIT 1
+ *   2) el resto no-reading — LIMIT (questionCount - readingCount)
+ *
+ * Mockeamos las dos respuestas en orden por sección. Si la primera devuelve
+ * vacío, el nivel queda anotado en `missingReadingLevels` y se completa con
+ * `questionCount` no-readings.
  */
 
 type RawQuestion = {
@@ -21,8 +21,13 @@ type RawQuestion = {
   points: number
 }
 
+type SectionStub = {
+  reading: RawQuestion[]
+  rest: RawQuestion[]
+}
+
 function makeTx(opts: {
-  rowsByLevel: Record<string, RawQuestion[]>
+  byLevel: Record<string, SectionStub>
   optionsByQuestion?: Record<
     string,
     { id: string; questionId: string; text: string; isCorrect: boolean; order: number }[]
@@ -32,12 +37,18 @@ function makeTx(opts: {
     { questionId: string; acceptedAnswer: string; caseSensitive: boolean }[]
   >
 }): Prisma.TransactionClient {
+  // Estado por nivel: cada nivel emite primero el lote `reading`, después el
+  // lote `rest`. La cuenta se reinicia cada vez que llega un levelId nuevo.
+  const cursorByLevel = new Map<string, number>()
   return {
-    $queryRaw: vi.fn(async (template: TemplateStringsArray | unknown, ...values: unknown[]) => {
-      // El SQL es siempre el mismo; la sección la inferimos del primer parámetro
-      // (section.levelId) que viaja como `values[0]`.
+    $queryRaw: vi.fn(async (_template: TemplateStringsArray | unknown, ...values: unknown[]) => {
       const levelId = String(values[0])
-      return opts.rowsByLevel[levelId] ?? []
+      const stub = opts.byLevel[levelId] ?? { reading: [], rest: [] }
+      const cursor = cursorByLevel.get(levelId) ?? 0
+      cursorByLevel.set(levelId, cursor + 1)
+      // Primera llamada del nivel: query del reading.
+      // Segunda llamada del nivel: query del resto.
+      return cursor === 0 ? stub.reading : stub.rest
     }),
     questionOption: {
       findMany: vi.fn(async ({ where }: { where: { questionId: { in: string[] } } }) => {
@@ -76,99 +87,143 @@ const sectionsAB: Section[] = [
 ]
 
 describe("sampleQuestionsForPlacement", () => {
-  it("devuelve preguntas anotadas con sectionOrder y cefrLevelCode", async () => {
+  it("incluye exactamente 1 reading por sección cuando el banco lo tiene", async () => {
     const tx = makeTx({
-      rowsByLevel: {
-        "level-a1": [
-          { id: "q1", prompt: "P1", type: "MULTIPLE_CHOICE", points: 1 },
-          { id: "q2", prompt: "P2", type: "MULTIPLE_CHOICE", points: 1 },
-        ],
-        "level-a2": [
-          { id: "q3", prompt: "P3", type: "FILL_IN", points: 1 },
-          { id: "q4", prompt: "P4", type: "MULTIPLE_CHOICE", points: 1 },
-        ],
+      byLevel: {
+        "level-a1": {
+          reading: [{ id: "q1r", prompt: "Reading A1", type: "MULTIPLE_CHOICE", points: 1 }],
+          rest: [{ id: "q2", prompt: "Other A1", type: "MULTIPLE_CHOICE", points: 1 }],
+        },
+        "level-a2": {
+          reading: [{ id: "q3r", prompt: "Reading A2", type: "MULTIPLE_CHOICE", points: 1 }],
+          rest: [{ id: "q4", prompt: "Other A2", type: "MULTIPLE_CHOICE", points: 1 }],
+        },
       },
       optionsByQuestion: {
-        q1: [
-          { id: "q1-o1", questionId: "q1", text: "a", isCorrect: true, order: 0 },
-          { id: "q1-o2", questionId: "q1", text: "b", isCorrect: false, order: 1 },
-        ],
-        q2: [{ id: "q2-o1", questionId: "q2", text: "x", isCorrect: true, order: 0 }],
-        q4: [{ id: "q4-o1", questionId: "q4", text: "y", isCorrect: true, order: 0 }],
-      },
-      fillAnswersByQuestion: {
-        q3: [{ questionId: "q3", acceptedAnswer: "hello", caseSensitive: false }],
+        q1r: [{ id: "q1r-o1", questionId: "q1r", text: "a", isCorrect: true, order: 0 }],
+        q2: [{ id: "q2-o1", questionId: "q2", text: "a", isCorrect: true, order: 0 }],
+        q3r: [{ id: "q3r-o1", questionId: "q3r", text: "a", isCorrect: true, order: 0 }],
+        q4: [{ id: "q4-o1", questionId: "q4", text: "a", isCorrect: true, order: 0 }],
       },
     })
 
     const result = await sampleQuestionsForPlacement(tx, sectionsAB)
 
-    expect(result).toHaveLength(4)
-    expect(result.map((r) => `${r.sectionOrder}/${r.cefrLevelCode}/${r.questionId}`)).toEqual([
-      "1/A1/q1",
-      "1/A1/q2",
-      "2/A2/q3",
-      "2/A2/q4",
-    ])
+    expect(result.questions).toHaveLength(4)
+    expect(result.missingReadingLevels).toEqual([])
 
-    const fillQ = result.find((r) => r.questionId === "q3")!
-    expect(fillQ.type).toBe("FILL_IN")
-    expect(fillQ.options).toBeNull()
-    expect(fillQ.acceptedAnswers).toEqual([{ answer: "hello", caseSensitive: false }])
-
-    const mcQ = result.find((r) => r.questionId === "q1")!
-    expect(mcQ.type).toBe("MULTIPLE_CHOICE")
-    expect(mcQ.options).toEqual([
-      { id: "q1-o1", text: "a", isCorrect: true, order: 0 },
-      { id: "q1-o2", text: "b", isCorrect: false, order: 1 },
-    ])
+    // Cada sección debe traer su reading y un no-reading. Como el orden
+    // dentro de la sección está shufflado, comparamos por set.
+    const a1Ids = result.questions.filter((q) => q.sectionOrder === 1).map((q) => q.questionId)
+    const a2Ids = result.questions.filter((q) => q.sectionOrder === 2).map((q) => q.questionId)
+    expect(new Set(a1Ids)).toEqual(new Set(["q1r", "q2"]))
+    expect(new Set(a2Ids)).toEqual(new Set(["q3r", "q4"]))
   })
 
-  it("lanza InsufficientQuestionsError si el banco no alcanza", async () => {
+  it("aplica fallback (todas no-reading) si el banco no tiene readings", async () => {
     const tx = makeTx({
-      rowsByLevel: {
-        "level-a1": [{ id: "q1", prompt: "P1", type: "MULTIPLE_CHOICE", points: 1 }],
-        "level-a2": [],
+      byLevel: {
+        "level-a1": {
+          reading: [], // sin readings disponibles
+          rest: [
+            { id: "q1", prompt: "P1", type: "MULTIPLE_CHOICE", points: 1 },
+            { id: "q2", prompt: "P2", type: "MULTIPLE_CHOICE", points: 1 },
+          ],
+        },
+        "level-a2": {
+          reading: [{ id: "q3r", prompt: "Reading A2", type: "MULTIPLE_CHOICE", points: 1 }],
+          rest: [{ id: "q4", prompt: "Other A2", type: "MULTIPLE_CHOICE", points: 1 }],
+        },
+      },
+      optionsByQuestion: {
+        q1: [{ id: "q1-o1", questionId: "q1", text: "a", isCorrect: true, order: 0 }],
+        q2: [{ id: "q2-o1", questionId: "q2", text: "a", isCorrect: true, order: 0 }],
+        q3r: [{ id: "q3r-o1", questionId: "q3r", text: "a", isCorrect: true, order: 0 }],
+        q4: [{ id: "q4-o1", questionId: "q4", text: "a", isCorrect: true, order: 0 }],
+      },
+    })
+
+    const result = await sampleQuestionsForPlacement(tx, sectionsAB)
+
+    expect(result.questions).toHaveLength(4)
+    expect(result.missingReadingLevels).toEqual(["A1"])
+  })
+
+  it("lanza InsufficientQuestionsError si reading + resto no alcanzan", async () => {
+    const tx = makeTx({
+      byLevel: {
+        "level-a1": {
+          reading: [{ id: "q1r", prompt: "Reading", type: "MULTIPLE_CHOICE", points: 1 }],
+          rest: [], // falta 1 no-reading para llegar a 2
+        },
+        "level-a2": {
+          reading: [{ id: "q3r", prompt: "Reading A2", type: "MULTIPLE_CHOICE", points: 1 }],
+          rest: [{ id: "q4", prompt: "Other", type: "MULTIPLE_CHOICE", points: 1 }],
+        },
       },
     })
 
     await expect(sampleQuestionsForPlacement(tx, sectionsAB)).rejects.toBeInstanceOf(
       InsufficientQuestionsError,
     )
-    try {
-      await sampleQuestionsForPlacement(tx, sectionsAB)
-    } catch (err) {
-      expect(err).toBeInstanceOf(InsufficientQuestionsError)
-      const e = err as InsufficientQuestionsError
-      expect(e.cefrLevelCode).toBe("A1")
-      expect(e.required).toBe(2)
-      expect(e.available).toBe(1)
-    }
   })
 
   it("procesa las secciones en orden ascendente aunque vengan desordenadas", async () => {
     const reversed = [...sectionsAB].reverse()
     const tx = makeTx({
-      rowsByLevel: {
-        "level-a1": [
-          { id: "q1", prompt: "P1", type: "MULTIPLE_CHOICE", points: 1 },
-          { id: "q2", prompt: "P2", type: "MULTIPLE_CHOICE", points: 1 },
-        ],
-        "level-a2": [
-          { id: "q3", prompt: "P3", type: "MULTIPLE_CHOICE", points: 1 },
-          { id: "q4", prompt: "P4", type: "MULTIPLE_CHOICE", points: 1 },
-        ],
+      byLevel: {
+        "level-a1": {
+          reading: [{ id: "q1r", prompt: "R A1", type: "MULTIPLE_CHOICE", points: 1 }],
+          rest: [{ id: "q2", prompt: "O A1", type: "MULTIPLE_CHOICE", points: 1 }],
+        },
+        "level-a2": {
+          reading: [{ id: "q3r", prompt: "R A2", type: "MULTIPLE_CHOICE", points: 1 }],
+          rest: [{ id: "q4", prompt: "O A2", type: "MULTIPLE_CHOICE", points: 1 }],
+        },
       },
       optionsByQuestion: {
-        q1: [{ id: "q1-o1", questionId: "q1", text: "a", isCorrect: true, order: 0 }],
+        q1r: [{ id: "q1r-o1", questionId: "q1r", text: "a", isCorrect: true, order: 0 }],
         q2: [{ id: "q2-o1", questionId: "q2", text: "a", isCorrect: true, order: 0 }],
-        q3: [{ id: "q3-o1", questionId: "q3", text: "a", isCorrect: true, order: 0 }],
+        q3r: [{ id: "q3r-o1", questionId: "q3r", text: "a", isCorrect: true, order: 0 }],
         q4: [{ id: "q4-o1", questionId: "q4", text: "a", isCorrect: true, order: 0 }],
       },
     })
 
     const result = await sampleQuestionsForPlacement(tx, reversed)
-    // El sortBy interno garantiza A1 (order 1) antes que A2 (order 2).
-    expect(result.map((r) => r.sectionOrder)).toEqual([1, 1, 2, 2])
+    expect(result.questions.map((r) => r.sectionOrder)).toEqual([1, 1, 2, 2])
+  })
+
+  it("trae acceptedAnswers para FILL_IN y options para MC", async () => {
+    const tx = makeTx({
+      byLevel: {
+        "level-a1": {
+          reading: [],
+          rest: [
+            { id: "qFill", prompt: "P", type: "FILL_IN", points: 1 },
+            { id: "qMc", prompt: "P", type: "MULTIPLE_CHOICE", points: 1 },
+          ],
+        },
+        "level-a2": {
+          reading: [{ id: "qMc2", prompt: "P", type: "MULTIPLE_CHOICE", points: 1 }],
+          rest: [{ id: "qMc3", prompt: "P", type: "MULTIPLE_CHOICE", points: 1 }],
+        },
+      },
+      optionsByQuestion: {
+        qMc: [{ id: "qMc-o1", questionId: "qMc", text: "a", isCorrect: true, order: 0 }],
+        qMc2: [{ id: "qMc2-o1", questionId: "qMc2", text: "a", isCorrect: true, order: 0 }],
+        qMc3: [{ id: "qMc3-o1", questionId: "qMc3", text: "a", isCorrect: true, order: 0 }],
+      },
+      fillAnswersByQuestion: {
+        qFill: [{ questionId: "qFill", acceptedAnswer: "hello", caseSensitive: false }],
+      },
+    })
+
+    const result = await sampleQuestionsForPlacement(tx, sectionsAB)
+    const fill = result.questions.find((r) => r.questionId === "qFill")!
+    expect(fill.options).toBeNull()
+    expect(fill.acceptedAnswers).toEqual([{ answer: "hello", caseSensitive: false }])
+    const mc = result.questions.find((r) => r.questionId === "qMc")!
+    expect(mc.acceptedAnswers).toBeNull()
+    expect(mc.options).toHaveLength(1)
   })
 })

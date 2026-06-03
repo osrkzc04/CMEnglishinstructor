@@ -26,6 +26,7 @@ export default async function AdminConfiguracionSistemaPage() {
     "weeklyMinHours",
     "weeklyMaxHours",
     "absenceCountsAsConsumed",
+    "placementConfirmationThresholdPercent",
   ])
 
   return (

@@ -37,13 +37,24 @@ export type SectionMeta = {
 
 export type SessionState = {
   sessionId: string
-  status: "IN_PROGRESS" | "SUBMITTED" | "TIMED_OUT" | "REVIEWED" | "ABANDONED"
+  status:
+    | "IN_PROGRESS"
+    | "PENDING_WRITING"
+    | "SUBMITTED"
+    | "TIMED_OUT"
+    | "REVIEWED"
+    | "ABANDONED"
   candidateName: string
   deadlineISO: string
   remainingMs: number
   currentSectionOrder: number
   visibleQuestions: VisibleQuestion[]
   sections: SectionMeta[]
+  // Solo presentes cuando status === "PENDING_WRITING" (o ya fue
+  // respondido). El cliente los usa para renderizar la pantalla de writing.
+  writingLevelCode: string | null
+  writingPromptSnapshot: string | null
+  writingResponse: string | null
 }
 
 export async function getSessionStateById(sessionId: string): Promise<SessionState | null> {
@@ -56,6 +67,9 @@ export async function getSessionStateById(sessionId: string): Promise<SessionSta
       deadline: true,
       currentSectionOrder: true,
       templateId: true,
+      writingLevelCode: true,
+      writingPromptSnapshot: true,
+      writingResponse: true,
     },
   })
   if (!session) return null
@@ -136,6 +150,9 @@ export async function getSessionStateById(sessionId: string): Promise<SessionSta
     currentSectionOrder: session.currentSectionOrder,
     visibleQuestions,
     sections: sectionMetas,
+    writingLevelCode: session.writingLevelCode,
+    writingPromptSnapshot: session.writingPromptSnapshot,
+    writingResponse: session.writingResponse,
   }
 }
 

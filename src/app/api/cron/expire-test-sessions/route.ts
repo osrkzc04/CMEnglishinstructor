@@ -6,8 +6,10 @@ import { finalizeAsTimedOut } from "@/modules/tests/sessions/finalize-as-timed-o
 /**
  * GET /api/cron/expire-test-sessions
  *
- * Recoge sesiones IN_PROGRESS cuyo deadline venció hace más de 5 min (margen
- * para no chocar con la lazy expire) y las marca TIMED_OUT con auto-grade.
+ * Recoge sesiones IN_PROGRESS o PENDING_WRITING cuyo deadline venció hace
+ * más de 5 min (margen para no chocar con la lazy expire) y las marca
+ * TIMED_OUT con auto-grade. Si la sesión estaba en PENDING_WRITING, el
+ * writingResponse parcial que hubiera quedado guardado se preserva.
  *
  * Autenticación: Bearer token contra `CRON_SECRET`.
  */
@@ -29,7 +31,10 @@ export async function GET(req: Request) {
 
   const cutoff = new Date(Date.now() - STALE_MARGIN_MS)
   const stale = await prisma.testSession.findMany({
-    where: { status: "IN_PROGRESS", deadline: { lt: cutoff } },
+    where: {
+      status: { in: ["IN_PROGRESS", "PENDING_WRITING"] },
+      deadline: { lt: cutoff },
+    },
     select: { id: true },
   })
 

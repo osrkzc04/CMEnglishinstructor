@@ -36,6 +36,10 @@ export const SystemSettingsSchema = z.object({
     .min(1, "Mínimo 1 hora")
     .max(40, "Máximo 40 horas"),
   absenceCountsAsConsumed: z.boolean(),
+  placementConfirmationThresholdPercent: z.coerce
+    .number({ invalid_type_error: "Debe ser un número" })
+    .min(0, "Mínimo 0%")
+    .max(100, "Máximo 100%"),
 })
 
 export type SystemSettingsInput = z.infer<typeof SystemSettingsSchema>

@@ -65,7 +65,13 @@ export type ReviewDetail = {
     candidateEmail: string
     candidatePhone: string | null
     candidateDocument: string | null
-    status: "IN_PROGRESS" | "SUBMITTED" | "TIMED_OUT" | "REVIEWED" | "ABANDONED"
+    status:
+      | "IN_PROGRESS"
+      | "PENDING_WRITING"
+      | "SUBMITTED"
+      | "TIMED_OUT"
+      | "REVIEWED"
+      | "ABANDONED"
     startedAt: Date
     deadline: Date
     submittedAt: Date | null
@@ -80,6 +86,14 @@ export type ReviewDetail = {
       name: string
       timeLimitMinutes: number
     }
+    // Writing del placement adaptativo. Solo se rellena cuando la sesión
+    // transitó por PENDING_WRITING (o ya está SUBMITTED después). Los
+    // tres null = el candidato no llegó al writing (estado raro,
+    // por ej. TIMED_OUT antes de pasar la primera sección).
+    writingLevelCode: string | null
+    writingPromptSnapshot: string | null
+    writingResponse: string | null
+    writingSubmittedAt: Date | null
   }
   skillEvaluation: {
     reading: number | null
@@ -88,6 +102,7 @@ export type ReviewDetail = {
     speaking: number | null
     assignedLevelId: string | null
     reviewerNotes: string | null
+    writingFeedback: string | null
   } | null
   questions: ReviewQuestion[]
   sectionSummaries: ReviewSectionSummary[]
@@ -112,6 +127,10 @@ export async function getReviewDetail(sessionId: string): Promise<ReviewDetail |
       maxAutoScore: true,
       resultsToken: true,
       resultsTokenExpiresAt: true,
+      writingLevelCode: true,
+      writingPromptSnapshot: true,
+      writingResponse: true,
+      writingSubmittedAt: true,
       invite: {
         select: {
           candidatePhone: true,
@@ -129,6 +148,7 @@ export async function getReviewDetail(sessionId: string): Promise<ReviewDetail |
           speaking: true,
           assignedLevelId: true,
           reviewerNotes: true,
+          writingFeedback: true,
         },
       },
     },
@@ -240,6 +260,10 @@ export async function getReviewDetail(sessionId: string): Promise<ReviewDetail |
         name: session.template.name,
         timeLimitMinutes: session.template.timeLimitMinutes,
       },
+      writingLevelCode: session.writingLevelCode,
+      writingPromptSnapshot: session.writingPromptSnapshot,
+      writingResponse: session.writingResponse,
+      writingSubmittedAt: session.writingSubmittedAt,
     },
     skillEvaluation: session.skillEvaluation
       ? {
@@ -249,6 +273,7 @@ export async function getReviewDetail(sessionId: string): Promise<ReviewDetail |
           speaking: decimalToNumber(session.skillEvaluation.speaking),
           assignedLevelId: session.skillEvaluation.assignedLevelId,
           reviewerNotes: session.skillEvaluation.reviewerNotes,
+          writingFeedback: session.skillEvaluation.writingFeedback,
         }
       : null,
     questions,

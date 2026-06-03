@@ -13,6 +13,7 @@ import {
   generateDeviceSecret,
   hashDeviceSecret,
 } from "./device-lock"
+import { logSessionEvent } from "./log-event"
 import { sampleQuestionsForPlacement } from "./sampling"
 import type { Section } from "../shared/types"
 
@@ -68,8 +69,10 @@ export async function startPlacementSession(args: StartSessionArgs): Promise<Sta
 
       const session = invite.session
 
-      // 1) Resume si ya hay sesión IN_PROGRESS para este invite.
-      if (session && session.status === "IN_PROGRESS") {
+      // 1) Resume si ya hay sesión activa (IN_PROGRESS o PENDING_WRITING).
+      //    Ambos estados son no-terminales — el candidato puede volver y
+      //    seguir respondiendo / enviar el writing.
+      if (session && (session.status === "IN_PROGRESS" || session.status === "PENDING_WRITING")) {
         const check = checkDeviceAccess({
           cookieHashOnSession: session.deviceCookieHash,
           fingerprintOnSession: session.deviceFingerprint,
@@ -85,6 +88,7 @@ export async function startPlacementSession(args: StartSessionArgs): Promise<Sta
           deadline: session.deadline,
           resumed: true,
           cookieToSet: null,
+          missingReadingLevels: [] as string[],
         }
       }
 
@@ -114,7 +118,10 @@ export async function startPlacementSession(args: StartSessionArgs): Promise<Sta
         passingPercent: s.passingPercent,
       }))
 
-      const sampled = await sampleQuestionsForPlacement(tx, sections)
+      const { questions: sampled, missingReadingLevels } = await sampleQuestionsForPlacement(
+        tx,
+        sections,
+      )
 
       const now = new Date()
       const deadline = new Date(now.getTime() + invite.template.timeLimitMinutes * 60_000)
@@ -171,10 +178,32 @@ export async function startPlacementSession(args: StartSessionArgs): Promise<Sta
         deadline: created.deadline,
         resumed: false,
         cookieToSet: secret,
+        missingReadingLevels,
       }
     },
     { maxWait: 10_000, timeout: 30_000 },
-  )
+  ).then(async (result) => {
+    // Log fuera del tx (sigue el patrón de logSessionEvent usado en el
+    // resto del módulo, que escribe con el prisma global). Esto no
+    // bloquea al candidato — los eventos son señal para coordinación.
+    if (!result.resumed && result.missingReadingLevels.length > 0) {
+      await Promise.all(
+        result.missingReadingLevels.map((cefr) =>
+          logSessionEvent({
+            sessionId: result.sessionId,
+            type: "MISSING_READING",
+            metadata: { cefrLevelCode: cefr },
+          }),
+        ),
+      )
+    }
+    return {
+      sessionId: result.sessionId,
+      deadline: result.deadline,
+      resumed: result.resumed,
+      cookieToSet: result.cookieToSet,
+    }
+  })
 }
 
 // -----------------------------------------------------------------------------

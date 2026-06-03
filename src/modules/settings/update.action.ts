@@ -57,6 +57,11 @@ export async function updateSystemSettings(input: SystemSettingsInput): Promise<
     setSetting("weeklyMinHours", data.weeklyMinHours, user.id),
     setSetting("weeklyMaxHours", data.weeklyMaxHours, user.id),
     setSetting("absenceCountsAsConsumed", data.absenceCountsAsConsumed, user.id),
+    setSetting(
+      "placementConfirmationThresholdPercent",
+      data.placementConfirmationThresholdPercent,
+      user.id,
+    ),
   ])
 
   revalidatePath("/admin/configuracion/sistema")

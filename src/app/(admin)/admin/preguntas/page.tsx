@@ -21,7 +21,7 @@ import { LevelGrid } from "./_components/LevelGrid"
  * nivel.
  */
 
-export const metadata: Metadata = { title: "Banco de preguntas" }
+export const metadata: Metadata = { title: "Banco de evaluación" }
 
 type SearchParams = { languageId?: string }
 
@@ -49,7 +49,7 @@ export default async function PreguntasPage({
       }}
       breadcrumbs={[
         { label: "Admin", href: "/admin/dashboard" as Route },
-        { label: "Banco de preguntas" },
+        { label: "Banco de evaluación" },
       ]}
     >
       <div className="mb-7 flex flex-wrap items-end justify-between gap-4">
@@ -58,11 +58,11 @@ export default async function PreguntasPage({
             Operación
           </p>
           <h1 className="font-serif text-[32px] leading-[1.18] font-normal tracking-[-0.02em]">
-            Banco de preguntas
+            Banco de evaluación
           </h1>
           <p className="text-text-3 mt-2 max-w-2xl text-[14px] leading-[1.55]">
-            Administra las preguntas por nivel CEFR. Cada bloque del placement test sortea 20
-            preguntas, así que mantenemos al menos 50 activas por nivel.
+            Administra las preguntas y la instrucción de redacción de cada nivel CEFR. Cada bloque del
+            placement test sortea 20 preguntas, así que mantenemos al menos 50 activas por nivel.
           </p>
         </header>
         {languageId && <LanguageSwitcher languages={languages} current={languageId} />}

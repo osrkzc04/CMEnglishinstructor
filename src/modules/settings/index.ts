@@ -57,6 +57,13 @@ const SETTINGS = {
     description:
       "Duración por defecto (en minutos) de una clase. Se usa como valor inicial al crear un Course nuevo y como referencia editable desde el panel de configuración. Las aulas existentes mantienen su snapshot original — cambiar este valor no altera horarios ya planificados.",
   } satisfies SettingDef<number>,
+  placementConfirmationThresholdPercent: {
+    key: "placement_confirmation_threshold_percent",
+    type: SettingType.NUMBER,
+    default: 78 as number,
+    description:
+      "Porcentaje del puntaje total (sobre 400) que el candidato debe alcanzar para que se confirme el nivel al que llegó en el examen adaptativo. Por debajo del umbral, la recomendación baja un nivel respecto al bloque que el candidato superó.",
+  } satisfies SettingDef<number>,
 } as const
 
 export type SettingKey = keyof typeof SETTINGS

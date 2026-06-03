@@ -45,12 +45,23 @@ export type ResultsQuestion = {
   isCorrect: boolean | null
 }
 
+export type ResultsSkills = {
+  reading: number | null
+  writing: number | null
+  listening: number | null
+  speaking: number | null
+  // Suma de las habilidades con nota (sobre 400).
+  total: number
+}
+
 export type ResultsView = {
   candidateName: string
   reviewedAt: Date
   expiresAt: Date
   templateName: string
   reviewerNotes: string | null
+  writingFeedback: string | null
+  skills: ResultsSkills
   totalAnswered: number
   totalCorrect: number
   questions: ResultsQuestion[]
@@ -70,7 +81,14 @@ export async function getResultsByToken(token: string): Promise<ResultsViewState
       reviewedAt: true,
       resultsTokenExpiresAt: true,
       skillEvaluation: {
-        select: { reviewerNotes: true },
+        select: {
+          reading: true,
+          writing: true,
+          listening: true,
+          speaking: true,
+          reviewerNotes: true,
+          writingFeedback: true,
+        },
       },
       template: {
         select: { name: true },
@@ -125,6 +143,14 @@ export async function getResultsByToken(token: string): Promise<ResultsViewState
     }
   })
 
+  const ev = session.skillEvaluation
+  const reading = decimalToNumber(ev?.reading)
+  const writing = decimalToNumber(ev?.writing)
+  const listening = decimalToNumber(ev?.listening)
+  const speaking = decimalToNumber(ev?.speaking)
+  const total =
+    (reading ?? 0) + (writing ?? 0) + (listening ?? 0) + (speaking ?? 0)
+
   return {
     ok: true,
     data: {
@@ -132,10 +158,21 @@ export async function getResultsByToken(token: string): Promise<ResultsViewState
       reviewedAt: session.reviewedAt,
       expiresAt: session.resultsTokenExpiresAt,
       templateName: session.template.name,
-      reviewerNotes: session.skillEvaluation?.reviewerNotes ?? null,
+      reviewerNotes: ev?.reviewerNotes ?? null,
+      writingFeedback: ev?.writingFeedback ?? null,
+      skills: { reading, writing, listening, speaking, total },
       totalAnswered: questions.length,
       totalCorrect,
       questions,
     },
   }
+}
+
+function decimalToNumber(d: unknown): number | null {
+  if (d === null || d === undefined) return null
+  if (typeof d === "object" && d !== null && "toNumber" in d) {
+    return (d as { toNumber: () => number }).toNumber()
+  }
+  const n = Number(d)
+  return Number.isFinite(n) ? n : null
 }

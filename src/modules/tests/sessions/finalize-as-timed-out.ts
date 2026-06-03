@@ -23,7 +23,12 @@ export async function finalizeAsTimedOut(
     include: { questions: true },
   })
   if (!session) return null
-  if (session.status !== "IN_PROGRESS") {
+  // IN_PROGRESS y PENDING_WRITING son los dos estados activos. Cualquier
+  // otro (SUBMITTED / TIMED_OUT / REVIEWED / ABANDONED) es terminal y no
+  // se reabre. Si el candidato se quedó pegado en writing y venció el
+  // tiempo, el response parcial (si hay) queda guardado pero la sesión
+  // pasa a TIMED_OUT y deja de aceptar cambios.
+  if (session.status !== "IN_PROGRESS" && session.status !== "PENDING_WRITING") {
     return {
       wasIdempotent: true,
       autoScore: session.autoScore ?? 0,

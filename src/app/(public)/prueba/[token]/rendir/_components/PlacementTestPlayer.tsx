@@ -10,6 +10,7 @@ import { cn } from "@/lib/utils"
 import { TimerDisplay } from "./TimerDisplay"
 import { CardGrid, type CardState, type SectionRange } from "./CardGrid"
 import { QuestionView, type QuestionOption } from "./QuestionView"
+import { WritingScreen } from "./WritingScreen"
 
 /**
  * Orquestador principal de la pantalla `/prueba/[token]/rendir`.
@@ -45,13 +46,22 @@ type SectionMeta = {
 
 export type SessionState = {
   sessionId: string
-  status: "IN_PROGRESS" | "SUBMITTED" | "TIMED_OUT" | "REVIEWED" | "ABANDONED"
+  status:
+    | "IN_PROGRESS"
+    | "PENDING_WRITING"
+    | "SUBMITTED"
+    | "TIMED_OUT"
+    | "REVIEWED"
+    | "ABANDONED"
   candidateName: string
   deadlineISO: string
   remainingMs: number
   currentSectionOrder: number
   visibleQuestions: VisibleQuestion[]
   sections: SectionMeta[]
+  writingLevelCode: string | null
+  writingPromptSnapshot: string | null
+  writingResponse: string | null
 }
 
 const SAVE_DEBOUNCE_MS = 500
@@ -72,6 +82,21 @@ export function PlacementTestPlayer({
   const [isAdvancing, setIsAdvancing] = useState(false)
   const [advanceError, setAdvanceError] = useState<string | null>(null)
   const saveTimers = useRef<Map<number, number>>(new Map())
+
+  // -----------------------------------------------------------------------
+  //  Si el estado quedó en estado terminal por cualquier vía (timeout,
+  //  submit de writing en otro tab), redirigir a /finalizado.
+  // -----------------------------------------------------------------------
+  useEffect(() => {
+    if (
+      state.status === "SUBMITTED" ||
+      state.status === "TIMED_OUT" ||
+      state.status === "REVIEWED" ||
+      state.status === "ABANDONED"
+    ) {
+      router.replace(`/prueba/${token}/finalizado` as Route)
+    }
+  }, [state.status, router, token])
 
   // -----------------------------------------------------------------------
   //  Anti-cheat hooks — registran eventos sin bloquear.
@@ -290,12 +315,15 @@ export function PlacementTestPlayer({
       }
       const body = (await res.json()) as
         | { ok: true; advanced: true; nextSectionOrder: number }
-        | { ok: true; advanced: false; status: "SUBMITTED" | "TIMED_OUT"; reason: string }
-      if (!body.advanced) {
-        router.replace(`/prueba/${token}/finalizado` as Route)
-        return
-      }
-      // Refrescar estado pidiendo el nuevo snapshot al server.
+        | {
+            ok: true
+            advanced: false
+            status: "PENDING_WRITING" | "TIMED_OUT"
+            reason: string
+          }
+      // Refrescar estado pidiendo el nuevo snapshot al server. Cubre los
+      // tres casos: avanzó a próxima sección, transitó a PENDING_WRITING,
+      // o (excepción) llegó timeout durante el commit.
       const stateRes = await fetch(`/api/test-sessions/${state.sessionId}/state`)
       if (!stateRes.ok) {
         router.refresh()
@@ -304,12 +332,37 @@ export function PlacementTestPlayer({
       const stateBody = (await stateRes.json()) as { ok: true; state: SessionState }
       setState(stateBody.state)
       setSyncedAtMs(Date.now())
-      setActiveOrder(stateBody.state.visibleQuestions[0]?.order ?? 1)
+      // Si el nuevo estado quedó en PENDING_WRITING, el render baja al
+      // <WritingScreen>. Si avanzó a otra sección, ubicamos el cursor en la
+      // primera pregunta. Si terminó (timeout), el siguiente useEffect
+      // redirige a /finalizado.
+      if (body.advanced) {
+        setActiveOrder(stateBody.state.visibleQuestions[0]?.order ?? 1)
+      }
     } catch {
       setAdvanceError("No pudimos continuar. Revisa tu conexión y reintenta.")
     } finally {
       setIsAdvancing(false)
     }
+  }
+
+  // -----------------------------------------------------------------------
+  //  Branch: PENDING_WRITING → pantalla de redacción.
+  // -----------------------------------------------------------------------
+  if (state.status === "PENDING_WRITING") {
+    return (
+      <WritingScreen
+        token={token}
+        sessionId={state.sessionId}
+        candidateName={state.candidateName}
+        deadlineISO={state.deadlineISO}
+        remainingMs={state.remainingMs}
+        syncedAtMs={syncedAtMs}
+        writingLevelCode={state.writingLevelCode}
+        writingPromptSnapshot={state.writingPromptSnapshot}
+        initialResponse={state.writingResponse}
+      />
+    )
   }
 
   return (

@@ -160,6 +160,25 @@ export function SystemSettingsForm({ initialValues }: Props) {
         />
       </Section>
 
+      <Section
+        title="Evaluación de ubicación"
+        description="Cómo se confirma el nivel sugerido al cerrar la revisión del placement."
+      >
+        <NumberField
+          label="Umbral de confirmación"
+          unit="%"
+          hint="Porcentaje del puntaje total (sobre 400) que el candidato debe alcanzar para confirmar el nivel al que llegó en el examen adaptativo. Por debajo del umbral, la recomendación baja un nivel."
+          error={errors.placementConfirmationThresholdPercent?.message}
+          inputProps={{
+            ...register("placementConfirmationThresholdPercent"),
+            type: "number",
+            min: 0,
+            max: 100,
+            step: 1,
+          }}
+        />
+      </Section>
+
       <div className="border-border flex items-center justify-end gap-3 border-t pt-6">
         <Button type="submit" variant="primary" size="lg" disabled={isPending || !isDirty}>
           {isPending ? (

@@ -7,7 +7,12 @@ import { cn } from "@/lib/utils"
 import {
   getResultsByToken,
   type ResultsQuestion,
+  type ResultsSkills,
 } from "@/modules/tests/sessions/results-queries"
+import {
+  PLACEMENT_SKILL_MAX,
+  PLACEMENT_TOTAL_MAX,
+} from "@/modules/tests/grading/level-recommendation"
 
 /**
  * `/resultados/[token]` — vista pública para el candidato.
@@ -15,13 +20,13 @@ import {
  * Tras la revisión humana se le envió un correo con un link válido por 12 h.
  * Esta página muestra:
  *  - Nombre, plantilla, fecha de revisión.
- *  - Puntaje total (aciertos / respondidas + %).
+ *  - Puntaje por habilidad (Reading/Grammar, Writing, Listening, Speaking)
+ *    sobre 100 y el total sobre 400.
+ *  - Retroalimentación del writing y observaciones del revisor.
  *  - Lista pregunta-por-pregunta con la respuesta marcada y la correcta.
- *  - Observaciones que el revisor decidió compartir.
  *
  * Lo que NO se expone:
  *  - Nivel CEFR asignado (queda interno, coordinación lo conversa).
- *  - Notas R/W/L/S sobre 100.
  *  - El code de sección (A1/A2/etc.) — el candidato no lo necesita.
  *
  * Estados manejados:
@@ -64,8 +69,6 @@ export default async function ResultadoPage({ params }: { params: Promise<RouteP
 
   const { data } = result
   const firstName = data.candidateName.split(" ")[0]
-  const globalPct =
-    data.totalAnswered === 0 ? 0 : Math.round((data.totalCorrect / data.totalAnswered) * 100)
 
   return (
     <main className="bg-background flex min-h-screen flex-col px-4 py-10">
@@ -92,19 +95,16 @@ export default async function ResultadoPage({ params }: { params: Promise<RouteP
             <Field label="Revisada" value={dateFormatter.format(data.reviewedAt)} />
           </div>
 
-          {data.totalAnswered > 0 && (
+          <SkillScores skills={data.skills} />
+
+          {data.writingFeedback && (
             <section className="mt-6">
               <p className="text-text-3 font-mono text-[11px] tracking-[0.08em] uppercase">
-                Puntaje total
+                Sobre tu redacción
               </p>
-              <div className="border-border mt-3 flex items-baseline justify-between border-b pb-4">
-                <span className="text-foreground font-mono text-[20px] tabular-nums">
-                  {data.totalCorrect} / {data.totalAnswered}
-                </span>
-                <span className="text-text-2 font-mono text-[13px] tabular-nums">
-                  {globalPct}% de aciertos
-                </span>
-              </div>
+              <p className="text-foreground mt-2 text-[14px] leading-[1.6] whitespace-pre-line">
+                {data.writingFeedback}
+              </p>
             </section>
           )}
 
@@ -152,6 +152,43 @@ function Field({ label, value }: { label: string; value: string }) {
       <p className="text-text-3 font-mono text-[11px] tracking-[0.08em] uppercase">{label}</p>
       <p className="text-foreground mt-1 text-[14px] leading-[1.5]">{value}</p>
     </div>
+  )
+}
+
+function formatScore(n: number): string {
+  return Number.isInteger(n) ? String(n) : n.toFixed(1)
+}
+
+function SkillScores({ skills }: { skills: ResultsSkills }) {
+  const rows: { label: string; value: number | null }[] = [
+    { label: "Reading / Grammar", value: skills.reading },
+    { label: "Writing", value: skills.writing },
+    { label: "Listening", value: skills.listening },
+    { label: "Speaking", value: skills.speaking },
+  ]
+
+  return (
+    <section className="mt-6">
+      <p className="text-text-3 font-mono text-[11px] tracking-[0.08em] uppercase">
+        Puntaje por habilidad
+      </p>
+      <ul className="border-border divide-border mt-3 divide-y border-y">
+        {rows.map((r) => (
+          <li key={r.label} className="flex items-center justify-between py-3">
+            <span className="text-foreground text-[14px]">{r.label}</span>
+            <span className="text-text-2 font-mono text-[14px] tabular-nums">
+              {r.value === null ? "—" : `${formatScore(r.value)} / ${PLACEMENT_SKILL_MAX}`}
+            </span>
+          </li>
+        ))}
+        <li className="flex items-center justify-between py-3">
+          <span className="text-foreground text-[14px] font-medium">Total</span>
+          <span className="font-mono text-[16px] tabular-nums text-teal-600">
+            {formatScore(skills.total)} / {PLACEMENT_TOTAL_MAX}
+          </span>
+        </li>
+      </ul>
+    </section>
   )
 }
 

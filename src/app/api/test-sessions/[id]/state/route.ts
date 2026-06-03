@@ -55,8 +55,9 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
       throw new DeviceMismatchError(access.reason)
     }
 
-    // Lazy expire — pero solo si está IN_PROGRESS.
-    if (session.status === "IN_PROGRESS") {
+    // Lazy expire — para IN_PROGRESS y PENDING_WRITING (ambos comparten el
+    // deadline global del examen). El finalize-as-timed-out es idempotente.
+    if (session.status === "IN_PROGRESS" || session.status === "PENDING_WRITING") {
       const now = Date.now()
       if (now > session.deadline.getTime() + GRACE_MS) {
         await prisma.$transaction(async (tx) => {

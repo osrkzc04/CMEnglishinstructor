@@ -14,6 +14,7 @@ const STATUS_BADGE: Record<
   { label: string; variant: "default" | "teal" | "warning" | "info" | "danger" }
 > = {
   IN_PROGRESS: { label: "En curso", variant: "teal" },
+  PENDING_WRITING: { label: "Escribiendo redacción", variant: "info" },
   SUBMITTED: { label: "Por revisar", variant: "warning" },
   TIMED_OUT: { label: "Por revisar · tiempo", variant: "warning" },
   REVIEWED: { label: "Revisada", variant: "teal" },

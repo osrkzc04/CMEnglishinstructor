@@ -2,7 +2,8 @@ import "server-only"
 import { EmailType, EmailStatus } from "@prisma/client"
 import { prisma } from "@/lib/prisma"
 import { env } from "@/lib/env"
-import { renderEmail } from "@/lib/email/template"
+import { renderEmail, EMAIL_COLORS, EMAIL_FONTS } from "@/lib/email/template"
+import { PLACEMENT_SKILL_MAX, PLACEMENT_TOTAL_MAX } from "@/modules/tests/grading/level-recommendation"
 
 /**
  * Emails del flujo de placement test: invitación, recordatorio (futuro),
@@ -118,23 +119,47 @@ export async function sendTestInvitationEmail(args: {
  * conversación la maneja coordinación por fuera. Solo invitamos a abrir el
  * link para ver su retroalimentación.
  */
+export type PlacementScores = {
+  reading: number | null
+  writing: number | null
+  listening: number | null
+  speaking: number | null
+}
+
 export async function sendTestResultsEmail(args: {
   sessionId: string
   to: string
   candidateName: string
   resultsToken: string
   expiresAt: Date
+  scores?: PlacementScores
+  writingFeedback?: string | null
 }): Promise<{ ok: boolean }> {
   const link = buildTestResultsLink(args.resultsToken)
   const expiresLabel = formatExpires(args.expiresAt)
+
+  const scoresTable = args.scores ? renderScoresTable(args.scores) : ""
+  const writingBlock = args.writingFeedback ? renderWritingFeedback(args.writingFeedback) : ""
 
   const html = renderEmail({
     preheader: "Tu evaluación ya fue revisada.",
     eyebrow: "Resultado de tu evaluación",
     heading: `Hola, ${args.candidateName}`,
-    body: [
-      "Tu evaluación de ubicación ya fue revisada. Puedes abrir el enlace para ver el resultado y las observaciones.",
-      `El enlace queda disponible hasta el ${expiresLabel}. Después de esa fecha vence por seguridad — si necesitas verlo más tarde, escríbenos y te ayudamos.`,
+    blocks: [
+      {
+        kind: "p",
+        html: "Tu evaluación de ubicación ya fue revisada. Estos son tus puntajes por habilidad:",
+      },
+      ...(scoresTable ? [{ kind: "raw" as const, html: scoresTable }] : []),
+      ...(writingBlock ? [{ kind: "raw" as const, html: writingBlock }] : []),
+      {
+        kind: "p",
+        html: "Abre el enlace para ver el detalle de tus respuestas y las observaciones de coordinación.",
+      },
+      {
+        kind: "p",
+        html: `El enlace queda disponible hasta el ${escapeText(expiresLabel)}. Después de esa fecha vence por seguridad — si necesitas verlo más tarde, escríbenos y te ayudamos.`,
+      },
     ],
     cta: { label: "Ver mi resultado", url: link },
     fineprint: `Si el botón no funciona, copia y pega este enlace en tu navegador:\n${link}`,
@@ -147,6 +172,69 @@ export async function sendTestResultsEmail(args: {
     type: EmailType.TEST_RESULT_STUDENT,
     sessionId: args.sessionId,
   })
+}
+
+// -----------------------------------------------------------------------------
+//  Tabla de puntajes (HTML inline para el correo)
+// -----------------------------------------------------------------------------
+
+function renderScoresTable(scores: PlacementScores): string {
+  const rows: { label: string; value: number | null }[] = [
+    { label: "Reading / Grammar", value: scores.reading },
+    { label: "Writing", value: scores.writing },
+    { label: "Listening", value: scores.listening },
+    { label: "Speaking", value: scores.speaking },
+  ]
+  const total = rows.reduce((sum, r) => sum + (r.value ?? 0), 0)
+
+  const C = EMAIL_COLORS
+  const F = EMAIL_FONTS
+
+  const cellLabel = `font-family:${F.sans};font-size:14px;color:${C.body};padding:11px 0;border-bottom:1px solid ${C.border};`
+  const cellValue = `font-family:${F.mono};font-size:14px;color:${C.ink};text-align:right;padding:11px 0;border-bottom:1px solid ${C.border};`
+
+  const body = rows
+    .map(
+      (r) => `<tr>
+        <td style="${cellLabel}">${escapeText(r.label)}</td>
+        <td style="${cellValue}">${r.value === null ? "—" : `${formatScore(r.value)} / ${PLACEMENT_SKILL_MAX}`}</td>
+      </tr>`,
+    )
+    .join("")
+
+  return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:8px 0 20px 0;border:1px solid ${C.border};border-radius:10px;padding:6px 18px;background:${C.bone};">
+      ${body}
+      <tr>
+        <td style="font-family:${F.sans};font-size:14px;font-weight:600;color:${C.ink};padding:13px 0 11px 0;">Total</td>
+        <td style="font-family:${F.mono};font-size:16px;font-weight:600;color:${C.teal};text-align:right;padding:13px 0 11px 0;">${total} / ${PLACEMENT_TOTAL_MAX}</td>
+      </tr>
+    </table>`
+}
+
+function renderWritingFeedback(text: string): string {
+  const C = EMAIL_COLORS
+  const F = EMAIL_FONTS
+  return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 20px 0;">
+      <tr>
+        <td style="border-left:3px solid ${C.teal};padding:4px 0 4px 16px;">
+          <p style="margin:0 0 6px 0;font-family:${F.sans};font-size:11px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:${C.textMuted};">Sobre tu redacción</p>
+          <p style="margin:0;font-family:${F.sans};font-size:14px;line-height:1.6;color:${C.body};">${escapeText(text).replace(/\n/g, "<br>")}</p>
+        </td>
+      </tr>
+    </table>`
+}
+
+function formatScore(n: number): string {
+  return Number.isInteger(n) ? String(n) : n.toFixed(1)
+}
+
+function escapeText(s: string): string {
+  return s
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;")
 }
 
 // -----------------------------------------------------------------------------

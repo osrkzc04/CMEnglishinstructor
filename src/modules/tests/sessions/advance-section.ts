@@ -51,9 +51,14 @@ export type AdvanceResult =
   | { advanced: true; nextSectionOrder: number }
   | {
       advanced: false
-      status: "SUBMITTED" | "TIMED_OUT"
+      status: "PENDING_WRITING" | "TIMED_OUT"
       reason: "FAILED_THRESHOLD" | "ALL_SECTIONS_COMPLETED"
     }
+
+// Fallback de consigna cuando la sección no tiene `writingPrompt` configurado.
+// El placeholder evita pantalla en blanco si coordinación olvidó setearlo.
+const DEFAULT_WRITING_FALLBACK =
+  "Write a short paragraph (80–120 words) about a topic of your choice. Use the vocabulary and grammar you feel most comfortable with."
 
 export async function advanceSection(
   sessionId: string,
@@ -98,7 +103,9 @@ export async function advanceSection(
     throw new TimedOutError()
   }
 
-  // Cargar la sección actual + la siguiente desde el template.
+  // Cargar la sección actual + la siguiente desde el template. Necesitamos
+  // `writingPrompt` para snapshotearlo cuando la sesión transite a
+  // PENDING_WRITING.
   const sections = await prisma.testTemplateSection.findMany({
     where: { templateId: session.templateId },
     orderBy: { order: "asc" },
@@ -180,20 +187,18 @@ export async function advanceSection(
     return { advanced: true, nextSectionOrder: nextSection.order }
   }
 
-  // Cierre: no pasó umbral, o no hay sección siguiente.
-  // En ambos casos, finalizamos como SUBMITTED y autogradeamos el total.
+  // Cierre del flujo adaptativo: no pasó umbral, o no hay sección siguiente.
+  // En ambos casos transitamos a PENDING_WRITING — la nota MC queda
+  // calculada acá, y el writing se envía después desde una pantalla aparte.
   const reason: "FAILED_THRESHOLD" | "ALL_SECTIONS_COMPLETED" = passed
     ? "ALL_SECTIONS_COMPLETED"
     : "FAILED_THRESHOLD"
 
   await prisma.$transaction(
     async (tx) => {
-      // Recargar todas las preguntas para autoGrade global (las de secciones
-      // bloqueadas ya están graded, las futuras sin responder quedan como
-      // incorrect/false). En la práctica, secciones no desbloqueadas tienen
-      // sectionOrder definido pero sin respuesta — autoGrade las marca como
-      // incorrectas. Para el `autoScore` total eso da el mismo número que si
-      // ignoraramos las secciones no respondidas, porque restan 0 puntos.
+      // Auto-grade global (igual que antes): las secciones bloqueadas ya
+      // están calificadas, las futuras sin responder cuentan como
+      // incorrectas con 0 puntos.
       const all = await tx.testSessionQuestion.findMany({ where: { sessionId: session.id } })
       const full = autoGrade(all)
       for (const g of full.gradedQuestions) {
@@ -207,8 +212,12 @@ export async function advanceSection(
         data: {
           autoScore: full.autoScore,
           maxAutoScore: full.maxAutoScore,
-          submittedAt: new Date(),
-          status: "SUBMITTED",
+          status: "PENDING_WRITING",
+          // Snapshot del writing del nivel donde el candidato se quedó.
+          // Aunque coordinación luego edite la plantilla, el candidato y la
+          // revisión ven la consigna que se le mostró.
+          writingLevelCode: currentSection.level.code,
+          writingPromptSnapshot: currentSection.writingPrompt ?? DEFAULT_WRITING_FALLBACK,
         },
       })
       await logSessionEvent({
@@ -224,12 +233,10 @@ export async function advanceSection(
     { maxWait: TX_MAX_WAIT_MS, timeout: TX_TIMEOUT_MS },
   )
 
-  // Notificación a coordinación queda para `submit.ts` cuando se invoque por
-  // botón "Finalizar" — acá no encolamos email porque la regla del proyecto
-  // dice "no encolar dentro de transacción", y la lógica de "examen listo
-  // para revisar" pertenece al submit. Las sesiones que llegan a este path
-  // (corte adaptativo) las recoge el mismo flujo de revisión admin: aparecen
-  // como SUBMITTED en `/admin/pruebas`.
+  // El email "examen listo para revisar" ya no se dispara acá: la sesión
+  // está en PENDING_WRITING, aún le falta la consigna. Cuando el candidato
+  // envíe el writing (submit-writing.ts) o venza el deadline, la sesión
+  // pasa a SUBMITTED/TIMED_OUT y ese flujo se encarga de notificar.
 
-  return { advanced: false, status: "SUBMITTED", reason }
+  return { advanced: false, status: "PENDING_WRITING", reason }
 }

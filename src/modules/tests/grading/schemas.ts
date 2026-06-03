@@ -25,6 +25,13 @@ export const ManualReviewInputSchema = z.object({
     .nullable()
     .optional()
     .transform((v) => (v && v.length > 0 ? v : null)),
+  writingFeedback: z
+    .string()
+    .trim()
+    .max(2000)
+    .nullable()
+    .optional()
+    .transform((v) => (v && v.length > 0 ? v : null)),
 })
 
 export type ManualReviewInput = z.infer<typeof ManualReviewInputSchema>

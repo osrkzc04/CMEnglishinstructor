@@ -134,7 +134,7 @@ function renderHeader(): string {
           <span style="display:inline-block;width:7px;height:7px;background:${COLORS.teal};border-radius:50%;"></span>
         </td>
         <td style="vertical-align:middle;font-family:${FONT_SERIF};font-style:italic;font-size:17px;line-height:1;color:${COLORS.ink};letter-spacing:-0.005em;">
-          CM<span style="color:${COLORS.textFaded};padding:0 4px;">·</span>English Instructor
+          CM<span style="color:${COLORS.textFaded};padding:0 4px;">·</span>Language Center
         </td>
       </tr>
     </table>

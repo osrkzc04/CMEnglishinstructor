@@ -1,10 +1,13 @@
+import { ChevronDown } from "lucide-react"
 import { cn } from "@/lib/utils"
 import type { ReviewEvent } from "@/modules/tests/sessions/review-queries"
 
 /**
- * Eventos sospechosos registrados durante la sesión (focus_lost, copy/paste,
- * intentos de cambiar dispositivo, etc). El detalle queda crudo para que
- * coordinación tenga el contexto sin que el motor decida nada.
+ * Eventos registrados durante la sesión (focus_lost, copy/paste, vistas de
+ * pregunta, etc). Como eventos como QUESTION_VIEWED pueden ser cientos, la
+ * vista por defecto agrupa por tipo con su conteo —los sospechosos primero y
+ * resaltados— y la cronología cruda queda detrás de un desplegable. El motor
+ * no decide nada: coordinación lee el contexto.
  */
 
 const SUSPICIOUS = new Set([
@@ -46,46 +49,86 @@ export function EventsList({ events }: { events: ReviewEvent[] }) {
     )
   }
 
+  const summary = summarizeEvents(events)
+
   return (
     <div className="border-border bg-surface space-y-3 rounded-xl border p-5">
       <p className="text-text-3 font-mono text-[11px] tracking-[0.08em] uppercase">
         Eventos durante la sesión
       </p>
-      <ol className="space-y-1.5">
-        {events.map((e) => {
-          const isSuspicious = SUSPICIOUS.has(e.type)
-          return (
-            <li
-              key={e.id}
-              className={cn(
-                "flex items-center justify-between gap-3 rounded-md border px-3 py-2 text-[12.5px]",
-                isSuspicious
-                  ? "border-warning/40 bg-warning/[0.06]"
-                  : "border-border bg-surface-alt",
-              )}
-            >
-              <span className="text-text-2 font-mono tabular-nums">
-                {dateFormatter.format(e.occurredAt)}
-              </span>
-              <span
+
+      <ul className="space-y-1.5">
+        {summary.map((g) => (
+          <li
+            key={g.type}
+            className={cn(
+              "flex items-center justify-between gap-3 rounded-md border px-3 py-2 text-[13px]",
+              g.suspicious ? "border-warning/40 bg-warning/[0.06]" : "border-border bg-surface-alt",
+            )}
+          >
+            <span className={g.suspicious ? "text-warning" : "text-foreground"}>
+              {LABELS[g.type] ?? g.type}
+            </span>
+            <span className="text-text-3 font-mono text-[12px] tabular-nums">×{g.count}</span>
+          </li>
+        ))}
+      </ul>
+
+      <details className="group">
+        <summary className="text-text-3 hover:text-foreground flex cursor-pointer list-none items-center gap-1.5 font-mono text-[11px] tracking-[0.02em] transition-colors [&::-webkit-details-marker]:hidden">
+          <ChevronDown
+            size={13}
+            strokeWidth={1.7}
+            className="transition-transform group-open:rotate-180"
+            aria-hidden
+          />
+          Ver cronología ({events.length})
+        </summary>
+        <ol className="mt-2 space-y-1.5">
+          {events.map((e) => {
+            const isSuspicious = SUSPICIOUS.has(e.type)
+            return (
+              <li
+                key={e.id}
                 className={cn(
-                  "flex-1 text-[13px]",
-                  isSuspicious ? "text-warning" : "text-foreground",
+                  "flex items-center justify-between gap-3 rounded-md border px-3 py-2 text-[12.5px]",
+                  isSuspicious ? "border-warning/40 bg-warning/[0.06]" : "border-border bg-surface-alt",
                 )}
               >
-                {LABELS[e.type] ?? e.type}
-              </span>
-              {hasMetadata(e.metadata) && (
-                <span className="text-text-3 max-w-[260px] truncate font-mono text-[11px]">
-                  {summarizeMetadata(e.metadata)}
+                <span className="text-text-2 font-mono tabular-nums">
+                  {dateFormatter.format(e.occurredAt)}
                 </span>
-              )}
-            </li>
-          )
-        })}
-      </ol>
+                <span
+                  className={cn("flex-1 text-[13px]", isSuspicious ? "text-warning" : "text-foreground")}
+                >
+                  {LABELS[e.type] ?? e.type}
+                </span>
+                {hasMetadata(e.metadata) && (
+                  <span className="text-text-3 max-w-[260px] truncate font-mono text-[11px]">
+                    {summarizeMetadata(e.metadata)}
+                  </span>
+                )}
+              </li>
+            )
+          })}
+        </ol>
+      </details>
     </div>
   )
+}
+
+type EventGroup = { type: string; count: number; suspicious: boolean }
+
+function summarizeEvents(events: ReviewEvent[]): EventGroup[] {
+  const counts = new Map<string, number>()
+  for (const e of events) counts.set(e.type, (counts.get(e.type) ?? 0) + 1)
+  return Array.from(counts.entries())
+    .map(([type, count]) => ({ type, count, suspicious: SUSPICIOUS.has(type) }))
+    .sort((a, b) => {
+      // Sospechosos primero; dentro de cada grupo, los más frecuentes arriba.
+      if (a.suspicious !== b.suspicious) return a.suspicious ? -1 : 1
+      return b.count - a.count
+    })
 }
 
 function hasMetadata(metadata: unknown): boolean {
