@@ -12,6 +12,7 @@ import { QuestionReviewList } from "./_components/QuestionReviewList"
 import { EventsList } from "./_components/EventsList"
 import { ReviewForm } from "./_components/ReviewForm"
 import { WritingReviewCard } from "./_components/WritingReviewCard"
+import { ReopenButton } from "./_components/ReopenButton"
 
 /**
  * `/admin/pruebas/[id]` — revisión humana de un placement test.
@@ -83,16 +84,29 @@ export default async function RevisarPruebaPage({ params }: { params: Promise<{ 
         { label: session.candidateName },
       ]}
     >
-      <header className="mb-6">
-        <p className="text-text-3 mb-2 font-mono text-[12px] tracking-[0.08em] uppercase">
-          Revisión
-        </p>
-        <h1 className="font-serif text-[32px] leading-[1.18] font-normal tracking-[-0.02em]">
-          Evaluación de {session.candidateName.split(" ")[0]}
-        </h1>
-        <p className="text-text-3 mt-2 max-w-2xl text-[14px] leading-[1.55]">
-          Revisa las respuestas, registra las notas por habilidad y comparte el resultado.
-        </p>
+      <header className="mb-6 flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <p className="text-text-3 mb-2 font-mono text-[12px] tracking-[0.08em] uppercase">
+            Revisión
+          </p>
+          <h1 className="font-serif text-[32px] leading-[1.18] font-normal tracking-[-0.02em]">
+            Evaluación de {session.candidateName.split(" ")[0]}
+          </h1>
+          <p className="text-text-3 mt-2 max-w-2xl text-[14px] leading-[1.55]">
+            Revisa las respuestas, registra las notas por habilidad y comparte el resultado.
+          </p>
+        </div>
+        {(session.status === "TIMED_OUT" ||
+          session.status === "PENDING_WRITING" ||
+          session.status === "SUBMITTED" ||
+          session.status === "REVIEWED") && (
+          <ReopenButton
+            sessionId={session.id}
+            candidateFirstName={session.candidateName.split(" ")[0] ?? session.candidateName}
+            defaultMinutes={session.template.timeLimitMinutes}
+            status={session.status}
+          />
+        )}
       </header>
 
       <div className="grid gap-6 lg:grid-cols-[1fr_360px]">

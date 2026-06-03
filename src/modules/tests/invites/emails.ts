@@ -175,6 +175,41 @@ export async function sendTestResultsEmail(args: {
 }
 
 // -----------------------------------------------------------------------------
+//  Reabrir evaluación (coordinación reactiva la sesión)
+// -----------------------------------------------------------------------------
+
+export async function sendTestReopenedEmail(args: {
+  sessionId: string
+  to: string
+  candidateName: string
+  token: string
+  deadline: Date
+}): Promise<{ ok: boolean }> {
+  const link = buildTestInviteLink(args.token)
+  const deadlineLabel = formatExpires(args.deadline)
+
+  const html = renderEmail({
+    preheader: "Reabrimos tu evaluación: puedes continuar desde donde quedaste.",
+    eyebrow: "Evaluación reabierta",
+    heading: `Hola, ${args.candidateName}`,
+    body: [
+      "Habilitamos nuevamente tu evaluación de ubicación. Puedes abrir el enlace desde cualquier dispositivo y vas a retomar desde donde quedaste — lo que ya respondiste se conserva.",
+      `Tienes hasta el ${deadlineLabel} para completarla.`,
+    ],
+    cta: { label: "Continuar mi evaluación", url: link },
+    fineprint: `Si el botón no funciona, copia y pega este enlace en tu navegador:\n${link}`,
+  })
+
+  return deliverEmail({
+    to: args.to,
+    subject: "Reabrimos tu evaluación de ubicación",
+    html,
+    type: EmailType.TEST_INVITATION,
+    sessionId: args.sessionId,
+  })
+}
+
+// -----------------------------------------------------------------------------
 //  Tabla de puntajes (HTML inline para el correo)
 // -----------------------------------------------------------------------------
 

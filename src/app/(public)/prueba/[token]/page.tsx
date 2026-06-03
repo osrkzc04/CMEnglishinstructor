@@ -34,8 +34,13 @@ export default async function PruebaWelcomePage({ params }: { params: Promise<Ro
     redirect(`/prueba/${token}/finalizado` as Route)
   }
 
-  // Si está en curso, retomar directamente.
-  if (invite.session && invite.session.status === "IN_PROGRESS") {
+  // Si está en curso (incluida la fase de redacción), retomar directamente.
+  // PENDING_WRITING entra acá para que una sesión reabierta después del
+  // adaptativo no quede bloqueada por la expiración del invite original.
+  if (
+    invite.session &&
+    (invite.session.status === "IN_PROGRESS" || invite.session.status === "PENDING_WRITING")
+  ) {
     redirect(`/prueba/${token}/rendir` as Route)
   }
 
