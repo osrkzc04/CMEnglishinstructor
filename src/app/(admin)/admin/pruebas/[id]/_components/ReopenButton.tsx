@@ -35,6 +35,12 @@ type Props = {
   candidateFirstName: string
   defaultMinutes: number
   status: "TIMED_OUT" | "PENDING_WRITING" | "SUBMITTED" | "REVIEWED"
+  /**
+   * `compact` muestra solo un botón 7×7 con el ícono — pensado para filas de
+   * tabla donde el espacio horizontal es escaso. Por defecto se renderiza con
+   * la etiqueta completa (encabezados de página).
+   */
+  compact?: boolean
 }
 
 const STATUS_COPY: Record<Props["status"], { line: string }> = {
@@ -49,6 +55,7 @@ export function ReopenButton({
   candidateFirstName,
   defaultMinutes,
   status,
+  compact = false,
 }: Props) {
   const router = useRouter()
   const [open, setOpen] = useState(false)
@@ -88,15 +95,22 @@ export function ReopenButton({
 
   return (
     <>
-      <Button
-        type="button"
-        variant="ghost"
-        size="md"
-        onClick={() => setOpen(true)}
-      >
-        <RotateCcw size={14} strokeWidth={1.7} />
-        Reabrir evaluación
-      </Button>
+      {compact ? (
+        <button
+          type="button"
+          onClick={() => setOpen(true)}
+          aria-label="Reabrir evaluación"
+          title="Reabrir evaluación"
+          className="border-border bg-surface text-text-3 grid h-7 w-7 place-items-center rounded-md border transition-colors hover:border-teal-500 hover:text-teal-500"
+        >
+          <RotateCcw size={13} strokeWidth={1.6} />
+        </button>
+      ) : (
+        <Button type="button" variant="ghost" size="md" onClick={() => setOpen(true)}>
+          <RotateCcw size={14} strokeWidth={1.7} />
+          Reabrir evaluación
+        </Button>
+      )}
 
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent size="md">

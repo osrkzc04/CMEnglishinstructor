@@ -39,6 +39,7 @@ export type InviteListItem = {
   notes: string | null
   templateId: string
   templateName: string
+  templateTimeLimitMinutes: number
   createdAt: Date
   expiresAt: Date
   usedAt: Date | null
@@ -82,7 +83,7 @@ export async function listTestInvites(
         createdAt: true,
         expiresAt: true,
         usedAt: true,
-        template: { select: { id: true, name: true } },
+        template: { select: { id: true, name: true, timeLimitMinutes: true } },
         session: {
           select: {
             id: true,
@@ -116,6 +117,7 @@ export async function listTestInvites(
       notes: row.notes,
       templateId: row.template.id,
       templateName: row.template.name,
+      templateTimeLimitMinutes: row.template.timeLimitMinutes,
       createdAt: row.createdAt,
       expiresAt: row.expiresAt,
       usedAt: row.usedAt,
@@ -174,6 +176,10 @@ function deriveState(args: {
       case "TIMED_OUT":
         return "TIMED_OUT"
       case "IN_PROGRESS":
+        return "IN_PROGRESS"
+      // PENDING_WRITING comparte semántica con IN_PROGRESS para el listado:
+      // el candidato sigue activo, solo le falta enviar la redacción.
+      case "PENDING_WRITING":
         return "IN_PROGRESS"
       case "ABANDONED":
         return "TIMED_OUT"

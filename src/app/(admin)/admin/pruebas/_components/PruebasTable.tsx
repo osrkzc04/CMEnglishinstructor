@@ -16,6 +16,9 @@ import type { InviteListItem } from "@/modules/tests/invites/queries"
 import { CopyLinkButton } from "./CopyLinkButton"
 import { InviteStateBadge } from "./InviteStateBadge"
 import { ResendInviteButton } from "./ResendInviteButton"
+import { ReopenButton } from "../[id]/_components/ReopenButton"
+
+const REOPENABLE_STATUSES = new Set(["TIMED_OUT", "PENDING_WRITING", "SUBMITTED", "REVIEWED"])
 
 type Props = {
   items: (InviteListItem & { link: string })[]
@@ -43,7 +46,7 @@ export function PruebasTable({ items }: Props) {
             <TableHead className="w-[160px]">Estado</TableHead>
             <TableHead className="w-[160px]">Creada</TableHead>
             <TableHead className="w-[160px]">Vence</TableHead>
-            <TableHead className="w-[150px] text-right">Acciones</TableHead>
+            <TableHead className="w-[190px] text-right">Acciones</TableHead>
           </tr>
         </TableHeader>
         <TableBody>
@@ -101,6 +104,25 @@ export function PruebasTable({ items }: Props) {
                           {row.state === "REVIEWED" ? "Ver" : "Revisar"}
                           <ArrowRight size={12} strokeWidth={1.7} />
                         </Link>
+                      )}
+                    {row.sessionId &&
+                      row.sessionStatus &&
+                      REOPENABLE_STATUSES.has(row.sessionStatus) && (
+                        <ReopenButton
+                          compact
+                          sessionId={row.sessionId}
+                          candidateFirstName={
+                            row.candidateName.split(" ")[0] ?? row.candidateName
+                          }
+                          defaultMinutes={row.templateTimeLimitMinutes}
+                          status={
+                            row.sessionStatus as
+                              | "TIMED_OUT"
+                              | "PENDING_WRITING"
+                              | "SUBMITTED"
+                              | "REVIEWED"
+                          }
+                        />
                       )}
                     <CopyLinkButton link={row.link} />
                     <ResendInviteButton
