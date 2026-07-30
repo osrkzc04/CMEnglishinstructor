@@ -65,7 +65,25 @@ STORAGE_DRIVER=local
 LOCAL_STORAGE_PATH=/app/storage
 ```
 
-`/app/storage` está definido como `VOLUME` en el Dockerfile. Dokploy lo persiste automáticamente como volumen nombrado. Para migrar a Cloudflare R2 más adelante, cambiar el driver no requiere mover datos en este punto (todavía no se sube nada en producción).
+`/app/storage` está definido como `VOLUME` en el Dockerfile. Dokploy lo persiste automáticamente como volumen nombrado. Para migrar a Cloudflare R2 más adelante, cambiar el driver requiere mover los materiales ya cargados al bucket.
+
+> La carga inicial masiva del contenido de cursos (~131 GB) NO se hace por la app: se corre una sola vez con la herramienta `scripts/import-materials.ts`, que escribe directo al volumen de storage y a la BD. Ver [`docs/ops/materials-bulk-import.md`](ops/materials-bulk-import.md). Después de esa carga, todo material nuevo se sube manualmente desde la app.
+
+### Subida de archivos grandes (proxy)
+
+La subida de materiales es un **route handler** (`/api/materials/upload`) que hace stream de `request.body` directo a disco: **no bufferea en memoria ni tiene tope de tamaño en el código** de la app, y `next start` (Node, no serverless) no impone timeout de función. El único límite real lo pone el **reverse proxy** delante de la app:
+
+- **Traefik (default de Dokploy):** no limita el tamaño del request body por defecto → no requiere config extra. Si se activó algún middleware `buffering`, subir su `maxRequestBodyBytes` o quitarlo.
+- **nginx (si se usa como proxy):** en el `location /` (o `/api/materials/`):
+  ```nginx
+  client_max_body_size 0;            # sin tope
+  proxy_request_buffering off;       # no bufferar la subida en disco del proxy
+  proxy_read_timeout 3600s;
+  proxy_send_timeout 3600s;
+  ```
+- **cPanel / Apache + Passenger:** subir/quitar `LimitRequestBody` y los timeouts del proxy equivalentes vía `.htaccess` o la config del vhost.
+
+_No tocar_ `serverActions.bodySizeLimit` de Next: la subida de materiales no pasa por Server Actions (CV y avatar sí, pero son archivos chicos).
 
 ### Captcha (opcional)
 

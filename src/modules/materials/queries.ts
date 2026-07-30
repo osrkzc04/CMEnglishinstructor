@@ -280,3 +280,35 @@ export async function findFileByNameInFolder(
     select: { id: true },
   })
 }
+
+/**
+ * Lista los programas con sus niveles (code + name). La ingesta masiva remota
+ * la consume una vez para resolver, del lado del cliente, el nombre de carpeta
+ * de disco → `ProgramLevel.code` (con el mismo `resolveLevelCode` compartido).
+ */
+export async function listProgramsWithLevels(): Promise<
+  { programName: string; levels: { code: string; name: string }[] }[]
+> {
+  const programs = await prisma.program.findMany({
+    select: { name: true, levels: { select: { code: true, name: true } } },
+    orderBy: { name: "asc" },
+  })
+  return programs.map((p) => ({ programName: p.name, levels: p.levels }))
+}
+
+/**
+ * Resuelve un `ProgramLevel` por nombre de programa + código de nivel. Usado
+ * por la ingesta masiva de materiales (endpoint `ensure-folder`), que trabaja
+ * con los nombres del manifiesto en vez de ids. Devuelve `null` si no existe.
+ */
+export async function resolveProgramLevel(
+  programName: string,
+  levelCode: string,
+): Promise<{ id: string; programName: string; levelCode: string } | null> {
+  const level = await prisma.programLevel.findFirst({
+    where: { code: levelCode, program: { name: programName } },
+    select: { id: true, code: true, program: { select: { name: true } } },
+  })
+  if (!level) return null
+  return { id: level.id, programName: level.program.name, levelCode: level.code }
+}
