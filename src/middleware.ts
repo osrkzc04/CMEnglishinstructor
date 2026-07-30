@@ -39,5 +39,10 @@ export default auth((req) => {
 })
 
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon.ico|brand/|.*\\..*).*)"],
+  // `api/materials/upload` se excluye del middleware a propósito: es un upload
+  // binario en streaming (archivos de cientos de MB / GB). Si el middleware
+  // corre sobre esa ruta, Next bufferea el body para pasárselo y lo trunca a
+  // 10MB (middlewareClientMaxBodySize). El route handler ya hace su propia
+  // autorización con requireRole(), así que saltarse el middleware no abre hueco.
+  matcher: ["/((?!_next/static|_next/image|favicon.ico|brand/|api/materials/upload|.*\\..*).*)"],
 }

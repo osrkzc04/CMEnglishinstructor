@@ -39,6 +39,50 @@ import {
 } from "./lib/materials-mapping"
 
 // -----------------------------------------------------------------------------
+//  Salida ASCII-safe: las terminales de Windows (cp850/437) no renderizan
+//  box-drawing, emojis ni acentos → se normalizan a ASCII al imprimir.
+// -----------------------------------------------------------------------------
+
+const ASCII_MAP: Record<string, string> = {
+  "─": "-",
+  "═": "=",
+  "→": "->",
+  "—": "-",
+  "…": "...",
+  "•": "*",
+  "✓": "OK",
+  "✗": "X",
+  "⚠": "!",
+  "✅": "OK",
+  "📦": "",
+  "📁": "[dir]",
+  "📄": "[file]",
+  á: "a",
+  é: "e",
+  í: "i",
+  ó: "o",
+  ú: "u",
+  ñ: "n",
+  ü: "u",
+  Á: "A",
+  É: "E",
+  Í: "I",
+  Ó: "O",
+  Ú: "U",
+  Ñ: "N",
+}
+function toAscii(s: string): string {
+  let out = ""
+  for (const ch of s) out += ASCII_MAP[ch] ?? (ch.codePointAt(0)! < 128 ? ch : "?")
+  return out
+}
+for (const m of ["log", "warn", "error"] as const) {
+  const orig = console[m].bind(console)
+  console[m] = (...args: unknown[]) =>
+    orig(...args.map((a) => (typeof a === "string" ? toAscii(a) : a)))
+}
+
+// -----------------------------------------------------------------------------
 //  Args + config
 // -----------------------------------------------------------------------------
 
