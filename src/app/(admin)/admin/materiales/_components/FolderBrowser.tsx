@@ -1,9 +1,10 @@
 "use client"
 
-import { useRef, useState } from "react"
+import { useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import type { Route } from "next"
+import * as DropdownMenu from "@radix-ui/react-dropdown-menu"
 import {
   Download,
   FilePlus,
@@ -43,7 +44,6 @@ type ActionState =
 export function FolderBrowser({ folder }: Props) {
   const router = useRouter()
   const [action, setAction] = useState<ActionState>(null)
-  const [openMenuId, setOpenMenuId] = useState<string | null>(null)
 
   function refresh() {
     router.refresh()
@@ -84,26 +84,12 @@ export function FolderBrowser({ folder }: Props) {
                 <ItemRow
                   key={`${item.kind}-${item.id}`}
                   item={item}
-                  menuOpen={openMenuId === item.id}
-                  onMenuToggle={() => setOpenMenuId(openMenuId === item.id ? null : item.id)}
-                  onRename={() => {
-                    setOpenMenuId(null)
-                    setAction({
-                      kind: "rename",
-                      itemKind: item.kind,
-                      id: item.id,
-                      name: item.name,
-                    })
-                  }}
-                  onDelete={() => {
-                    setOpenMenuId(null)
-                    setAction({
-                      kind: "delete",
-                      itemKind: item.kind,
-                      id: item.id,
-                      name: item.name,
-                    })
-                  }}
+                  onRename={() =>
+                    setAction({ kind: "rename", itemKind: item.kind, id: item.id, name: item.name })
+                  }
+                  onDelete={() =>
+                    setAction({ kind: "delete", itemKind: item.kind, id: item.id, name: item.name })
+                  }
                 />
               ))}
             </TableBody>
@@ -154,19 +140,13 @@ export function FolderBrowser({ folder }: Props) {
 
 function ItemRow({
   item,
-  menuOpen,
-  onMenuToggle,
   onRename,
   onDelete,
 }: {
   item: FolderItem
-  menuOpen: boolean
-  onMenuToggle: () => void
   onRename: () => void
   onDelete: () => void
 }) {
-  const menuRef = useRef<HTMLDivElement>(null)
-
   return (
     <TableRow>
       <TableCell>
@@ -197,7 +177,7 @@ function ItemRow({
         {formatDate(item.kind === "file" ? item.uploadedAt : item.updatedAt)}
       </TableCell>
       <TableCell className="text-right">
-        <div className="relative inline-flex items-center gap-1" ref={menuRef}>
+        <div className="inline-flex items-center gap-1">
           {item.kind === "file" && (
             <a
               href={`/api/materials/files/${item.id}/download`}
@@ -208,39 +188,39 @@ function ItemRow({
               <Download size={13} strokeWidth={1.6} />
             </a>
           )}
-          <button
-            type="button"
-            aria-label={`Acciones para ${item.name}`}
-            onClick={onMenuToggle}
-            className="border-border bg-surface text-text-2 inline-flex items-center justify-center rounded-md border p-1.5 transition-colors hover:border-teal-500 hover:text-teal-500"
-          >
-            <MoreHorizontal size={13} strokeWidth={1.6} />
-          </button>
-          {menuOpen && (
-            <div
-              role="menu"
-              className="border-border bg-surface absolute top-full right-0 z-10 mt-1 min-w-[160px] rounded-md border py-1 shadow-md"
-            >
+          <DropdownMenu.Root>
+            <DropdownMenu.Trigger asChild>
               <button
                 type="button"
-                role="menuitem"
-                className="text-text-2 hover:bg-bone-100 hover:text-foreground flex w-full items-center gap-2 px-3 py-1.5 text-left text-[13px] transition-colors"
-                onClick={onRename}
+                aria-label={`Acciones para ${item.name}`}
+                className="border-border bg-surface text-text-2 inline-flex items-center justify-center rounded-md border p-1.5 transition-colors hover:border-teal-500 hover:text-teal-500"
               >
-                <Pencil size={12} strokeWidth={1.6} />
-                Renombrar
+                <MoreHorizontal size={13} strokeWidth={1.6} />
               </button>
-              <button
-                type="button"
-                role="menuitem"
-                className="text-danger hover:bg-bone-100 flex w-full items-center gap-2 px-3 py-1.5 text-left text-[13px] transition-colors"
-                onClick={onDelete}
+            </DropdownMenu.Trigger>
+            <DropdownMenu.Portal>
+              <DropdownMenu.Content
+                align="end"
+                sideOffset={4}
+                className="border-border bg-surface z-50 min-w-[160px] rounded-md border py-1 shadow-md"
               >
-                <Trash2 size={12} strokeWidth={1.6} />
-                Eliminar
-              </button>
-            </div>
-          )}
+                <DropdownMenu.Item
+                  onSelect={onRename}
+                  className="text-text-2 hover:bg-bone-100 hover:text-foreground flex w-full cursor-pointer items-center gap-2 px-3 py-1.5 text-left text-[13px] transition-colors outline-none"
+                >
+                  <Pencil size={12} strokeWidth={1.6} />
+                  Renombrar
+                </DropdownMenu.Item>
+                <DropdownMenu.Item
+                  onSelect={onDelete}
+                  className="text-danger hover:bg-bone-100 flex w-full cursor-pointer items-center gap-2 px-3 py-1.5 text-left text-[13px] transition-colors outline-none"
+                >
+                  <Trash2 size={12} strokeWidth={1.6} />
+                  Eliminar
+                </DropdownMenu.Item>
+              </DropdownMenu.Content>
+            </DropdownMenu.Portal>
+          </DropdownMenu.Root>
         </div>
       </TableCell>
     </TableRow>

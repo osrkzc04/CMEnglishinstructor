@@ -37,39 +37,36 @@ export async function listProgramLevelRoots(opts?: {
       program: { select: { name: true } },
       materialFolders: {
         where: { parentId: null, deletedAt: null },
-        select: {
-          id: true,
-          _count: {
-            select: {
-              children: { where: { deletedAt: null } },
-              files: { where: { deletedAt: null } },
-            },
-          },
-        },
+        select: { id: true },
         take: 1,
       },
     },
   })
 
-  // Crear roots faltantes (en una sola pasada serial — el caso normal es 0-1).
+  // Contadores a nivel de TODO el repositorio del nivel (recursivo), no solo
+  // los hijos directos del root: un archivo dentro de una subcarpeta también
+  // cuenta. `folderCount` excluye el root (parentId != null = subcarpetas).
   const result: ProgramLevelRoot[] = []
   for (const lvl of levels) {
-    let root = lvl.materialFolders[0]
-    if (!root) {
-      const created = await ensureLevelRoot(lvl.id, lvl.name)
-      root = {
-        id: created.id,
-        _count: { children: 0, files: 0 },
-      }
-    }
+    const rootFolderId = lvl.materialFolders[0]?.id ?? (await ensureLevelRoot(lvl.id, lvl.name)).id
+
+    const [folderCount, fileCount] = await Promise.all([
+      prisma.materialFolder.count({
+        where: { programLevelId: lvl.id, parentId: { not: null }, deletedAt: null },
+      }),
+      prisma.materialFile.count({
+        where: { deletedAt: null, folder: { programLevelId: lvl.id, deletedAt: null } },
+      }),
+    ])
+
     result.push({
       programLevelId: lvl.id,
       programName: lvl.program.name,
       levelCode: lvl.code,
       levelName: lvl.name,
-      rootFolderId: root.id,
-      folderCount: root._count.children,
-      fileCount: root._count.files,
+      rootFolderId,
+      folderCount,
+      fileCount,
     })
   }
   return result
