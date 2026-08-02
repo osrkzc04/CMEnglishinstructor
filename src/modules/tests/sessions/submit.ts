@@ -27,7 +27,7 @@ import { finalizeAsTimedOut } from "./finalize-as-timed-out"
 const GRACE_MS = 30_000
 
 // Igual que en advance-section: el autoGrade global hace hasta ~120 updates
-// en bucle. Contra Neon US East el default de 5 s se queda corto y la
+// en bucle. Bajo carga el default de 5 s se puede quedar corto y la
 // transacción muere con "Transaction not found". Margen amplio acá.
 const TX_MAX_WAIT_MS = 10_000
 const TX_TIMEOUT_MS = 60_000

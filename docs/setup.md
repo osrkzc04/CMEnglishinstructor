@@ -10,9 +10,9 @@
 
 - **Node.js** ≥ 20
 - **pnpm** ≥ 9 (recomendado sobre npm/yarn por velocidad y estricta resolución)
-- **PostgreSQL** ≥ 14 corriendo localmente (o un Postgres en cloud: Neon, Supabase)
+- **Docker + Docker Compose** — runtime de prod (el compose levanta Postgres `db` + la app)
+- **PostgreSQL** ≥ 14 — en prod lo provee el servicio `db` del compose; en dev, Neon (cloud) o un Postgres local
 - **Claude Code** instalado: `curl -fsSL https://claude.ai/install.sh | sh` (o ver docs.claude.com)
-- (Opcional) **Docker + Docker Compose** si prefieres no instalar Postgres nativo
 
 ---
 

@@ -48,5 +48,4 @@ Cuando se completa un ítem, moverlo a `decisions.md` si la solución implicó u
 
 ## Infra / Deploy
 
-- **Connection retry config para Neon** — agregar `?connect_timeout=30` al `DATABASE_URL` en producción. Neon free tier auto-suspende después de ~5 min de idle y al primer request del wake-up puede tardar.
-- **Plantear migración de Neon free a paid o a Postgres dedicado** — antes de que producción tenga uso real, el auto-suspend va a hacer ruido.
+- _(sin pendientes abiertos)_

@@ -43,7 +43,7 @@ export async function materializeRange(input: MaterializeRangeInput): Promise<Re
   const data = parsed.data
 
   // Timeout generoso: cada sesión + sus participantes son inserts secuenciales
-  // contra Neon. Un aula con 5 slots × 4 semanas × N alumnos puede pasarse
+  // en serie. Un aula con 5 slots × 4 semanas × N alumnos puede pasarse
   // del default de 5s. La materialización es idempotente, así que reintentar
   // tras un timeout es seguro — pero preferimos no llegar a ese punto.
   const outcome = await prisma.$transaction(

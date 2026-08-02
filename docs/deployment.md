@@ -252,10 +252,10 @@ El volumen `/app/storage` no quedó configurado como persistente. En Dokploy: "V
 
 ---
 
-## Migrar de Neon a Postgres administrado por Dokploy (o viceversa)
+## Migrar / restaurar la base PostgreSQL
 
 1. Backup: `pg_dump $OLD_DATABASE_URL > backup.sql`
-2. Crear la nueva DB en Dokploy / Neon.
+2. Crear la nueva DB (Dokploy).
 3. Restore: `psql $NEW_DATABASE_URL < backup.sql`
 4. Actualizar `DATABASE_URL` en Dokploy → redeploy.
 
@@ -270,6 +270,7 @@ La app trae un scheduler **in-process** (`src/instrumentation.ts`) que dispara:
 - Retry de emails fallidos — cada 15 min
 - Materialización de sesiones — cada 7 días + corrida al arranque
 - Auto-cierre de sesiones sin registro — cada 5 min
+- Limpieza de subidas por chunks abandonadas — cada 6 h + corrida al arranque
 
 Estos no requieren configuración externa en Dokploy. Si más adelante escalan a múltiples instancias, mover a un worker dedicado o a cron del SO para evitar duplicación.
 

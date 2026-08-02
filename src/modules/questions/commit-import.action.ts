@@ -15,8 +15,8 @@ import { validateImport } from "./import"
  * tocamos preguntas existentes ni siquiera por upsert.
  *
  * Persistencia: una transacción por bloque de 20 inserts con timeout
- * explícito de 60 s. El default de Prisma (5 s) se queda corto contra Neon
- * cuando hay round-trip de varios cientos de ms, y la transacción muere a
+ * explícito de 60 s. El default de Prisma (5 s) se queda corto cuando el
+ * round-trip bajo carga suma varios cientos de ms, y la transacción muere a
  * mitad de camino con "Transaction not found".
  */
 

@@ -35,7 +35,7 @@ import { logSessionEvent } from "./log-event"
 const GRACE_MS = 30_000
 
 // Las transacciones graban en bucle (1 update por pregunta de la sección, o
-// hasta ~120 al cerrar todo el examen). Contra Neon US East el RTT empuja el
+// hasta ~120 al cerrar todo el examen). Bajo carga el RTT puede empujar el
 // total por encima del default de 5s; los timeouts explícitos evitan que la
 // transacción muera con "Transaction not found".
 const TX_MAX_WAIT_MS = 10_000

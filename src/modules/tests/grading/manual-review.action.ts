@@ -36,8 +36,8 @@ import { ManualReviewInputSchema, type ManualReviewInput, type ManualReviewResul
 
 const RESULTS_VALID_HOURS = 12
 
-// Neon US East: el RTT × N updates de re-grading sobre snapshots (~120
-// preguntas) excede el timeout default (5 s) de Prisma. Damos margen.
+// El RTT × N updates de re-grading sobre snapshots (~120 preguntas) puede
+// exceder el timeout default (5 s) de Prisma bajo carga. Damos margen.
 const TX_MAX_WAIT_MS = 10_000
 const TX_TIMEOUT_MS = 60_000
 
