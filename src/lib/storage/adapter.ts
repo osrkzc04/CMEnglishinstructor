@@ -34,6 +34,32 @@ export interface StorageAdapter {
   ): Promise<{ key: string; size: number }>
 
   /**
+   * Anexa un chunk al final del blob `key` (lo crea si no existe) sin bufferear
+   * en memoria. Usado por la subida por chunks reanudable: cada PATCH agrega su
+   * trozo. Devuelve el tamaño TOTAL del blob tras anexar.
+   *
+   * Mapeo futuro a R2: equivale a `UploadPart` de un multipart upload.
+   */
+  appendChunk(key: string, stream: Readable | ReadableStream<Uint8Array>): Promise<{ size: number }>
+
+  /**
+   * Trunca (o deja igual) el blob `key` a exactamente `size` bytes. Usado antes
+   * de anexar un chunk para descartar bytes parciales que hayan quedado de un
+   * intento fallido, manteniendo disco y BD sincronizados. No-op si el blob no
+   * existe y `size` es 0.
+   */
+  truncateTo(key: string, size: number): Promise<void>
+
+  /**
+   * Mueve un blob de `fromKey` a `toKey` (atómico cuando es posible, sin copiar
+   * los bytes). Usado al completar una subida por chunks: promueve el temporal
+   * al key final. Devuelve el tamaño del blob resultante.
+   *
+   * Mapeo futuro a R2: equivale a `CompleteMultipartUpload` (o copy + delete).
+   */
+  promote(fromKey: string, toKey: string): Promise<{ size: number }>
+
+  /**
    * Devuelve un Node Readable para servir el archivo al cliente sin cargar
    * todo a memoria. Tira si el archivo no existe.
    */

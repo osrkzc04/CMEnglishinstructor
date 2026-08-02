@@ -13,10 +13,12 @@ import {
   startEmailRetryScheduler,
   startSessionMaterializeScheduler,
   startAutoCloseStaleScheduler,
+  startCleanupUploadsScheduler,
 } from "./lib/jobs/scheduler"
 
 export function registerNode(): void {
   startEmailRetryScheduler()
   startSessionMaterializeScheduler()
   startAutoCloseStaleScheduler()
+  startCleanupUploadsScheduler()
 }

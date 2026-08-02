@@ -49,6 +49,7 @@ model User {
   // Materiales
   createdMaterialFolders MaterialFolder[] @relation("FolderCreator")
   uploadedMaterialFiles  MaterialFile[]   @relation("FileUploader")
+  materialUploads        MaterialUpload[] @relation("MaterialUploadCreator")
 
   // Auth.js support
   accounts Account[]
@@ -635,6 +636,7 @@ model MaterialFolder {
   programLevel ProgramLevel     @relation(fields: [programLevelId], references: [id])
   createdBy    User             @relation("FolderCreator", fields: [createdById], references: [id])
   files        MaterialFile[]
+  uploads      MaterialUpload[]
 
   @@index([parentId])
   @@index([programLevelId, parentId])
@@ -655,6 +657,35 @@ model MaterialFile {
   uploadedBy User           @relation("FileUploader", fields: [uploadedById], references: [id])
 
   @@index([folderId])
+}
+
+/// Sesión de subida por chunks (reanudable) para archivos pesados. El blob se
+/// anexa a `tempKey` en storage mientras dura la subida; al completar se
+/// promueve al `storageKey` final y se crea un `MaterialFile`. Las sesiones
+/// PENDING abandonadas las limpia el cron `cleanup-uploads`.
+model MaterialUpload {
+  id           String               @id @default(cuid())
+  folderId     String
+  name         String // nombre final ya validado (NameSchema)
+  mimeType     String
+  totalSize    BigInt
+  receivedSize BigInt               @default(0)
+  tempKey      String               @unique // blob temporal en storage: tmp/uploads/<id>
+  status       MaterialUploadStatus @default(PENDING)
+  createdById  String
+  createdAt    DateTime             @default(now())
+  updatedAt    DateTime             @updatedAt
+
+  folder    MaterialFolder @relation(fields: [folderId], references: [id], onDelete: Cascade)
+  createdBy User           @relation("MaterialUploadCreator", fields: [createdById], references: [id])
+
+  @@index([folderId])
+  @@index([status, updatedAt])
+}
+
+enum MaterialUploadStatus {
+  PENDING
+  COMPLETED
 }
 
 // =============================================================================

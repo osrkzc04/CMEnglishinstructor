@@ -69,6 +69,52 @@ export class LocalAdapter implements StorageAdapter {
     return { key, size }
   }
 
+  async appendChunk(
+    key: string,
+    input: Readable | ReadableStream<Uint8Array>,
+  ): Promise<{ size: number }> {
+    const fullPath = this.resolve(key)
+    await fs.mkdir(path.dirname(fullPath), { recursive: true })
+
+    const source =
+      input instanceof Readable
+        ? input
+        : Readable.fromWeb(input as unknown as import("node:stream/web").ReadableStream<Uint8Array>)
+
+    // `flags: "a"` → anexa al final; crea el archivo si no existe.
+    const sink = createWriteStream(fullPath, { flags: "a" })
+    try {
+      await pipeline(source, sink)
+    } catch (err) {
+      // No borramos el parcial: la subida es reanudable y el cliente puede
+      // reintentar el chunk desde el offset ya persistido.
+      throw err
+    }
+    const stat = await fs.stat(fullPath)
+    return { size: stat.size }
+  }
+
+  async truncateTo(key: string, size: number): Promise<void> {
+    const fullPath = this.resolve(key)
+    try {
+      await fs.truncate(fullPath, size)
+    } catch (err) {
+      // Si el blob todavía no existe, truncar a 0 es un no-op válido (el
+      // primer chunk lo creará al anexar).
+      if ((err as NodeJS.ErrnoException).code === "ENOENT" && size === 0) return
+      throw err
+    }
+  }
+
+  async promote(fromKey: string, toKey: string): Promise<{ size: number }> {
+    const from = this.resolve(fromKey)
+    const to = this.resolve(toKey)
+    await fs.mkdir(path.dirname(to), { recursive: true })
+    await fs.rename(from, to)
+    const stat = await fs.stat(to)
+    return { size: stat.size }
+  }
+
   async getReadStream(key: string): Promise<{ stream: Readable; size: number }> {
     const fullPath = this.resolve(key)
     const stat = await fs.stat(fullPath)

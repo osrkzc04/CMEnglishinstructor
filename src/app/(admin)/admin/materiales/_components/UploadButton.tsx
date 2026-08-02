@@ -1,7 +1,7 @@
 "use client"
 
 import { useRef, useState } from "react"
-import { Loader2, Upload, X } from "lucide-react"
+import { Upload, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
 type Props = {
@@ -16,17 +16,30 @@ type UploadState = {
   uploaded: number
   status: "uploading" | "done" | "error"
   error?: string
-  xhr?: XMLHttpRequest
 }
 
 /**
- * Upload con XMLHttpRequest: es el camino más fiable para mostrar progreso
- * en archivos grandes. `fetch` con body=Blob no expone bytes-uploaded en
- * todos los navegadores y `request streams` requieren HTTP/2 + setup adicional.
+ * Subida por chunks reanudable (mini-tus contra disco local). El archivo se
+ * parte en trozos de `chunkSize`; cada uno se sube por separado, así ninguna
+ * petición individual es grande y no topa límites de proxy ni corta la conexión
+ * HTTP/2 en archivos de GB. Si un chunk falla, se reintenta re-sincronizando el
+ * offset con el servidor — la subida continúa donde quedó, no desde cero.
+ *
+ * Protocolo:
+ *   POST   /session                 -> { uploadId, chunkSize }
+ *   PATCH  /session/[id]            (header Upload-Offset, body = chunk)
+ *   POST   /session/[id]/complete  -> archivo creado
+ *   DELETE /session/[id]           (cancelar)
  */
+
+const MAX_CHUNK_RETRIES = 5
+
+type Controller = { uploadId: string | null; xhr: XMLHttpRequest | null; cancelled: boolean }
+
 export function UploadButton({ folderId, onComplete }: Props) {
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [uploads, setUploads] = useState<UploadState[]>([])
+  const controllers = useRef<Record<string, Controller>>({})
 
   function pickFiles() {
     fileInputRef.current?.click()
@@ -34,66 +47,162 @@ export function UploadButton({ folderId, onComplete }: Props) {
 
   function handleFiles(files: FileList | null) {
     if (!files || files.length === 0) return
-    const list = Array.from(files)
-    list.forEach((file) => uploadOne(file))
+    Array.from(files).forEach((file) => void uploadOne(file))
     if (fileInputRef.current) fileInputRef.current.value = ""
   }
 
-  function uploadOne(file: File) {
+  function patch(id: string, next: Partial<UploadState>) {
+    setUploads((prev) => prev.map((u) => (u.id === id ? { ...u, ...next } : u)))
+  }
+
+  async function uploadOne(file: File) {
     const id = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
-    const xhr = new XMLHttpRequest()
+    const ctrl: Controller = { uploadId: null, xhr: null, cancelled: false }
+    controllers.current[id] = ctrl
 
     setUploads((prev) => [
       ...prev,
-      { id, name: file.name, size: file.size, uploaded: 0, status: "uploading", xhr },
+      { id, name: file.name, size: file.size, uploaded: 0, status: "uploading" },
     ])
 
-    const url = `/api/materials/upload?folderId=${encodeURIComponent(folderId)}&name=${encodeURIComponent(file.name)}`
-    xhr.open("POST", url)
-    xhr.setRequestHeader("Content-Type", file.type || "application/octet-stream")
-
-    xhr.upload.addEventListener("progress", (e) => {
-      if (!e.lengthComputable) return
-      setUploads((prev) => prev.map((u) => (u.id === id ? { ...u, uploaded: e.loaded } : u)))
-    })
-
-    xhr.addEventListener("load", () => {
-      if (xhr.status >= 200 && xhr.status < 300) {
-        setUploads((prev) =>
-          prev.map((u) => (u.id === id ? { ...u, status: "done", uploaded: u.size } : u)),
-        )
-        onComplete()
-      } else {
-        let msg = `Falla (${xhr.status})`
-        try {
-          const body = JSON.parse(xhr.responseText)
-          if (body?.error) msg = body.error
-        } catch {}
-        setUploads((prev) =>
-          prev.map((u) => (u.id === id ? { ...u, status: "error", error: msg } : u)),
-        )
+    try {
+      // 1) Crear sesión.
+      const createRes = await fetch("/api/materials/upload/session", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          folderId,
+          name: file.name,
+          size: file.size,
+          mimeType: file.type || "application/octet-stream",
+        }),
+      })
+      if (!createRes.ok) throw new Error(await errorMessage(createRes))
+      const { uploadId, chunkSize } = (await createRes.json()) as {
+        uploadId: string
+        chunkSize: number
       }
-    })
+      ctrl.uploadId = uploadId
+      if (ctrl.cancelled) return void cleanup(id)
 
-    xhr.addEventListener("error", () => {
-      setUploads((prev) =>
-        prev.map((u) => (u.id === id ? { ...u, status: "error", error: "Error de red" } : u)),
-      )
-    })
+      // 2) Subir chunks secuencialmente (con reintentos + re-sync de offset).
+      let offset = 0
+      while (offset < file.size) {
+        if (ctrl.cancelled) return void cleanup(id)
+        offset = await sendChunk(id, ctrl, uploadId, file, offset, chunkSize)
+      }
 
-    xhr.addEventListener("abort", () => {
-      setUploads((prev) => prev.filter((u) => u.id !== id))
-    })
+      // 3) Finalizar.
+      const completeRes = await fetch(`/api/materials/upload/session/${uploadId}/complete`, {
+        method: "POST",
+      })
+      if (!completeRes.ok) throw new Error(await errorMessage(completeRes))
 
-    xhr.send(file)
+      patch(id, { status: "done", uploaded: file.size })
+      delete controllers.current[id]
+      onComplete()
+    } catch (err) {
+      if (ctrl.cancelled) return
+      patch(id, { status: "error", error: err instanceof Error ? err.message : "Error de red" })
+      delete controllers.current[id]
+    }
+  }
+
+  /**
+   * Sube el chunk que empieza en `startOffset`. Devuelve el offset confirmado
+   * por el servidor (inicio del siguiente chunk). Ante fallo de red / 5xx / 409
+   * consulta el offset real y reintenta desde ahí, con backoff exponencial.
+   */
+  async function sendChunk(
+    id: string,
+    ctrl: Controller,
+    uploadId: string,
+    file: File,
+    startOffset: number,
+    chunkSize: number,
+  ): Promise<number> {
+    let offset = startOffset
+    for (let attempt = 0; ; attempt++) {
+      if (ctrl.cancelled) throw new Aborted()
+      const blob = file.slice(offset, Math.min(startOffset + chunkSize, file.size))
+      try {
+        return await putChunk(id, ctrl, uploadId, offset, blob)
+      } catch (err) {
+        if (err instanceof Aborted || ctrl.cancelled) throw err
+        if (err instanceof Fatal) throw new Error(err.message)
+        if (attempt >= MAX_CHUNK_RETRIES) {
+          throw new Error(err instanceof Error ? err.message : "Falla al subir el chunk")
+        }
+        await sleep(Math.min(1000 * 2 ** attempt, 8000))
+        // Re-sincroniza: el servidor es la fuente de verdad del offset.
+        offset = await getServerOffset(uploadId)
+        patch(id, { uploaded: offset })
+        if (offset >= Math.min(startOffset + chunkSize, file.size)) return offset
+      }
+    }
+  }
+
+  /** Un intento de PATCH del chunk vía XHR (progreso byte a byte). */
+  function putChunk(
+    id: string,
+    ctrl: Controller,
+    uploadId: string,
+    offset: number,
+    blob: Blob,
+  ): Promise<number> {
+    return new Promise<number>((resolve, reject) => {
+      const xhr = new XMLHttpRequest()
+      ctrl.xhr = xhr
+      xhr.open("PATCH", `/api/materials/upload/session/${uploadId}`)
+      xhr.setRequestHeader("Upload-Offset", String(offset))
+      xhr.setRequestHeader("Content-Type", "application/octet-stream")
+
+      xhr.upload.addEventListener("progress", (e) => {
+        if (e.lengthComputable) patch(id, { uploaded: offset + e.loaded })
+      })
+      xhr.addEventListener("load", () => {
+        ctrl.xhr = null
+        const body = safeJson(xhr.responseText)
+        if (xhr.status >= 200 && xhr.status < 300) {
+          resolve(typeof body?.offset === "number" ? body.offset : offset + blob.size)
+        } else if (xhr.status === 409 || xhr.status >= 500) {
+          reject(new Error(body?.error ?? `Reintentable (${xhr.status})`)) // recuperable
+        } else {
+          reject(new Fatal(body?.error ?? `Falla (${xhr.status})`))
+        }
+      })
+      xhr.addEventListener("error", () => {
+        ctrl.xhr = null
+        reject(new Error("Error de red"))
+      })
+      xhr.addEventListener("abort", () => {
+        ctrl.xhr = null
+        reject(new Aborted())
+      })
+      xhr.send(blob)
+    })
   }
 
   function cancel(id: string) {
-    setUploads((prev) => {
-      const target = prev.find((u) => u.id === id)
-      target?.xhr?.abort()
-      return prev.filter((u) => u.id !== id)
-    })
+    const ctrl = controllers.current[id]
+    if (ctrl) {
+      ctrl.cancelled = true
+      ctrl.xhr?.abort()
+      if (ctrl.uploadId) {
+        void fetch(`/api/materials/upload/session/${ctrl.uploadId}`, { method: "DELETE" })
+      }
+      delete controllers.current[id]
+    }
+    setUploads((prev) => prev.filter((u) => u.id !== id))
+  }
+
+  function cleanup(id: string) {
+    const ctrl = controllers.current[id]
+    if (ctrl?.uploadId) {
+      void fetch(`/api/materials/upload/session/${ctrl.uploadId}`, { method: "DELETE" })
+    }
+    delete controllers.current[id]
+    setUploads((prev) => prev.filter((u) => u.id !== id))
   }
 
   function dismiss(id: string) {
@@ -198,6 +307,42 @@ export function UploadButton({ folderId, onComplete }: Props) {
       )}
     </>
   )
+}
+
+// -----------------------------------------------------------------------------
+//  Helpers
+// -----------------------------------------------------------------------------
+
+/** Error fatal (4xx no recuperable): aborta la subida con este mensaje. */
+class Fatal extends Error {}
+/** El usuario canceló la subida. */
+class Aborted extends Error {}
+
+function sleep(ms: number) {
+  return new Promise((r) => setTimeout(r, ms))
+}
+
+async function getServerOffset(uploadId: string): Promise<number> {
+  const res = await fetch(`/api/materials/upload/session/${uploadId}`)
+  if (!res.ok) throw new Fatal(await errorMessage(res))
+  const body = (await res.json()) as { offset: number }
+  return body.offset
+}
+
+function safeJson(text: string): { offset?: number; error?: string } | null {
+  try {
+    return JSON.parse(text)
+  } catch {
+    return null
+  }
+}
+
+async function errorMessage(res: Response): Promise<string> {
+  try {
+    const body = (await res.json()) as { error?: string }
+    if (body?.error) return body.error
+  } catch {}
+  return `Falla (${res.status})`
 }
 
 function formatBytes(bytes: number): string {

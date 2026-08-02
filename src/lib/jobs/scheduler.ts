@@ -7,6 +7,7 @@ import "server-only"
  *   - Retry de emails fallidos (cada 15 min).
  *   - Materialización de sesiones de aulas activas (cada 7 días).
  *   - Auto-cierre de sesiones sin registro (cada 5 min).
+ *   - Limpieza de subidas por chunks abandonadas (cada 6 h).
  *
  * Por qué in-process en lugar de un worker dedicado:
  *  - Hosting Node sin servicios externos (cPanel / Plesk / VPS chico).
@@ -16,8 +17,8 @@ import "server-only"
  * Si más adelante hace falta escalar a varias instancias, mover a cron del
  * sistema o a un worker separado para evitar que el job corra N veces.
  *
- * En dev se deshabilitan: contamina logs, mantiene conexiones vivas a la
- * DB y choca con providers que auto-suspenden (Neon free, etc.). Para
+ * En dev se deshabilitan: contamina logs y mantiene conexiones vivas a la
+ * DB innecesariamente. Para
  * testear el flujo desde dev, pegar a los endpoints HTTP correspondientes
  * con `Authorization: Bearer $CRON_SECRET`.
  */
@@ -29,6 +30,7 @@ import "server-only"
 const RETRY_INTERVAL_MS = 5 * 60 * 1000 // 5 min
 const MATERIALIZE_INTERVAL_MS = 7 * 24 * 60 * 60 * 1000 // 7 días
 const AUTO_CLOSE_INTERVAL_MS = 5 * 60 * 1000 // 5 min
+const CLEANUP_UPLOADS_INTERVAL_MS = 6 * 60 * 60 * 1000 // 6 h
 
 // Guardamos las referencias globalmente para sobrevivir a reloads de HMR
 // en dev sin acumular intervalos huérfanos. En prod el módulo se carga
@@ -40,6 +42,8 @@ declare global {
   var __cmMaterializeHandle: NodeJS.Timeout | undefined
   // eslint-disable-next-line no-var
   var __cmAutoCloseHandle: NodeJS.Timeout | undefined
+  // eslint-disable-next-line no-var
+  var __cmCleanupUploadsHandle: NodeJS.Timeout | undefined
 }
 
 export function startEmailRetryScheduler(): void {
@@ -138,5 +142,37 @@ async function runAutoCloseOnce(): Promise<void> {
   } catch (err) {
     // eslint-disable-next-line no-console
     console.error("[auto-close] error inesperado:", err)
+  }
+}
+
+export function startCleanupUploadsScheduler(): void {
+  if (process.env.NODE_ENV !== "production") return
+
+  if (globalThis.__cmCleanupUploadsHandle) {
+    clearInterval(globalThis.__cmCleanupUploadsHandle)
+  }
+
+  // Corrida inicial al boot — recoge temporales huérfanos que hayan quedado si
+  // el server se reinició a mitad de una subida. Idempotente y barato.
+  void runCleanupUploadsOnce()
+
+  globalThis.__cmCleanupUploadsHandle = setInterval(() => {
+    void runCleanupUploadsOnce()
+  }, CLEANUP_UPLOADS_INTERVAL_MS)
+
+  globalThis.__cmCleanupUploadsHandle.unref?.()
+}
+
+async function runCleanupUploadsOnce(): Promise<void> {
+  try {
+    const { cleanupStaleUploads } = await import("@/modules/materials/cleanupStaleUploads")
+    const result = await cleanupStaleUploads()
+    if (result.cleaned > 0) {
+      // eslint-disable-next-line no-console
+      console.log(`[cleanup-uploads] scanned=${result.scanned} cleaned=${result.cleaned}`)
+    }
+  } catch (err) {
+    // eslint-disable-next-line no-console
+    console.error("[cleanup-uploads] error inesperado:", err)
   }
 }

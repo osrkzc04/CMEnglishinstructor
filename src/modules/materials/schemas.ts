@@ -47,3 +47,18 @@ export const DeleteFileSchema = z.object({
   fileId: z.string().cuid("Archivo inválido"),
 })
 export type DeleteFileInput = z.infer<typeof DeleteFileSchema>
+
+// -----------------------------------------------------------------------------
+//  Subida por chunks (reanudable) — ver modules/materials/resumableUpload.ts
+// -----------------------------------------------------------------------------
+
+/** Tamaño de chunk que usan cliente y servidor (16 MiB). */
+export const UPLOAD_CHUNK_SIZE = 16 * 1024 * 1024
+
+export const CreateUploadSessionSchema = z.object({
+  folderId: z.string().cuid("Carpeta inválida"),
+  name: NameSchema,
+  size: z.number().int("Tamaño inválido").positive("El archivo está vacío"),
+  mimeType: z.string().trim().min(1).max(255),
+})
+export type CreateUploadSessionInput = z.infer<typeof CreateUploadSessionSchema>
