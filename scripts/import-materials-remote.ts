@@ -118,7 +118,24 @@ const EXT = new Set(
 )
 const SKIP_INSTALL = hasFlag("skip-install")
 const ONLY_INSTALL = hasFlag("only-install")
-const isInstallDir = (name: string) => name.toUpperCase() === "INSTALL"
+// Detecta la RAÍZ de un árbol de instalador/app (bundles pesados). No todos
+// viven bajo "INSTALL/": Perspectives los pone como "Perspectives N MAC" /
+// "... PC" directo bajo el nivel, con .app/.framework/.lproj adentro. Al entrar
+// en cualquiera de estos, todo el subárbol cuenta como instalador.
+const isInstallDir = (name: string): boolean => {
+  const u = name.toUpperCase()
+  return (
+    u === "INSTALL" ||
+    u === "MAC_USER" ||
+    u === "PC_USER" ||
+    u.endsWith(" MAC") ||
+    u.endsWith(" PC") ||
+    u.endsWith("_RUN_USB") ||
+    u.endsWith(".APP") ||
+    u.endsWith(".FRAMEWORK") ||
+    u.endsWith(".LPROJ")
+  )
+}
 const extOf = (name: string) => path.extname(name).toLowerCase().replace(/^\./, "")
 
 const stats = { foldersEnsured: 0, uploaded: 0, skipped: 0, errors: 0, bytes: 0 }
