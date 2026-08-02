@@ -23,6 +23,10 @@
  *
  * Flags: --base-url, --source, --email, --password, --dry-run, --only <texto>,
  *        --concurrency <n> (default 4).
+ *   Escalonar por peso (reanudable, el 409 evita duplicar entre fases):
+ *     --skip-install   omite las carpetas INSTALL/ (bundles pesados de la app).
+ *     --only-install   SOLO lo de INSTALL/ (dejar para el final).
+ *     --ext pdf,mp3    solo esas extensiones (p. ej. PDFs primero).
  */
 
 import path from "node:path"
@@ -100,6 +104,22 @@ const PASSWORD = getOpt("password") ?? process.env.IMPORT_PASSWORD
 const DRY_RUN = hasFlag("dry-run")
 const ONLY = getOpt("only")?.toLowerCase()
 const CONCURRENCY = Math.max(1, Number(getOpt("concurrency") ?? 4))
+
+// Filtros de fase (para escalonar la carga por peso):
+//   --ext pdf,mp3   → solo esas extensiones (livianos primero)
+//   --skip-install  → omite las carpetas INSTALL/ (los bundles pesados de la app)
+//   --only-install  → SOLO lo que vive dentro de INSTALL/ (para el final)
+const EXT = new Set(
+  (getOpt("ext") ?? "")
+    .toLowerCase()
+    .split(",")
+    .map((s) => s.trim().replace(/^\./, ""))
+    .filter(Boolean),
+)
+const SKIP_INSTALL = hasFlag("skip-install")
+const ONLY_INSTALL = hasFlag("only-install")
+const isInstallDir = (name: string) => name.toUpperCase() === "INSTALL"
+const extOf = (name: string) => path.extname(name).toLowerCase().replace(/^\./, "")
 
 const stats = { foldersEnsured: 0, uploaded: 0, skipped: 0, errors: 0, bytes: 0 }
 
@@ -245,6 +265,7 @@ async function walk(
   levelCode: string,
   segments: string[],
   folderId: string,
+  insideInstall = false,
 ) {
   const entries = (await fs.readdir(dirPath, { withFileTypes: true })).sort((a, b) =>
     a.name.localeCompare(b.name),
@@ -252,6 +273,9 @@ async function walk(
   for (const e of entries) {
     if (e.isDirectory()) {
       if (JUNK_DIRS.has(e.name)) continue
+      const childInstall = insideInstall || isInstallDir(e.name)
+      // --skip-install: no bajamos a INSTALL/ (ni creamos sus carpetas).
+      if (SKIP_INSTALL && childInstall) continue
       const childSegments = [...segments, sanitizeName(e.name)]
       let childId = "(dry)"
       if (DRY_RUN) {
@@ -259,9 +283,20 @@ async function walk(
       } else {
         childId = await ensureFolder(programName, levelCode, childSegments)
       }
-      await walk(path.join(dirPath, e.name), programName, levelCode, childSegments, childId)
+      await walk(
+        path.join(dirPath, e.name),
+        programName,
+        levelCode,
+        childSegments,
+        childId,
+        childInstall,
+      )
     } else if (e.isFile()) {
       if (isJunkFile(e.name)) continue
+      // --only-install: solo archivos dentro de INSTALL/.
+      if (ONLY_INSTALL && !insideInstall) continue
+      // --ext: filtra por extensión (livianos primero).
+      if (EXT.size > 0 && !EXT.has(extOf(e.name))) continue
       const st = await fs.stat(path.join(dirPath, e.name))
       jobs.push({
         folderId,
