@@ -164,11 +164,6 @@ function ItemRow({
             <span className="text-foreground">{item.name}</span>
           </span>
         )}
-        {item.kind === "folder" && (
-          <div className="text-text-3 mt-0.5 ml-[26px] text-[12px]">
-            {item.childFolderCount} carpetas · {item.fileCount} archivos
-          </div>
-        )}
       </TableCell>
       <TableCell className="text-text-3 font-mono text-[12.5px]">
         {item.kind === "file" ? formatBytes(item.size) : "—"}

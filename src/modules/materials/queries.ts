@@ -123,8 +123,6 @@ export type FolderItem =
       kind: "folder"
       id: string
       name: string
-      childFolderCount: number
-      fileCount: number
       updatedAt: Date
     }
   | {
@@ -167,12 +165,6 @@ export async function getFolderDetail(folderId: string): Promise<FolderDetail | 
           id: true,
           name: true,
           updatedAt: true,
-          _count: {
-            select: {
-              children: { where: { deletedAt: null } },
-              files: { where: { deletedAt: null } },
-            },
-          },
         },
       },
       files: {
@@ -197,8 +189,6 @@ export async function getFolderDetail(folderId: string): Promise<FolderDetail | 
       kind: "folder" as const,
       id: c.id,
       name: c.name,
-      childFolderCount: c._count.children,
-      fileCount: c._count.files,
       updatedAt: c.updatedAt,
     })),
     ...folder.files.map((f) => ({
