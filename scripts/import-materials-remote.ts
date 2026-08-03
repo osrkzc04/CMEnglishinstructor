@@ -321,14 +321,17 @@ async function sendChunkRemote(
       const body = (await res.json().catch(() => ({}))) as { offset?: number }
       return typeof body.offset === "number" ? body.offset : end
     }
-    // 4xx no recuperable (salvo 408/409/429) → falla dura.
-    if (res && res.status >= 400 && res.status < 500 && ![408, 409, 429].includes(res.status)) {
+    // Errores de cliente definitivos (no se arreglan reintentando).
+    if (res && (res.status === 400 || res.status === 403)) {
       const t = await res.text().catch(() => "")
-      throw new Error(`chunk @${offset} → ${res.status} ${t}`)
+      throw new Error(`chunk @${offset} → ${res.status} ${t.slice(0, 160)}`)
     }
-    // Red / 5xx / 409 desync → backoff + re-sync del offset real del servidor.
-    if (attempt >= 6) throw new Error(`chunk @${offset}: reintentos agotados`)
-    await sleep(Math.min(1000 * 2 ** attempt, 15000))
+    // Todo lo demás (404 por restart, 408/409/429, 5xx, red) → reintentable:
+    // backoff + re-sync del offset real del servidor y seguimos donde quedó.
+    // Ventana amplia (~10 intentos, hasta 30s) para sobrevivir un reinicio del
+    // contenedor sin perder el avance del archivo.
+    if (attempt >= 10) throw new Error(`chunk @${offset}: reintentos agotados`)
+    await sleep(Math.min(1000 * 2 ** attempt, 30000))
     const g = await fetch(`${BASE}/api/materials/upload/session/${uploadId}`, {
       headers: { cookie: cookieHeader() },
     }).catch(() => null)
