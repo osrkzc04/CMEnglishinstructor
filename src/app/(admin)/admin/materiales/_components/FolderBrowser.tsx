@@ -8,13 +8,13 @@ import * as DropdownMenu from "@radix-ui/react-dropdown-menu"
 import {
   Download,
   FilePlus,
-  FileText,
   Folder,
   FolderPlus,
   MoreHorizontal,
   Pencil,
   Trash2,
 } from "lucide-react"
+import { FileTypeIcon } from "@/components/materials/FileTypeIcon"
 import { Button } from "@/components/ui/button"
 import { EmptyState } from "@/components/ui/empty-state"
 import {
@@ -160,7 +160,13 @@ function ItemRow({
           </Link>
         ) : (
           <span className="inline-flex items-center gap-2.5">
-            <FileText size={15} strokeWidth={1.6} className="text-text-3" />
+            <FileTypeIcon
+              name={item.name}
+              mimeType={item.mimeType}
+              size={15}
+              strokeWidth={1.6}
+              className="text-text-3"
+            />
             <span className="text-foreground">{item.name}</span>
           </span>
         )}

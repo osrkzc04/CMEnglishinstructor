@@ -1,7 +1,8 @@
 import Link from "next/link"
 import type { Route } from "next"
-import { ChevronRight, Download, FileText, Folder, Home } from "lucide-react"
+import { ChevronRight, Download, Folder, Home } from "lucide-react"
 import { EmptyState } from "@/components/ui/empty-state"
+import { FileTypeIcon } from "@/components/materials/FileTypeIcon"
 import {
   Table,
   TableBody,
@@ -77,7 +78,13 @@ export function FolderViewer({ folder, basePath, rootLabel }: Props) {
                       </Link>
                     ) : (
                       <span className="inline-flex items-center gap-2.5">
-                        <FileText size={15} strokeWidth={1.6} className="text-text-3" />
+                        <FileTypeIcon
+                          name={item.name}
+                          mimeType={item.mimeType}
+                          size={15}
+                          strokeWidth={1.6}
+                          className="text-text-3"
+                        />
                         <span className="text-foreground">{item.name}</span>
                       </span>
                     )}
