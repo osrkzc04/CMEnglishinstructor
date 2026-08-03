@@ -27,6 +27,7 @@
  *     --skip-install   omite las carpetas INSTALL/ (bundles pesados de la app).
  *     --only-install   SOLO lo de INSTALL/ (dejar para el final).
  *     --ext pdf,mp3    solo esas extensiones (p. ej. PDFs primero).
+ *     --chunked        subida reanudable mid-archivo (para zips de GB).
  */
 
 import path from "node:path"
@@ -118,6 +119,10 @@ const EXT = new Set(
 )
 const SKIP_INSTALL = hasFlag("skip-install")
 const ONLY_INSTALL = hasFlag("only-install")
+// --chunked: sube por los endpoints de sesión (reanuda a mitad de archivo).
+// Para zips de instaladores de GB, evita reiniciar todo si se corta la red.
+const CHUNKED = hasFlag("chunked")
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms))
 // Detecta la RAÍZ de un árbol de instalador/app (bundles pesados). No todos
 // viven bajo "INSTALL/": Perspectives los pone como "Perspectives N MAC" /
 // "... PC" directo bajo el nivel, con .app/.framework/.lproj adentro. Al entrar
@@ -267,6 +272,119 @@ async function uploadFile(folderId: string, name: string, filePath: string, size
   }
   stats.uploaded++
   stats.bytes += size
+}
+
+// -----------------------------------------------------------------------------
+//  Subida por chunks (reanudable mid-archivo) — usa los endpoints de sesión.
+//  Para archivos grandes (zips de GB): si la red se corta, el reintento
+//  re-sincroniza el offset con el servidor y sigue donde quedó, en vez de
+//  reiniciar el archivo entero como el single-shot.
+// -----------------------------------------------------------------------------
+
+async function sendChunkRemote(
+  uploadId: string,
+  filePath: string,
+  size: number,
+  chunkSize: number,
+  startOffset: number,
+): Promise<number> {
+  let offset = startOffset
+  for (let attempt = 0; ; attempt++) {
+    const end = Math.min(offset + chunkSize, size) // exclusivo
+    const patch = () => {
+      const init = {
+        method: "PATCH",
+        headers: {
+          "upload-offset": String(offset),
+          "content-type": "application/octet-stream",
+          cookie: cookieHeader(),
+        },
+        body: Readable.toWeb(
+          createReadStream(filePath, { start: offset, end: end - 1 }),
+        ) as unknown as BodyInit,
+        duplex: "half",
+      }
+      return fetch(`${BASE}/api/materials/upload/session/${uploadId}`, init as RequestInit)
+    }
+
+    let res: Response | null = null
+    try {
+      res = await patch()
+    } catch {
+      res = null // error de red → reintentable
+    }
+    if (res && res.status === 401) {
+      await login()
+      res = await patch().catch(() => null)
+    }
+    if (res && res.ok) {
+      const body = (await res.json().catch(() => ({}))) as { offset?: number }
+      return typeof body.offset === "number" ? body.offset : end
+    }
+    // 4xx no recuperable (salvo 408/409/429) → falla dura.
+    if (res && res.status >= 400 && res.status < 500 && ![408, 409, 429].includes(res.status)) {
+      const t = await res.text().catch(() => "")
+      throw new Error(`chunk @${offset} → ${res.status} ${t}`)
+    }
+    // Red / 5xx / 409 desync → backoff + re-sync del offset real del servidor.
+    if (attempt >= 6) throw new Error(`chunk @${offset}: reintentos agotados`)
+    await sleep(Math.min(1000 * 2 ** attempt, 15000))
+    const g = await fetch(`${BASE}/api/materials/upload/session/${uploadId}`, {
+      headers: { cookie: cookieHeader() },
+    }).catch(() => null)
+    if (g && g.ok) {
+      const gb = (await g.json().catch(() => ({}))) as { offset?: number }
+      if (typeof gb.offset === "number") offset = gb.offset
+    }
+    if (offset >= size) return offset
+  }
+}
+
+async function uploadFileChunked(folderId: string, name: string, filePath: string, size: number) {
+  const create = () =>
+    fetch(`${BASE}/api/materials/upload/session`, {
+      method: "POST",
+      headers: { "content-type": "application/json", cookie: cookieHeader() },
+      body: JSON.stringify({ folderId, name, size, mimeType: mimeFor(name) }),
+    })
+
+  let res = await create()
+  if (res.status === 401) {
+    await login()
+    res = await create()
+  }
+  if (res.status === 409) {
+    stats.skipped++
+    return
+  }
+  if (!res.ok) {
+    stats.errors++
+    console.error(`  ✗ ${name} → sesión ${res.status}`)
+    return
+  }
+  const { uploadId, chunkSize } = (await res.json()) as { uploadId: string; chunkSize: number }
+
+  try {
+    let offset = 0
+    while (offset < size) {
+      offset = await sendChunkRemote(uploadId, filePath, size, chunkSize, offset)
+    }
+    const done = await fetch(`${BASE}/api/materials/upload/session/${uploadId}/complete`, {
+      method: "POST",
+      headers: { cookie: cookieHeader() },
+    })
+    if (!done.ok) {
+      stats.errors++
+      const t = await done.text().catch(() => "")
+      console.error(`  ✗ ${name} → complete ${done.status} ${t}`)
+      return
+    }
+    stats.uploaded++
+    stats.bytes += size
+  } catch (err) {
+    stats.errors++
+    console.error(`  ✗ ${name}: ${err instanceof Error ? err.message : err}`)
+  }
 }
 
 // -----------------------------------------------------------------------------
@@ -440,7 +558,8 @@ async function main() {
 
   let done = 0
   await runPool(jobs, CONCURRENCY, async (job) => {
-    await uploadFile(job.folderId, job.name, job.filePath, job.size)
+    if (CHUNKED) await uploadFileChunked(job.folderId, job.name, job.filePath, job.size)
+    else await uploadFile(job.folderId, job.name, job.filePath, job.size)
     done++
     if (done % 25 === 0 || done === jobs.length) {
       console.log(

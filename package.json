@@ -27,6 +27,7 @@
     "db:seed:dev-questions": "tsx prisma/seed/dev-questions.ts",
     "materials:import": "tsx --env-file=.env scripts/import-materials.ts",
     "materials:import:remote": "tsx scripts/import-materials-remote.ts",
+    "materials:zip": "tsx scripts/zip-installers.ts",
     "db:reset": "prisma migrate reset --force && pnpm db:seed",
     "db:studio": "prisma studio",
     "email:dev": "email dev --dir ./emails --port 3030",
