@@ -364,10 +364,17 @@ async function uploadFileChunked(folderId: string, name: string, filePath: strin
   }
   const { uploadId, chunkSize } = (await res.json()) as { uploadId: string; chunkSize: number }
 
+  console.log(`  [sube] ${name} (${gb(size)})`)
   try {
     let offset = 0
+    let lastPct = 0
     while (offset < size) {
       offset = await sendChunkRemote(uploadId, filePath, size, chunkSize, offset)
+      const pct = Math.floor((offset / Math.max(size, 1)) * 100)
+      if (pct >= lastPct + 10) {
+        lastPct = pct
+        console.log(`    ${name}: ${pct}%`)
+      }
     }
     const done = await fetch(`${BASE}/api/materials/upload/session/${uploadId}/complete`, {
       method: "POST",
@@ -381,6 +388,7 @@ async function uploadFileChunked(folderId: string, name: string, filePath: strin
     }
     stats.uploaded++
     stats.bytes += size
+    console.log(`  ✓ ${name}`)
   } catch (err) {
     stats.errors++
     console.error(`  ✗ ${name}: ${err instanceof Error ? err.message : err}`)
