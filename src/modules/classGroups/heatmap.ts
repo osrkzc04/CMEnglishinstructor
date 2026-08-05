@@ -6,10 +6,16 @@
  * estudiantes seleccionados y la duración por clase del nivel. Devuelve la
  * grilla anotada celda por celda para que la UI la pinte.
  *
- * La celda representa "arrancar una clase acá". Una celda es viable si:
- *   - El docente tiene un bloque de availability que cubre [start, start+duration]
- *   - No hay ningún conflicto del docente que se solape con [start, start+duration]
- *   - studentsCovered cuenta cuántos estudiantes tienen un bloque que cubre [start, start+duration]
+ * La celda representa una UNIDAD de 15 min (no una clase completa). El
+ * coordinador arma una clase clickeando celdas contiguas; el largo lo define
+ * la cantidad de unidades. Una celda (unidad) se anota así:
+ *   - El docente tiene un bloque de availability que cubre [start, start+15]
+ *   - No hay ningún conflicto del docente que se solape con [start, start+15]
+ *   - studentsCovered cuenta cuántos estudiantes cubren [start, start+15]
+ *
+ * `durationMinutes` (duración de clase por defecto del nivel) ya no decide la
+ * cobertura de la celda — solo viaja en el resultado para que la UI marque
+ * runs "cortos" y ofrezca el largo estándar como sugerencia.
  */
 
 const SLOT_MINUTES = 15
@@ -128,11 +134,10 @@ export function computeAvailabilityHeatmap(input: HeatmapInput): Heatmap {
   for (const day of HEATMAP_DAYS) {
     for (let i = 0; i < HEATMAP_SLOTS_PER_DAY; i++) {
       const startMinutes = START_HOUR * 60 + i * SLOT_MINUTES
-      const endMinutes = startMinutes + durationMinutes
-      // Si el bloque se sale del rango (24h), descartar.
-      if (endMinutes > END_HOUR * 60) {
-        continue
-      }
+      // La celda es una unidad de 15 min: la cobertura se evalúa sobre
+      // [start, start+15], no sobre la clase entera. Que la clase completa
+      // "quepa" desde acá se valida al armar el run, no por celda.
+      const endMinutes = startMinutes + SLOT_MINUTES
       const startTime = formatHHmm(startMinutes)
 
       const teacherCovers =

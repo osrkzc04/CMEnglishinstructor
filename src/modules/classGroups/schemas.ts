@@ -14,6 +14,16 @@ const TIME_RE = /^([01]\d|2[0-3]):[0-5]\d$/
 export const SlotInputSchema = z.object({
   dayOfWeek: z.number().int().min(0).max(6),
   startTime: z.string().regex(TIME_RE, "Hora inválida (HH:mm)"),
+  /**
+   * Largo de la clase en minutos. Ya no lo fija el nivel: el coordinador arma
+   * runs de celdas de 15 min, así que la duración es múltiplo de 15. El nivel
+   * solo aporta la duración "estándar" como referencia visual.
+   */
+  durationMinutes: z
+    .number()
+    .int()
+    .min(15, "Mínimo 15 minutos")
+    .refine((v) => v % 15 === 0, "Debe ser múltiplo de 15 minutos"),
 })
 
 export type SlotInput = z.infer<typeof SlotInputSchema>
@@ -73,18 +83,32 @@ export const NewClassGroupSchema = z
     defaultLocation: LocationSchema,
   })
   .superRefine((data, ctx) => {
-    const seen = new Set<string>()
+    // Con largos variables, dos clases del mismo día no pueden solaparse.
+    // Ordenamos por inicio y comprobamos que cada una empiece después del fin
+    // de la anterior.
+    const toMin = (t: string) => {
+      const [h, m] = t.split(":").map(Number) as [number, number]
+      return h * 60 + m
+    }
+    const byDay = new Map<number, { start: number; end: number }[]>()
     for (const s of data.slots) {
-      const key = `${s.dayOfWeek}@${s.startTime}`
-      if (seen.has(key)) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          path: ["slots"],
-          message: "Hay slots duplicados",
-        })
-        return
+      const start = toMin(s.startTime)
+      const list = byDay.get(s.dayOfWeek) ?? []
+      list.push({ start, end: start + s.durationMinutes })
+      byDay.set(s.dayOfWeek, list)
+    }
+    for (const list of byDay.values()) {
+      list.sort((a, b) => a.start - b.start)
+      for (let i = 1; i < list.length; i++) {
+        if (list[i]!.start < list[i - 1]!.end) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: ["slots"],
+            message: "Hay clases que se solapan en el mismo día",
+          })
+          return
+        }
       }
-      seen.add(key)
     }
     // Link de Meet/Zoom: opcional al crear. El docente lo carga desde su
     // panel después de la asignación. La ubicación sí la pedimos para

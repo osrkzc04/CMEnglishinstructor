@@ -312,15 +312,14 @@ export function NewClassGroupForm({ programLevels, weeklyMinHours, weeklyMaxHour
           title="Horario semanal"
           hint={
             heatmap && (watchedTeacherId || watchedEnrollmentIds.length > 0)
-              ? "Click sobre las celdas para elegir los slots. La duración la fija el nivel."
-              : "Elegí celdas para definir el horario. Si todavía no marcaste docente o estudiantes, el heatmap está libre."
+              ? "Haz clic en celdas contiguas para armar cada clase; el largo lo defines tú (referencia: la duración estándar del nivel)."
+              : "Arma el horario con celdas contiguas. Si todavía no marcaste docente o estudiantes, el heatmap está libre."
           }
         >
           {candidates.kind === "ready" && heatmap ? (
             <>
               <WeeklyLoadIndicator
-                slotsCount={watchedSlots.length}
-                durationMinutes={candidates.durationMinutes}
+                slots={watchedSlots}
                 minHours={weeklyMinHours}
                 maxHours={weeklyMaxHours}
               />
@@ -333,7 +332,6 @@ export function NewClassGroupForm({ programLevels, weeklyMinHours, weeklyMaxHour
               {watchedSlots.length > 0 && (
                 <SelectedSlotsList
                   slots={watchedSlots}
-                  durationMinutes={candidates.durationMinutes}
                   onRemove={(s) =>
                     setValue(
                       "slots",
@@ -636,11 +634,9 @@ function StudentPicker({
 
 function SelectedSlotsList({
   slots,
-  durationMinutes,
   onRemove,
 }: {
-  slots: { dayOfWeek: number; startTime: string }[]
-  durationMinutes: number
+  slots: { dayOfWeek: number; startTime: string; durationMinutes: number }[]
   onRemove: (s: { dayOfWeek: number; startTime: string }) => void
 }) {
   return (
@@ -649,7 +645,7 @@ function SelectedSlotsList({
         Horario seleccionado:
       </span>
       {slots.map((s) => {
-        const endTime = addMinutesToTime(s.startTime, durationMinutes)
+        const endTime = addMinutesToTime(s.startTime, s.durationMinutes)
         const dayLabel = DAYS_ES[s.dayOfWeek] ?? ""
         return (
           <button
@@ -731,19 +727,19 @@ function Field({
 }
 
 function WeeklyLoadIndicator({
-  slotsCount,
-  durationMinutes,
+  slots,
   minHours,
   maxHours,
 }: {
-  slotsCount: number
-  durationMinutes: number
+  slots: { durationMinutes: number }[]
   minHours: number
   maxHours: number
 }) {
-  const hours = (slotsCount * durationMinutes) / 60
+  const totalMinutes = slots.reduce((acc, s) => acc + s.durationMinutes, 0)
+  const hours = totalMinutes / 60
+  const count = slots.length
   const inRange = hours >= minHours && hours <= maxHours
-  const empty = slotsCount === 0
+  const empty = count === 0
   const tone = empty
     ? "border-border bg-surface text-text-3"
     : inRange
@@ -759,7 +755,7 @@ function WeeklyLoadIndicator({
       <span>
         Carga semanal: <span className="font-mono font-medium">{hours.toFixed(2)}h</span>
         <span className="text-text-3 ml-1">
-          ({slotsCount} {slotsCount === 1 ? "clase" : "clases"} × {durationMinutes} min)
+          ({count} {count === 1 ? "clase" : "clases"})
         </span>
       </span>
       <span className="text-text-3 font-mono">

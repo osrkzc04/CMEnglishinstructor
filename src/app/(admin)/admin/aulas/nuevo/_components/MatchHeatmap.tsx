@@ -13,25 +13,25 @@ import {
 } from "@/modules/classGroups/heatmap"
 
 /**
- * Grilla visual del matchmaker. Cada celda representa "arrancar la clase
- * acá"; el alto de la fila marca un bloque de 15 min y la duración real del
- * slot la fija el `Course.classDuration`.
+ * Grilla visual del matchmaker. Cada celda es una UNIDAD de 15 min; una clase
+ * se arma clickeando celdas contiguas del mismo día. Unidades contiguas se
+ * agrupan en un "run" (la clase); un hueco corta en dos clases. El largo lo
+ * define la cantidad de unidades — así se pueden dictar clases más largas
+ * (intensivas) sin quedar atado a la duración por defecto del nivel.
  *
- * Estados:
+ * Estados de celda (unidad):
  *   - blocked: docente tiene otra aula que se solapa → no clickeable
- *   - gray:    docente no disponible → no clickeable
- *   - yellow:  docente cubre + algunos estudiantes → clickeable, con conteo
- *   - green:   docente cubre + todos los estudiantes → clickeable
+ *   - gray / students_only: docente no disponible → no clickeable
+ *   - teacher_only / partial / match: clickeable
  *
- * Click en una celda: agrega/saca el slot de la lista. La grilla no se
- * encarga de validar que no se elijan dos slots solapados — eso lo valida
- * la action al persistir.
+ * Click sobre una celda la agrega/saca del run. La validación de largo mínimo
+ * y de no-solapamiento entre runs vive en la action al persistir.
  */
 
 const HOUR_CELLS = 60 / HEATMAP_SLOT_MINUTES
 const CELL_HEIGHT_PX = 14
 
-type Slot = { dayOfWeek: number; startTime: string }
+type Slot = { dayOfWeek: number; startTime: string; durationMinutes: number }
 
 type Props = {
   heatmap: Heatmap
@@ -40,10 +40,6 @@ type Props = {
   /** True cuando todavía no hay docente seleccionado — se permite click en
    *  todas las celdas no bloqueadas para definir horario "manual". */
   ignoreTeacher?: boolean
-}
-
-function slotKey(s: Slot): string {
-  return `${s.dayOfWeek}|${s.startTime}`
 }
 
 function slotToTime(slotIdx: number): string {
@@ -67,10 +63,85 @@ function startTimeToSlotIdx(time: string): number | null {
   return idx
 }
 
-// Colores por estado. La intensidad refleja qué tan "cerrado" está el slot:
-// match (todos disponibles) usa teal sólido; partial usa amarillo; los
-// estados parciales informativos (solo docente, solo alumnos) usan tonos
-// muy bajos para no competir visualmente con el match.
+function addMinutesToTime(hhmm: string, minutes: number): string {
+  const [h, m] = hhmm.split(":").map(Number) as [number, number]
+  const total = h * 60 + m + minutes
+  const eh = Math.floor(total / 60) % 24
+  const em = total % 60
+  return `${String(eh).padStart(2, "0")}:${String(em).padStart(2, "0")}`
+}
+
+// -----------------------------------------------------------------------------
+//  Conversión run <-> unidades. La fuente de verdad hacia afuera son los runs
+//  (`Slot[]` con duración); internamente togglear una celda es más simple sobre
+//  un set de unidades, así que convertimos ida y vuelta en cada click.
+// -----------------------------------------------------------------------------
+
+function unitKey(day: number, idx: number): string {
+  return `${day}|${idx}`
+}
+
+function slotsToUnitSet(slots: Slot[]): Set<string> {
+  const set = new Set<string>()
+  for (const s of slots) {
+    const startIdx = startTimeToSlotIdx(s.startTime)
+    if (startIdx === null) continue
+    const count = Math.max(1, Math.round(s.durationMinutes / HEATMAP_SLOT_MINUTES))
+    for (let i = 0; i < count; i++) {
+      const idx = startIdx + i
+      if (idx >= HEATMAP_SLOTS_PER_DAY) break
+      set.add(unitKey(s.dayOfWeek, idx))
+    }
+  }
+  return set
+}
+
+function unitSetToSlots(set: Set<string>): Slot[] {
+  const byDay = new Map<number, number[]>()
+  for (const key of set) {
+    const [d, i] = key.split("|").map(Number) as [number, number]
+    const list = byDay.get(d) ?? []
+    list.push(i)
+    byDay.set(d, list)
+  }
+
+  const runs: Slot[] = []
+  for (const [day, idxs] of byDay) {
+    idxs.sort((a, b) => a - b)
+    let start: number | null = null
+    let prev: number | null = null
+    const flush = (end: number) => {
+      if (start === null) return
+      runs.push({
+        dayOfWeek: day,
+        startTime: slotToTime(start),
+        durationMinutes: (end - start + 1) * HEATMAP_SLOT_MINUTES,
+      })
+    }
+    for (const idx of idxs) {
+      if (start === null) {
+        start = idx
+        prev = idx
+        continue
+      }
+      if (idx === prev! + 1) {
+        prev = idx
+        continue
+      }
+      flush(prev!)
+      start = idx
+      prev = idx
+    }
+    if (prev !== null) flush(prev)
+  }
+
+  runs.sort((a, b) => a.dayOfWeek - b.dayOfWeek || a.startTime.localeCompare(b.startTime))
+  return runs
+}
+
+// Colores por estado (unidad). La intensidad refleja qué tan "cerrada" está:
+// match usa teal; partial amarillo; los informativos (solo docente/alumnos)
+// tonos bajos para no competir con el match.
 const KIND_BG: Record<CellKind, string> = {
   blocked: "bg-danger/15 cursor-not-allowed",
   gray: "bg-bone-100 cursor-not-allowed",
@@ -81,78 +152,55 @@ const KIND_BG: Record<CellKind, string> = {
 }
 
 export function MatchHeatmap({ heatmap, selected, onChange, ignoreTeacher }: Props) {
-  const [hover, setHover] = useState<{ dayIdx: number; startSlotIdx: number } | null>(null)
+  const [hover, setHover] = useState<{ dayIdx: number; slotIdx: number } | null>(null)
 
-  // Cuántas celdas de 15 min ocupa una clase. Se usa para resaltar el span
-  // al pasar el mouse y para la advertencia de "este horario es el INICIO".
-  const cellsPerClass = Math.max(1, Math.ceil(heatmap.durationMinutes / HEATMAP_SLOT_MINUTES))
+  // Duración estándar del nivel — se usa solo para marcar runs "cortos" (por
+  // debajo de una clase normal), no para restringir la selección.
+  const standardDuration = heatmap.durationMinutes
 
-  // Indexar celdas para búsqueda rápida
+  // Indexar celdas del heatmap para búsqueda rápida.
   const cellMap = new Map<string, (typeof heatmap.cells)[number]>()
   for (const c of heatmap.cells) {
     cellMap.set(`${c.dayOfWeek}|${c.startTime}`, c)
   }
-  const selectedKeys = new Set(selected.map(slotKey))
 
   function cellClickable(kind: CellKind): boolean {
     if (kind === "blocked") return false
     if (kind === "gray") return false
     if (kind === "students_only") return false
-    // En modo "sin docente" todas las celdas no bloqueadas se pueden marcar
-    // a mano para horarios placeholder.
-    if (ignoreTeacher) return true
+    // teacher_only / partial / match → clickeable. En modo "sin docente"
+    // también, para armar horarios placeholder.
     return true
   }
 
-  function isInHoverSpan(dayIdx: number, slotIdx: number): boolean {
-    if (!hover) return false
-    if (hover.dayIdx !== dayIdx) return false
-    return slotIdx >= hover.startSlotIdx && slotIdx < hover.startSlotIdx + cellsPerClass
-  }
-
-  function endTimeForStart(startTime: string): string {
-    const [h, m] = startTime.split(":").map(Number) as [number, number]
-    const endTotal = h * 60 + m + heatmap.durationMinutes
-    const eh = Math.floor(endTotal / 60) % 24
-    const em = endTotal % 60
-    return `${String(eh).padStart(2, "0")}:${String(em).padStart(2, "0")}`
-  }
-
-  // Por cada celda del grid, sabemos si está dentro del span de algún slot
-  // seleccionado, y si sí, si es la "primera" (la del inicio) o "interior".
-  // Eso permite renderizar el slot como una barra continua: la primera lleva
-  // el label, las interiores pierden el borde-top para parecer una sola pieza.
-  const selectedSpanByDayAndSlot = useMemo(() => {
-    const map = new Map<string, { isFirst: boolean; startTime: string }>()
-    for (const s of selected) {
-      const startIdx = startTimeToSlotIdx(s.startTime)
+  // Por cada celda del grid, saber si pertenece a un run seleccionado, si es su
+  // primera unidad (lleva el label) y qué run es (para el largo y quitar).
+  const selectedSpanByUnit = useMemo(() => {
+    const map = new Map<string, { isFirst: boolean; run: Slot }>()
+    for (const run of selected) {
+      const startIdx = startTimeToSlotIdx(run.startTime)
       if (startIdx === null) continue
-      for (let i = 0; i < cellsPerClass; i++) {
+      const count = Math.max(1, Math.round(run.durationMinutes / HEATMAP_SLOT_MINUTES))
+      for (let i = 0; i < count; i++) {
         const idx = startIdx + i
         if (idx >= HEATMAP_SLOTS_PER_DAY) break
-        map.set(`${s.dayOfWeek}|${idx}`, {
-          isFirst: i === 0,
-          startTime: s.startTime,
-        })
+        map.set(unitKey(run.dayOfWeek, idx), { isFirst: i === 0, run })
       }
     }
     return map
-  }, [selected, cellsPerClass])
+  }, [selected])
 
-  function getSelectedSpanInfo(
-    dayIdx: number,
-    slotIdx: number,
-  ): { isFirst: boolean; startTime: string } | null {
-    return selectedSpanByDayAndSlot.get(`${dayIdx}|${slotIdx}`) ?? null
-  }
-
-  function toggle(s: Slot) {
-    const key = slotKey(s)
-    if (selectedKeys.has(key)) {
-      onChange(selected.filter((x) => slotKey(x) !== key))
+  function toggleUnit(day: number, idx: number, clickable: boolean) {
+    const set = slotsToUnitSet(selected)
+    const key = unitKey(day, idx)
+    if (set.has(key)) {
+      // Quitar una unidad siempre se permite (puede partir un run en dos).
+      set.delete(key)
     } else {
-      onChange([...selected, s].sort(sortSlots))
+      if (!clickable) return
+      set.add(key)
     }
+    onChange(unitSetToSlots(set))
   }
 
   return (
@@ -160,10 +208,10 @@ export function MatchHeatmap({ heatmap, selected, onChange, ignoreTeacher }: Pro
       <div className="border-border bg-bone-50 text-text-2 mb-3 flex items-start gap-2 rounded-md border px-3 py-2 text-[12.5px]">
         <Info size={13} strokeWidth={1.6} className="text-text-3 mt-0.5 shrink-0" />
         <p>
-          Cada celda es <strong>el inicio</strong> de una clase de{" "}
-          <span className="font-mono">{heatmap.durationMinutes} min</span>. Pasá el mouse para ver
-          qué celdas ocupa la clase a partir de ahí. Las celdas que aparecen sin color son inicios
-          donde la clase no entra dentro de la franja disponible de alguien.
+          Cada celda es una <strong>unidad de 15 min</strong>. Haz clic en celdas contiguas para
+          armar una clase; el largo lo defines tú. La duración estándar del nivel es{" "}
+          <span className="font-mono">{standardDuration} min</span> — los bloques más cortos se
+          marcan en ámbar.
         </p>
       </div>
       <div className="border-border bg-surface overflow-hidden rounded-lg border">
@@ -206,93 +254,79 @@ export function MatchHeatmap({ heatmap, selected, onChange, ignoreTeacher }: Pro
                 </div>
                 {HEATMAP_DAYS.map((d) => {
                   const cell = cellMap.get(`${d.idx}|${startTime}`)
-                  const spanInfo = getSelectedSpanInfo(d.idx, slotIdx)
+                  const spanInfo = selectedSpanByUnit.get(unitKey(d.idx, slotIdx)) ?? null
                   const isInSelectedSpan = spanInfo !== null
-                  const isFirstOfSlot = spanInfo?.isFirst === true
+                  const isFirstOfRun = spanInfo?.isFirst === true
                   const clickable = cell ? cellClickable(cell.kind) : false
                   const conflictName = cell?.teacherConflicts[0]?.classGroupName
-                  const inHoverSpan = !isInSelectedSpan && isInHoverSpan(d.idx, slotIdx)
-                  const endTime = endTimeForStart(startTime)
-                  const slotEndTime = isFirstOfSlot ? endTimeForStart(spanInfo!.startTime) : ""
+                  const isHovered =
+                    hover?.dayIdx === d.idx && hover?.slotIdx === slotIdx && !isInSelectedSpan
+
+                  const run = spanInfo?.run
+                  const runEnd = run ? addMinutesToTime(run.startTime, run.durationMinutes) : ""
+                  const runIsShort = run ? run.durationMinutes < standardDuration : false
 
                   return (
                     <button
                       key={`${d.idx}|${startTime}`}
                       type="button"
                       disabled={!clickable && !isInSelectedSpan}
-                      onClick={() => {
-                        if (isInSelectedSpan) {
-                          // Click en cualquier celda del span deselecciona el
-                          // slot original (cuyo inicio puede no ser este).
-                          toggle({
-                            dayOfWeek: d.idx,
-                            startTime: spanInfo!.startTime,
-                          })
-                          return
-                        }
-                        if (!clickable) return
-                        toggle({ dayOfWeek: d.idx, startTime })
-                      }}
+                      onClick={() => toggleUnit(d.idx, slotIdx, clickable)}
                       onMouseEnter={() => {
                         if (clickable && !isInSelectedSpan) {
-                          setHover({ dayIdx: d.idx, startSlotIdx: slotIdx })
+                          setHover({ dayIdx: d.idx, slotIdx })
                         }
                       }}
                       onMouseLeave={() => {
                         setHover((curr) =>
-                          curr && curr.dayIdx === d.idx && curr.startSlotIdx === slotIdx
-                            ? null
-                            : curr,
+                          curr && curr.dayIdx === d.idx && curr.slotIdx === slotIdx ? null : curr,
                         )
                       }}
                       title={
-                        isInSelectedSpan
-                          ? `Clase ${spanInfo!.startTime} – ${endTimeForStart(spanInfo!.startTime)} · click para sacarla`
+                        run
+                          ? `Clase ${run.startTime} – ${runEnd} · ${run.durationMinutes} min${
+                              runIsShort ? " (más corta que la estándar)" : ""
+                            } · click para editar`
                           : cell
-                            ? buildTitle(
-                                cell,
-                                false,
-                                ignoreTeacher,
-                                conflictName,
-                                startTime,
-                                endTime,
-                              )
+                            ? buildTitle(cell, ignoreTeacher, conflictName, startTime)
                             : ""
                       }
                       aria-pressed={isInSelectedSpan}
                       className={cn(
                         "relative border-l transition-colors",
-                        // Borde superior estándar — se respeta en hora exacta y
-                        // media hora, salvo dentro de un slot seleccionado donde
-                        // las celdas interiores no llevan borde para parecer
-                        // una sola barra continua.
-                        isInSelectedSpan && !isFirstOfSlot
-                          ? "border-l-teal-700/50"
+                        // Dentro de un run: las unidades interiores pierden el
+                        // borde-top para verse como una barra continua.
+                        isInSelectedSpan && !isFirstOfRun
+                          ? runIsShort
+                            ? "border-l-warning/50"
+                            : "border-l-teal-700/50"
                           : "border-l-border",
-                        isInSelectedSpan && isFirstOfSlot && "border-t-2 border-t-teal-700",
+                        isInSelectedSpan &&
+                          isFirstOfRun &&
+                          (runIsShort ? "border-t-2 border-t-warning" : "border-t-2 border-t-teal-700"),
                         !isInSelectedSpan && isHour && "border-border border-t",
                         !isInSelectedSpan && !isHour && isHalf && "border-border/30 border-t",
-                        // Color de fondo según estado
+                        // Color de fondo del run seleccionado.
                         isInSelectedSpan &&
-                          "cursor-pointer bg-teal-600 text-white hover:bg-teal-700",
+                          (runIsShort
+                            ? "cursor-pointer bg-warning text-white hover:bg-warning/80"
+                            : "cursor-pointer bg-teal-600 text-white hover:bg-teal-700"),
                         !isInSelectedSpan && cell && KIND_BG[cell.kind],
                         !cell && !isInSelectedSpan && "bg-surface",
-                        // Hover-span ring (solo cuando NO hay slot ya elegido)
-                        inHoverSpan && "z-10 ring-1 ring-teal-500/60 ring-inset",
+                        // Ring de hover (solo en celda libre clickeable).
+                        isHovered && "z-10 ring-1 ring-teal-500/60 ring-inset",
                       )}
                       style={{ height: `${CELL_HEIGHT_PX}px` }}
                     >
-                      {isFirstOfSlot && (
+                      {isFirstOfRun && run && (
                         <span className="block text-center font-mono text-[9.5px] leading-[14px] font-semibold tracking-[0.02em] text-white">
-                          {spanInfo!.startTime}–{slotEndTime}
+                          {run.startTime}–{runEnd}
                         </span>
                       )}
                       {!isInSelectedSpan && cell?.kind === "blocked" && (
                         <X size={10} strokeWidth={1.6} className="text-danger/60 mx-auto" />
                       )}
-                      {/* Solo mostramos n/total cuando hay match parcial real
-                         (algunos alumnos sí, algunos no). Si todos cubren o
-                         nadie cubre, el color de la celda ya lo dice. */}
+                      {/* n/total solo en match parcial real (algunos sí, algunos no). */}
                       {!isInSelectedSpan && cell?.kind === "partial" && cell.studentsTotal > 1 && (
                         <span className="text-warning block text-center font-mono text-[9.5px] leading-[14px]">
                           {cell.studentsCovered}/{cell.studentsTotal}
@@ -329,7 +363,11 @@ function Legend() {
         swatchClass="bg-danger/15 border border-danger/30"
         label="Choca con otra aula del docente"
       />
-      <LegendItem swatchClass="bg-teal-600 border border-teal-700" label="Slot elegido" />
+      <LegendItem swatchClass="bg-teal-600 border border-teal-700" label="Clase elegida" />
+      <LegendItem
+        swatchClass="bg-warning border border-warning"
+        label="Clase más corta que la estándar"
+      />
     </ul>
   )
 }
@@ -345,38 +383,32 @@ function LegendItem({ swatchClass, label }: { swatchClass: string; label: string
 
 function buildTitle(
   cell: { kind: CellKind; studentsCovered: number; studentsTotal: number },
-  isSelected: boolean,
   ignoreTeacher: boolean | undefined,
   conflictName: string | undefined,
   startTime: string,
-  endTime: string,
 ): string {
-  const range = `${startTime} a ${endTime}`
-  if (isSelected) return `Clase ${range} · click para sacarla`
+  const end = addMinutesToTime(startTime, HEATMAP_SLOT_MINUTES)
+  const range = `${startTime}–${end}`
   switch (cell.kind) {
     case "blocked":
-      return `Clase ${range} · el docente ya dicta ${conflictName ?? "otra aula"} en este horario`
+      return `${range} · el docente ya dicta ${conflictName ?? "otra aula"} en este horario`
     case "gray":
-      return `Clase ${range} · sin disponibilidad`
+      return `${range} · sin disponibilidad`
     case "students_only":
       return cell.studentsTotal > 0
-        ? `Clase ${range} · ${cell.studentsCovered} de ${cell.studentsTotal} alumnos cubren, pero el docente no — no se puede bookear`
-        : `Clase ${range} · sin disponibilidad del docente`
+        ? `${range} · ${cell.studentsCovered} de ${cell.studentsTotal} alumnos cubren, pero el docente no`
+        : `${range} · sin disponibilidad del docente`
     case "teacher_only":
       return ignoreTeacher
-        ? `Clase ${range} · docente disponible (sin alumnos seleccionados)`
+        ? `${range} · docente disponible (sin alumnos seleccionados)`
         : cell.studentsTotal === 0
-          ? `Clase ${range} · docente disponible. Seleccioná estudiantes para ver matches`
-          : `Clase ${range} · docente disponible, pero ningún alumno cubre este horario`
+          ? `${range} · docente disponible. Selecciona estudiantes para ver matches`
+          : `${range} · docente disponible, pero ningún alumno cubre esta unidad`
     case "partial":
-      return `Clase ${range} · ${cell.studentsCovered} de ${cell.studentsTotal} alumnos disponibles`
+      return `${range} · ${cell.studentsCovered} de ${cell.studentsTotal} alumnos disponibles`
     case "match":
-      return `Clase ${range} · match completo — docente y todos los alumnos disponibles`
+      return `${range} · match completo — docente y todos los alumnos disponibles`
     default:
       return ""
   }
-}
-
-function sortSlots(a: Slot, b: Slot): number {
-  return a.dayOfWeek - b.dayOfWeek || a.startTime.localeCompare(b.startTime)
 }

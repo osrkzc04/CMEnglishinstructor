@@ -47,13 +47,13 @@ export async function createClassGroup(input: NewClassGroupInput): Promise<Resul
   if (!programLevel) {
     return { success: false, error: "Nivel no encontrado", field: "programLevelId" }
   }
-  const classDuration = programLevel.program.course.classDuration
-
   // -----------------------------------------------------------------------
-  //  Validación de carga semanal — settings configurables, defaults 2-10h
+  //  Validación de carga semanal — settings configurables, defaults 2-10h.
+  //  La duración ya no es fija por nivel: cada slot trae su propio largo
+  //  (runs de celdas de 15 min), así que sumamos los minutos de cada clase.
   // -----------------------------------------------------------------------
   const { weeklyMinHours, weeklyMaxHours } = await getSettings(["weeklyMinHours", "weeklyMaxHours"])
-  const weeklyHours = (data.slots.length * classDuration) / 60
+  const weeklyHours = data.slots.reduce((acc, s) => acc + s.durationMinutes, 0) / 60
   if (weeklyHours < weeklyMinHours) {
     return {
       success: false,
@@ -124,7 +124,7 @@ export async function createClassGroup(input: NewClassGroupInput): Promise<Resul
     const slotsForValidation = data.slots.map((s) => ({
       dayOfWeek: s.dayOfWeek,
       startTime: s.startTime,
-      durationMinutes: classDuration,
+      durationMinutes: s.durationMinutes,
     }))
     const conflict = await validateTeacherForSlots({
       teacherId: data.teacherId,
@@ -187,7 +187,7 @@ export async function createClassGroup(input: NewClassGroupInput): Promise<Resul
           create: data.slots.map((s) => ({
             dayOfWeek: s.dayOfWeek,
             startTime: s.startTime,
-            durationMinutes: classDuration,
+            durationMinutes: s.durationMinutes,
           })),
         },
       },
